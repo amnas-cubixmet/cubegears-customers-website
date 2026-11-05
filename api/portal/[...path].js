@@ -23,7 +23,8 @@ export default async function handler(req, res) {
   } catch { return res.status(503).json({message:'Backend HTTPS URL is invalid.'}); }
   const headers = {
     'Accept': req.headers.accept || 'application/json',
-    'X-CG-Portal-Host':host,'X-CG-Portal-TS':ts,'X-CG-Portal-Sig':sig
+    'X-CG-Portal-Host':host,'X-CG-Portal-TS':ts,'X-CG-Portal-Sig':sig,
+    'X-CG-Portal-Client':String(req.headers['x-vercel-forwarded-for'] || req.headers['x-forwarded-for'] || req.socket?.remoteAddress || 'unknown').split(',')[0].trim().slice(0,64)
   };
   if (req.headers.cookie) headers.Cookie = req.headers.cookie;
   if (req.headers['x-cg-csrf']) headers['X-CG-CSRF'] = req.headers['x-cg-csrf'];
