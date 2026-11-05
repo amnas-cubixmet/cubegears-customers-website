@@ -20,6 +20,7 @@ export default defineConfig(({mode}) => {
             request.setHeader('X-CG-Portal-Host', host);
             request.setHeader('X-CG-Portal-TS', ts);
             request.setHeader('X-CG-Portal-Sig', sig);
+            request.setHeader('X-CG-Portal-Client', incoming.socket.remoteAddress || 'local');
             request.removeHeader('origin');
             request.removeHeader('referer');
           });
