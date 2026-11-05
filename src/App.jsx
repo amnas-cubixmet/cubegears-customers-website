@@ -45,16 +45,26 @@ function Timeline({job,t}){
 }
 function Dashboard({data,brand,t,lang}){
   const [selected,setSelected]=useState('all');
+  const [query,setQuery]=useState('');
+  const needle=query.trim().toLocaleLowerCase();
   const vehicles=data.vehicles||[];
   const allJobs=data.jobs||[];
-  const jobs=selected==='all'?allJobs:allJobs.filter(j=>j.vehicleId===selected);
+  const matchesJob=(j)=>!needle||[j.number,j.vehicleRegistration,j.vehicleModel,j.status]
+    .some(value=>String(value||'').toLocaleLowerCase().includes(needle));
+  const jobs=allJobs.filter(j=>(selected==='all'||j.vehicleId===selected)&&matchesJob(j));
+  const visibleVehicles=vehicles.filter(v=>(selected==='all'||v.id===selected)&&(
+    !needle||[v.registration,v.model,v.year].some(value=>String(value||'').toLocaleLowerCase().includes(needle))
+  ));
   const active=jobs.filter(j=>inProgress.has(j.status));
   const history=jobs.filter(j=>!inProgress.has(j.status));
   const photos=(data.photos||[]).filter(p=>selected==='all'||p.vehicleId===selected);
+  const matchingJobIds=new Set(jobs.map(j=>String(j.id)));
   const docs=[
     ...(data.estimates||[]).map(e=>({...e,key:'e-'+e.jobId+'-'+e.version,label:'Estimate v'+e.version})),
     ...(data.invoices||[]).map(i=>({...i,key:'i-'+i.number,label:i.number}))
-  ];
+  ].filter(d=>(selected==='all'&&!needle)||(
+    d.jobId && matchingJobIds.has(String(d.jobId))
+  ));
   return <main className="wrap dashboard">
     <div className="welcome"><div><span className="eyebrow">{niceDate(new Date().toISOString(),lang)}</span><h1>{t.welcome}, {data.customer?.name||t.portal}</h1><p>{t.greeting}</p></div><div className="privacy"><ShieldCheck size={19}/>{t.security}</div></div>
     <div className="stats">
@@ -62,8 +72,24 @@ function Dashboard({data,brand,t,lang}){
       <div className="stat"><Wrench size={24}/><div><strong>{allJobs.filter(j=>inProgress.has(j.status)).length}</strong><span>{t.active}</span></div></div>
       <div className="stat"><Clock3 size={24}/><div><strong>{allJobs.filter(j=>!inProgress.has(j.status)).length}</strong><span>{t.history}</span></div></div>
     </div>
-    <div className="filter"><h2>{t.vehicles}</h2><select value={selected} aria-label={t.vehicles} onChange={e=>setSelected(e.target.value)}><option value="all">{t.all}</option>{vehicles.map(v=><option value={v.id} key={v.id}>{v.registration} · {v.model}</option>)}</select></div>
-    <div className="vehicle-grid">{vehicles.filter(v=>selected==='all'||selected===v.id).map(v=><article className="vehicle" key={v.id}><div className="feature-icon"><CarFront size={27}/></div><div><strong>{v.registration}</strong><span>{v.model} {v.year||''}</span></div></article>)}{!vehicles.length&&<p className="blank">{t.noData}</p>}</div>
+    <div className="filter portal-filters">
+      <h2>{t.vehicles}</h2>
+      <label className="portal-filter-select">
+        <span>{t.filterVehicle}</span>
+        <select value={selected} aria-label={t.vehicles} onChange={e=>setSelected(e.target.value)}>
+          <option value="all">{t.all}</option>
+          {vehicles.map(v=><option value={v.id} key={v.id}>{v.registration} · {v.model}</option>)}
+        </select>
+      </label>
+      <label className="portal-filter-search">
+        <span>{t.searchRecords}</span>
+        <input type="search" value={query} maxLength={100} onChange={e=>setQuery(e.target.value)}
+          placeholder={t.searchPlaceholder} autoComplete="off" />
+      </label>
+      {(selected!=='all'||query)&&<button className="btn btn-outline" type="button"
+        onClick={()=>{setSelected('all');setQuery('');}}>{t.reset}</button>}
+    </div>
+    <div className="vehicle-grid">{visibleVehicles.map(v=><article className="vehicle" key={v.id}><div className="feature-icon"><CarFront size={27}/></div><div><strong>{v.registration}</strong><span>{v.model} {v.year||''}</span></div></article>)}{!visibleVehicles.length&&<p className="blank">{t.noData}</p>}</div>
     <div className="panel-grid">
       <section className="surface"><div className="section-head"><Wrench size={20}/><h2>{t.active}</h2><span>{active.length}</span></div>
         {active.map(job=><article className="job" key={job.id}><div className="job-top"><div><small>{job.number}</small><h3>{job.vehicleRegistration}</h3><p>{job.vehicleModel}</p></div><span className="tag">{t[job.stage]||job.status}</span></div><Timeline job={job} t={t}/><small className="date">{t.date}: {niceDate(job.createdAt,lang)}</small></article>)}
@@ -94,8 +120,17 @@ export default function App(){
   useEffect(()=>{
     let active=true;
     const path=window.location.pathname;
-    const token=path.startsWith('/access/')?decodeURIComponent(path.slice(8)):null;
-    if(token)window.history.replaceState({},'','/');
+    let token=null;
+    if(path.startsWith('/access/')){
+      try{token=decodeURIComponent(path.slice(8));}
+      catch{
+        window.history.replaceState({},'','/');
+        setErrorKind('invalid');
+        setState('error');
+        return undefined;
+      }
+      window.history.replaceState({},'','/');
+    }
     (async()=>{
       try{
         const brand=await portalApi.branding();
