@@ -26,7 +26,13 @@ Deploy this repository to Vercel as a Vite app. Build command: npm run build; ou
 
 Set CUBEGEARS_BACKEND_URL to an HTTPS Django backend and PORTAL_PROXY_SHARED_SECRET to the same secret used in Django. Do not use a VITE_ prefix for these secrets.
 
-Add workshop wildcard subdomains and verified custom domains to the one deployment. Complete actual DNS verification and SSL activation through the provider before marking a custom domain active. Add your CUSTOMER_PORTAL_ROOT_DOMAIN on the backend.
+Use one dedicated Vercel project for this repository; it must NOT be the Company Panel, backend, or public marketing website. The Django backend controls project-domain assignments with server-only VERCEL_CUSTOMER_DOMAIN_TOKEN, VERCEL_CUSTOMER_PROJECT_ID and VERCEL_CUSTOMER_TEAM_ID. Domain records must come from Vercel's live API, never hardcoded in the frontend.
+
+Add the `*.cubegears.com` wildcard to THIS project only if your actual DNS zone is delegated to Vercel nameservers. Changing nameservers must preserve MX/TXT/CAA and other existing records. Set CUSTOMER_PORTAL_ROOT_DOMAIN=cubegears.com on Django. Enable CUSTOMER_WEBSITE_LINKS_ENABLED=true only after the wildcard deployment and HTTPS are working. Existing staff panel links remain the fallback before this flag is enabled.
+
+Workshop admins use `/settings/customer-website/domains` in the Company Panel: add domain, select registrar, copy exact A/CNAME/TXT records returned by Django from Vercel, verify ownership, verify DNS, wait for valid HTTPS, then select the primary domain. DNS changes at GoDaddy/Cloudflare/Hostinger/Namecheap are manual; the API never silently changes external DNS. The hostname is resolved by Django from the signed request, not from browser parameters.
+
+Run `npm test` to validate signed custom-host routing and cross-origin protection.
 
 ## Backend contract
 
@@ -38,6 +44,6 @@ Add workshop wildcard subdomains and verified custom domains to the one deployme
 
 All customer endpoints must verify the proxy HMAC hostname, enforce rate limits and isolation, prevent session replay after link revocation, use Secure/SameSite cookies and no-store responses.
 
-### Not yet included
+### Activation safety
 
-Automatic Vercel domain ownership verification, custom-domain settings UI, SMTP/WhatsApp magic-link delivery, one-time-link issuance and payment balance summaries require additional backend and Company Panel integration. The website is NOT ready for live customer traffic until those are implemented and tested.
+No workshop hostname is served until its server-side domain record is approved and marked active after Vercel ownership, DNS and HTTPS checks. The default wildcard tenant host continues to resolve independently. Domain assignment and SSL checks do not automatically create or configure third-party DNS records. Do not expose the shared proxy secret or Vercel API token in any `VITE_` environment variable. Verify DNS, TLS, company isolation and a real customer magic link on staging before using production domains.
