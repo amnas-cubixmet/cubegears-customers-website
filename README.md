@@ -48,3 +48,20 @@ Add wildcard workshop subdomains and verified workshop custom domains to the **s
 ### Activation safety
 
 No workshop hostname is served until its server-side domain record is approved and marked active after Vercel ownership, DNS and HTTPS checks. The default wildcard tenant host continues to resolve independently. Domain assignment and SSL checks do not automatically create or configure third-party DNS records. Do not expose the shared proxy secret or Vercel API token in any `VITE_` environment variable. Verify DNS, TLS, company isolation and a real customer magic link on staging before using production domains.
+
+## Safe fictional demo data
+
+The separate routes `/demo` (sample public workshop website) and
+`/demo/portal` (sample customer tracking dashboard) display **fictional**
+vehicles, job cards, invoice/estimate figures and illustrative SVG vehicle pictures.
+
+- In local development, open `http://localhost:5174/demo`.
+- In production, set `CUBEGEARS_DEMO_ENABLED=true` on the **Customer Website Vercel project**
+  to opt into the demo routes. Without it, both demo pages return 404.
+- Every demo page displays a prominent **DEMO PREVIEW** notice. Example phone
+  numbers, real customer identities and real payment actions are not included.
+- Demo pages never call the Django customer API, never create customer sessions,
+  never alter stock/payments, and never expose existing customer records.
+- The normal `/` workshop homepage and `/access/<token>` customer website still
+  require authentic Django data and are unaffected.
+- To disable the demonstration, remove the environment flag and redeploy.
