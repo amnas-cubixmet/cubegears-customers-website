@@ -2,6 +2,7 @@
 import {useEffect,useMemo,useState} from 'react';
 import {ArrowRight,Camera,CarFront,CheckCircle2,Clock3,FileText,Globe2,LogOut,MapPin,Phone,ShieldCheck,Wrench} from 'lucide-react';
 import {portalApi} from './api';
+import {demoBranding,demoSession} from './demoData';
 import {copy,stages,inProgress,niceDate,rupees,cleanPhone} from './i18n';
 
 function Contacts({brand,t}){
@@ -12,9 +13,9 @@ function Contacts({brand,t}){
     {wa&&<a className="btn btn-outline" href={'https://wa.me/'+wa} rel="noreferrer noopener" target="_blank">{t.whatsapp}<ArrowRight size={16}/></a>}
   </div>;
 }
-function Header({brand,lang,setLang,logout,authenticated,t}){
+function Header({brand,lang,setLang,logout,authenticated,t,demoMode=false}){
   return <header className="header"><div className="wrap nav">
-    <a href="/" className="brand">
+    <a href={demoMode ? "/demo" : "/"} className="brand">
       {brand?.hasLogo?<img alt="" src={portalApi.logoUrl}/>:<span className="brand-icon"><Wrench size={23}/></span>}
       <span className="brand-name"><strong>{brand?.publicName||brand?.name||'CubeGears'}</strong><small>{t.portal}</small></span>
     </a>
@@ -24,12 +25,13 @@ function Header({brand,lang,setLang,logout,authenticated,t}){
     </div>
   </div></header>;
 }
-function PublicPage({brand,t}){
+function PublicPage({brand,t,demoMode=false}){
   return <main className="wrap">
     <section className="hero">
       <div className="hero-text"><span className="topline"><span className="indicator"/>{t.label}</span>
         <h1>{brand?.welcomeMessage||t.welcome+' '+(brand?.publicName||brand?.name||'CubeGears')}</h1>
         <p>{brand?.description||t.greeting}</p><Contacts brand={brand} t={t}/>
+        {demoMode&&<a className="btn btn-solid demo-hero-action" href="/demo/portal">Explore Demo Customer Tracking <ArrowRight size={16}/></a>}
         <div className="safety"><ShieldCheck size={21}/>{t.safe}</div>
       </div>
       <div className="hero-graphic" aria-hidden="true"><div className="circle circle-a"/><div className="circle circle-b"/><div className="car-graphic"><CarFront size={122} strokeWidth={1.1}/></div><div className="graphic-card"><CheckCircle2 size={19}/>Service tracking</div></div>
@@ -101,7 +103,7 @@ function Dashboard({data,brand,t,lang}){
         {!history.length&&<p className="muted">{t.noData}</p>}
       </section>
       <section className="surface"><div className="section-head"><Camera size={20}/><h2>{t.photos}</h2></div><p className="muted micro">{t.onlyPublished}</p>
-        {photos.length?<div className="photo-grid">{photos.map(p=><figure key={p.id}><img loading="lazy" alt={p.caption||p.category} src={portalApi.photoUrl(p.id)}/><figcaption><strong>{p.caption||p.category}</strong><small>{p.phase} · {niceDate(p.capturedAt,lang)}</small></figcaption></figure>)}</div>:<p className="blank">{t.nonePhotos}</p>}
+        {photos.length?<div className="photo-grid">{photos.map(p=><figure key={p.id}><img loading="lazy" alt={p.caption||p.category} src={p.demoImage || portalApi.photoUrl(p.id)}/><figcaption><strong>{p.caption||p.category}</strong><small>{p.phase} · {niceDate(p.capturedAt,lang)}</small></figcaption></figure>)}</div>:<p className="blank">{t.nonePhotos}</p>}
       </section>
       <section className="surface"><div className="section-head"><FileText size={20}/><h2>{t.documents}</h2></div>
         {docs.map(d=><div className="document" key={d.key}><div><strong>{d.label}</strong><small>{d.status}</small></div><b>{rupees(d.total)}</b></div>)}{!docs.length&&<p className="muted">{t.noData}</p>}
@@ -110,15 +112,16 @@ function Dashboard({data,brand,t,lang}){
     </div>
   </main>;
 }
-export default function App(){
+export default function App({demoMode=false,demoView='public'}){
   const [lang,setLanguage]=useState(() => typeof window !== 'undefined' && window.localStorage.getItem('cubegears:portal-language') === 'ml' ? 'ml' : 'en');
-  const [branding,setBranding]=useState(null);
-  const [data,setData]=useState(null);
-  const [state,setState]=useState('loading');
+  const [branding,setBranding]=useState(demoMode ? demoBranding : null);
+  const [data,setData]=useState(demoMode ? demoSession : null);
+  const [state,setState]=useState(demoMode ? (demoView === 'portal' ? 'dashboard' : 'public') : 'loading');
   const [errorKind,setErrorKind]=useState('unavailable');
   const t=useMemo(()=>copy[lang],[lang]);
   function setLang(next){setLanguage(next);localStorage.setItem('cubegears:portal-language',next);}
   useEffect(()=>{
+    if(demoMode){document.title='CubeGears Demo Garage | DEMO PREVIEW';return undefined;}
     let active=true;
     const path=window.location.pathname;
     let token=null;
@@ -148,14 +151,15 @@ export default function App(){
       }catch(e){if(active){setErrorKind(token&&[403,404].includes(e.status)?'invalid':'unavailable');setState('error');}}
     })();
     return()=>{active=false;};
-  },[]);
+  },[demoMode]);
   async function logout(){try{await portalApi.logout();setData(null);setState('public');}catch{setErrorKind('unavailable');setState('error');}}
   const theme=branding?{'--accent':branding.primaryColor||'#116f69','--accent-soft':branding.secondaryColor||'#e4f2ec'}:{};
   return <div className="app" lang={lang} style={theme}>
-    <Header brand={branding} lang={lang} setLang={setLang} logout={logout} authenticated={state==='dashboard'} t={t}/>
+    <Header brand={branding} lang={lang} setLang={setLang} logout={logout} authenticated={state==='dashboard'&&!demoMode} t={t} demoMode={demoMode}/>
+    {demoMode&&<div className="demo-banner" role="note"><div className="wrap demo-banner-content"><span><strong>DEMO PREVIEW</strong> — Fictional workshop and customer records. Not linked to real data.</span><a href={demoView==='portal'?'/demo':'/demo/portal'}>{demoView==='portal'?'View Workshop Website':'View Customer Tracking'} <ArrowRight size={15}/></a></div></div>}
     {['loading','signing'].includes(state)&&<main className="wrap center" role="status"><div className="spinner"/><h1>{state==='signing'?t.signing:t.loading}</h1></main>}
     {state==='error'&&<main className="wrap center" role="alert"><ShieldCheck size={43}/><h1>{t[errorKind]}</h1><p>{t.accessNote}</p><button className="btn btn-outline" onClick={()=>window.location.reload()}>{t.retry}<ArrowRight size={16}/></button></main>}
-    {state==='public'&&<PublicPage brand={branding} t={t}/>}
+    {state==='public'&&<PublicPage brand={branding} t={t} demoMode={demoMode}/>}
     {state==='dashboard'&&data&&<Dashboard data={data} brand={branding} t={t} lang={lang}/>}
     <footer className="footer"><div className="wrap"><span>{branding?.publicName||branding?.name||'CubeGears'}</span><span><ShieldCheck size={16}/>{t.footer}</span></div></footer>
   </div>;
