@@ -20,5 +20,5 @@ jobs:
       - run: npm install --no-audit --no-fund
       - run: npm test
       - run: npm run build
-      - name: Confirm production artifact
-        run: test -f dist/index.html
+      - name: Confirm Next.js production artifact
+        run: test -f .next/BUILD_ID
