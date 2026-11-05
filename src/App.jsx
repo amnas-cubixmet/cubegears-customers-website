@@ -1,3 +1,4 @@
+'use client';
 import {useEffect,useMemo,useState} from 'react';
 import {ArrowRight,Camera,CarFront,CheckCircle2,Clock3,FileText,Globe2,LogOut,MapPin,Phone,ShieldCheck,Wrench} from 'lucide-react';
 import {portalApi} from './api';
@@ -110,7 +111,7 @@ function Dashboard({data,brand,t,lang}){
   </main>;
 }
 export default function App(){
-  const [lang,setLanguage]=useState(()=>localStorage.getItem('cubegears:portal-language')==='ml'?'ml':'en');
+  const [lang,setLanguage]=useState(() => typeof window !== 'undefined' && window.localStorage.getItem('cubegears:portal-language') === 'ml' ? 'ml' : 'en');
   const [branding,setBranding]=useState(null);
   const [data,setData]=useState(null);
   const [state,setState]=useState('loading');
