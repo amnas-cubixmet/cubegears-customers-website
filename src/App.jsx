@@ -31,7 +31,7 @@ function PublicPage({brand,t,demoMode=false}){
       <div className="hero-text"><span className="topline"><span className="indicator"/>{t.label}</span>
         <h1>{brand?.welcomeMessage||t.welcome+' '+(brand?.publicName||brand?.name||'CubeGears')}</h1>
         <p>{brand?.description||t.greeting}</p><Contacts brand={brand} t={t}/>
-        {demoMode&&<a className="btn btn-solid demo-hero-action" href="/demo/portal">Explore Demo Customer Tracking <ArrowRight size={16}/></a>}
+        {demoMode&&<a className="btn btn-solid demo-hero-action" href="/demo/portal">{t.demoExplore} <ArrowRight size={16}/></a>}
         <div className="safety"><ShieldCheck size={21}/>{t.safe}</div>
       </div>
       <div className="hero-graphic" aria-hidden="true"><div className="circle circle-a"/><div className="circle circle-b"/><div className="car-graphic"><CarFront size={122} strokeWidth={1.1}/></div><div className="graphic-card"><CheckCircle2 size={19}/>Service tracking</div></div>
@@ -156,7 +156,7 @@ export default function App({demoMode=false,demoView='public'}){
   const theme=branding?{'--accent':branding.primaryColor||'#116f69','--accent-soft':branding.secondaryColor||'#e4f2ec'}:{};
   return <div className="app" lang={lang} style={theme}>
     <Header brand={branding} lang={lang} setLang={setLang} logout={logout} authenticated={state==='dashboard'&&!demoMode} t={t} demoMode={demoMode}/>
-    {demoMode&&<div className="demo-banner" role="note"><div className="wrap demo-banner-content"><span><strong>DEMO PREVIEW</strong> — Fictional workshop and customer records. Not linked to real data.</span><a href={demoView==='portal'?'/demo':'/demo/portal'}>{demoView==='portal'?'View Workshop Website':'View Customer Tracking'} <ArrowRight size={15}/></a></div></div>}
+    {demoMode&&<div className="demo-banner" role="note"><div className="wrap demo-banner-content"><span><strong>{t.demoLabel}</strong> — {t.demoNotice}</span><a href={demoView==='portal'?'/demo':'/demo/portal'}>{demoView==='portal'?t.demoWorkshop:t.demoTrack} <ArrowRight size={15}/></a></div></div>}
     {['loading','signing'].includes(state)&&<main className="wrap center" role="status"><div className="spinner"/><h1>{state==='signing'?t.signing:t.loading}</h1></main>}
     {state==='error'&&<main className="wrap center" role="alert"><ShieldCheck size={43}/><h1>{t[errorKind]}</h1><p>{t.accessNote}</p><button className="btn btn-outline" onClick={()=>window.location.reload()}>{t.retry}<ArrowRight size={16}/></button></main>}
     {state==='public'&&<PublicPage brand={branding} t={t} demoMode={demoMode}/>}
