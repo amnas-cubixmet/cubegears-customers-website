@@ -25,7 +25,13 @@ The public homepage must render under `/`. Private links are under `/access/<tok
 
 ## Production (Vercel)
 
-Deploy **this repository** as a Next.js project using the built-in **Next.js framework preset**; no `dist` output directory or Vite rewrite is needed.
+Use one dedicated Vercel project for this repository; it must NOT be the Company Panel, backend, or public marketing website. The Django backend controls project-domain assignments with server-only VERCEL_CUSTOMER_DOMAIN_TOKEN, VERCEL_CUSTOMER_PROJECT_ID and VERCEL_CUSTOMER_TEAM_ID. Domain records must come from Vercel's live API, never hardcoded in the frontend.
+
+Add the `*.cubegears.com` wildcard to THIS project only if your actual DNS zone is delegated to Vercel nameservers. Changing nameservers must preserve MX/TXT/CAA and other existing records. Set CUSTOMER_PORTAL_ROOT_DOMAIN=cubegears.com on Django. Enable CUSTOMER_WEBSITE_LINKS_ENABLED=true only after the wildcard deployment and HTTPS are working. Existing staff panel links remain the fallback before this flag is enabled.
+
+Workshop admins use `/settings/customer-website/domains` in the Company Panel: add domain, select registrar, copy exact A/CNAME/TXT records returned by Django from Vercel, verify ownership, verify DNS, wait for valid HTTPS, then select the primary domain. DNS changes at GoDaddy/Cloudflare/Hostinger/Namecheap are manual; the API never silently changes external DNS. The hostname is resolved by Django from the signed request, not from browser parameters.
+
+Run `npm test` to validate signed custom-host routing and cross-origin protection.
 
 Set production runtime secrets:
 - `CUBEGEARS_BACKEND_URL=https://<your HTTPS Django API host>`
@@ -39,20 +45,6 @@ On Django:
 
 Add wildcard workshop subdomains and verified workshop custom domains to the **same customer website deployment**. Use the **Company Panel → Customer Website → Domains** flow to request, verify and select the primary custom domain; do not invent DNS verification, SSL status or record values.
 
-## Backend API contract
+### Activation safety
 
-- `GET /api/v1/customer-website/branding` — per-host public branding and CSRF cookie.
-- `POST /api/v1/customer-website/session` with token — customer-bound HttpOnly browser session.
-- `GET /api/v1/customer-website/session` — only this customer's vehicle, job, invoice, approved estimate and intentionally published photo data.
-- `POST /api/v1/customer-website/logout` — close session.
-- `GET /api/v1/customer-website/logo`, `/photos/{id}` — allowed tenant media.
-
-No public customer lookup, customer IDs or admin credentials are exposed. Hostnames are authenticated by the server BFF, then checked by Django against active and verified domains.
-
-## Verification
-
-Run `npm test` and `npm run build`; GitHub Actions checks `.next/BUILD_ID`.
-
-Verify workshop root and customer access routes on your actual deployed domain, including HTTPS, DNS verification, session cookies, tenant isolation, mobile layout, Malayalam/English toggle and link revocation.
-
-**Deployment and domain activation require configured credentials and real Vercel/DNS confirmation; a GitHub commit alone does not activate a live custom domain.**
+No workshop hostname is served until its server-side domain record is approved and marked active after Vercel ownership, DNS and HTTPS checks. The default wildcard tenant host continues to resolve independently. Domain assignment and SSL checks do not automatically create or configure third-party DNS records. Do not expose the shared proxy secret or Vercel API token in any `VITE_` environment variable. Verify DNS, TLS, company isolation and a real customer magic link on staging before using production domains.
