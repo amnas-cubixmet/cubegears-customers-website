@@ -17,6 +17,8 @@ export const copy = {
     ready:'Ready for delivery', delivered:'Delivered', step:'Service Progress',
     onlyPublished:'Only photos intentionally shared by the workshop will appear here.',
     status:'Status', security:'Your customer session is protected by secure browser cookies.',
+    demoLabel:'DEMO PREVIEW', demoNotice:'Fictional workshop and customer records. Not linked to real data.',
+    demoExplore:'Explore Demo Customer Tracking', demoTrack:'View Customer Tracking', demoWorkshop:'View Workshop Website',
     footer:'Powered by CubeGears'
   },
   ml:{
@@ -38,6 +40,8 @@ export const copy = {
     ready:'ഡെലിവറിക്ക് തയ്യാറായി', delivered:'കൈമാറി', step:'സർവീസ് പുരോഗതി',
     onlyPublished:'വർക്ക്‌ഷോപ്പ് പ്രസിദ്ധീകരിച്ച ഫോട്ടോകൾ മാത്രമാണ് കാണിക്കുന്നത്.',
     status:'നില', security:'സുരക്ഷിത ബ്രൗസർ കുക്കി ഉപയോഗിച്ചാണ് കസ്റ്റമർ സെഷൻ പ്രവർത്തിക്കുന്നത്.',
+    demoLabel:'ഡെമോ പ്രിവ്യൂ', demoNotice:'ഇത് ഉദാഹരണത്തിനായുള്ള വിവരങ്ങളാണ്. യഥാർത്ഥ കസ്റ്റമർ വിവരങ്ങളല്ല.',
+    demoExplore:'ഡെമോ കസ്റ്റമർ ട്രാക്കിംഗ് കാണുക', demoTrack:'കസ്റ്റമർ ട്രാക്കിംഗ്', demoWorkshop:'വർക്ക്‌ഷോപ്പ് വെബ്സൈറ്റ്',
     footer:'CubeGears'
   }
 };
