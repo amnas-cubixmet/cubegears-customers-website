@@ -18,7 +18,7 @@ function Header({brand,lang,setLang,logout,authenticated,t,demoMode=false}){
   return <header className="header"><div className="wrap nav">
     <a href={demoMode ? "/demo" : "/"} className="brand">
       {brand?.hasLogo?<img alt="" src={portalApi.logoUrl}/>:<span className="brand-icon"><Wrench size={23}/></span>}
-      <span className="brand-name"><strong>{brand?.publicName||brand?.name||'CubixGear'}</strong><small>{t.portal}</small></span>
+      <span className="brand-name"><strong>{brand?.publicName||brand?.name||'cubixgear'}</strong><small>{t.portal}</small></span>
     </a>
     <div className="nav-actions">
       <label className="lang"><Globe2 size={17}/><select aria-label="Language" value={lang} onChange={e=>setLang(e.target.value)}><option value="en">English</option><option value="ml">മലയാളം</option></select></label>
@@ -30,7 +30,7 @@ function PublicPage({brand,t,demoMode=false}){
   return <main className="wrap">
     <section className="hero">
       <div className="hero-text"><span className="topline"><span className="indicator"/>{t.label}</span>
-        <h1>{brand?.welcomeMessage||t.welcome+' '+(brand?.publicName||brand?.name||'CubixGear')}</h1>
+        <h1>{brand?.welcomeMessage||t.welcome+' '+(brand?.publicName||brand?.name||'cubixgear')}</h1>
         <p>{brand?.description||t.greeting}</p><Contacts brand={brand} t={t}/>
         {demoMode&&<a className="btn btn-solid demo-hero-action" href="/demo/portal">{t.demoExplore} <ArrowRight size={16}/></a>}
         <div className="safety"><ShieldCheck size={21}/>{t.safe}</div>
@@ -276,7 +276,7 @@ export default function App({demoMode=false,demoView='public'}){
   const t=useMemo(()=>copy[lang],[lang]);
   function setLang(next){setLanguage(next);localStorage.setItem('cubegears:portal-language',next);}
   useEffect(()=>{
-    if(demoMode){document.title='CubixGear Demo Garage | DEMO PREVIEW';return undefined;}
+    if(demoMode){document.title='cubixgear Demo Garage | DEMO PREVIEW';return undefined;}
     let active=true;
     const path=window.location.pathname;
     let token=null;
@@ -355,6 +355,6 @@ export default function App({demoMode=false,demoView='public'}){
       onRefresh={refresh} refreshing={refreshing} refreshError={refreshError} lastRefreshed={lastRefreshed}
       onEstimateDecision={decideEstimate} decisionBusy={decisionBusy} decisionError={decisionError}
       decisionNotice={decisionNotice} demoMode={demoMode}/>}
-    <footer className="footer"><div className="wrap"><span>{branding?.publicName||branding?.name||'CubixGear'}</span><span><ShieldCheck size={16}/>{t.footer}</span></div></footer>
+    <footer className="footer"><div className="wrap"><span>{branding?.publicName||branding?.name||'cubixgear'}</span><span><ShieldCheck size={16}/>{t.footer}</span></div></footer>
   </div>;
 }
