@@ -19,6 +19,11 @@ export const copy = {
     status:'Status', security:'Your customer session is protected by secure browser cookies.',
     demoLabel:'DEMO PREVIEW', demoNotice:'Fictional workshop and customer records. Not linked to real data.',
     demoExplore:'Explore Demo Customer Tracking', demoTrack:'View Customer Tracking', demoWorkshop:'View Workshop Website',
+    refresh:'Refresh records', refreshing:'Refreshing…', refreshFailed:'Could not refresh. Your previous records remain visible.',
+    lastChecked:'Last checked', outstanding:'Balance Due', paidAmount:'Amount paid', balanceDue:'Balance due',
+    invoiceOverview:'Invoice summary', invoiced:'Total invoiced', estimate:'Estimate',
+    paidStatus:'Paid', partialStatus:'Partially paid', unpaidStatus:'Unpaid', approvedStatus:'Approved',
+    balanceNote:'Figures are from finalized invoices recorded by the workshop. Payments cannot be made on this page.',
     footer:'Powered by CubeGears'
   },
   ml:{
@@ -42,6 +47,11 @@ export const copy = {
     status:'നില', security:'സുരക്ഷിത ബ്രൗസർ കുക്കി ഉപയോഗിച്ചാണ് കസ്റ്റമർ സെഷൻ പ്രവർത്തിക്കുന്നത്.',
     demoLabel:'ഡെമോ പ്രിവ്യൂ', demoNotice:'ഇത് ഉദാഹരണത്തിനായുള്ള വിവരങ്ങളാണ്. യഥാർത്ഥ കസ്റ്റമർ വിവരങ്ങളല്ല.',
     demoExplore:'ഡെമോ കസ്റ്റമർ ട്രാക്കിംഗ് കാണുക', demoTrack:'കസ്റ്റമർ ട്രാക്കിംഗ്', demoWorkshop:'വർക്ക്‌ഷോപ്പ് വെബ്സൈറ്റ്',
+    refresh:'വിവരങ്ങൾ പുതുക്കുക', refreshing:'പുതുക്കുന്നു…', refreshFailed:'വിവരങ്ങൾ പുതുക്കാൻ കഴിഞ്ഞില്ല. പഴയ വിവരങ്ങൾ കാണാം.',
+    lastChecked:'അവസാനം പരിശോധിച്ചത്', outstanding:'അടയ്ക്കാനുള്ള തുക', paidAmount:'അടച്ച തുക', balanceDue:'ബാക്കി തുക',
+    invoiceOverview:'ഇൻവോയ്സ് സംഗ്രഹം', invoiced:'ആകെ ബിൽ തുക', estimate:'എസ്റ്റിമേറ്റ്',
+    paidStatus:'അടച്ചു', partialStatus:'ഭാഗികമായി അടച്ചു', unpaidStatus:'അടച്ചിട്ടില്ല', approvedStatus:'അംഗീകരിച്ചു',
+    balanceNote:'വർക്ക്‌ഷോപ്പ് ഫൈനലൈസ് ചെയ്ത ഇൻവോയ്സുകളിൽ നിന്നുള്ള കണക്കുകളാണിവ. ഇവിടെ പണമടയ്ക്കാനാകില്ല.',
     footer:'CubeGears'
   }
 };
