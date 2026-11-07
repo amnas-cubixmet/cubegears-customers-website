@@ -11,7 +11,7 @@ test('customer decisions are only offered on latest staff-shared estimate', () =
   assert.match(app, /d\.status==='Awaiting Customer'/);
   assert.match(app, /latestQuoteVersions\.get/);
   assert.match(app, /d\.id/);
-  assert.match(app, /portalApi\.decideEstimate\(estimate\.id,estimate\.version,decision\)/);
+  assert.match(app, /portalApi\.decideEstimate\(estimate\.id,estimate\.version,decision,estimate\.reviewHash\)/);
   assert.match(app, /await portalApi\.session\(\)/);
   assert.match(app, /window\.confirm\(message\)/);
   assert.match(app, /demoMode\|\|decisionBusy/);

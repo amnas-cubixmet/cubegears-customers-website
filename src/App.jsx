@@ -50,6 +50,7 @@ function Timeline({job,t}){
 function Dashboard({data,brand,t,lang,onRefresh,refreshing,refreshError,lastRefreshed,onEstimateDecision,decisionBusy,decisionError,decisionNotice,demoMode}){
   const [selected,setSelected]=useState('all');
   const [query,setQuery]=useState('');
+  const [reviewedQuotes,setReviewedQuotes]=useState(()=>new Set());
   const needle=query.trim().toLocaleLowerCase();
   const vehicles=data.vehicles||[];
   const allJobs=data.jobs||[];
@@ -137,17 +138,69 @@ function Dashboard({data,brand,t,lang,onRefresh,refreshing,refreshError,lastRefr
           )}</small>
           {d.docKind==='invoice'&&<small>{t.paidAmount}: {rupees(d.paid)} · {t.balanceDue}: {rupees(d.balance)}</small>}
           {d.docKind==='estimate'&&d.status==='Customer Approved'&&<small>{t.awaitingWorkshopConfirmation}</small>}
-          {d.docKind==='estimate'&&d.status==='Awaiting Customer'&&d.id&&
+          {d.docKind==='estimate'&&d.decisionReceipt?.id&&
+            <div className="portal-quote-receipt" role="status">
+              <strong>{t.decisionReceipt}</strong>
+              <span>{t.receiptReference}: {d.decisionReceipt.id}</span>
+              <span>{t.decisionDate}: {d.decisionReceipt.respondedAt
+                ?new Date(d.decisionReceipt.respondedAt).toLocaleString(lang==='ml'?'ml-IN':'en-IN')
+                :'—'}</span>
+            </div>}
+          {d.docKind==='estimate'&&d.reviewable&&Array.isArray(d.lines)&&d.lines.length>0&&
+            <div className="portal-quote-breakdown">
+              <h4>{t.quoteBreakdown}</h4>
+              <div className="portal-quote-table-wrap">
+                <table className="portal-quote-table">
+                  <thead><tr>
+                    <th scope="col">{t.quoteItem}</th><th scope="col">{t.quantity}</th>
+                    <th scope="col">{t.unitPrice}</th><th scope="col">{t.lineTotal}</th>
+                  </tr></thead>
+                  <tbody>{d.lines.map((line,index)=><tr key={index}>
+                    <td><strong>{line.description}</strong><small>{t['type'+line.type]||line.type}
+                      {line.hsnSac?' · HSN/SAC '+line.hsnSac:''}
+                      {line.taxRate!==undefined?' · GST '+line.taxRate+'%':''}</small></td>
+                    <td>{line.quantity}</td><td>{rupees(line.unitPrice)}</td>
+                    <td>{rupees(line.total)}</td>
+                  </tr>)}</tbody>
+                </table>
+              </div>
+              <dl className="portal-quote-totals">
+                <div><dt>{t.subtotal}</dt><dd>{rupees(d.subtotal)}</dd></div>
+                <div><dt>{t.discount}</dt><dd>− {rupees(d.discount)}</dd></div>
+                {d.gst&&<>
+                  <div><dt>CGST</dt><dd>{rupees(d.gst.cgst)}</dd></div>
+                  <div><dt>SGST</dt><dd>{rupees(d.gst.sgst)}</dd></div>
+                  <div><dt>IGST</dt><dd>{rupees(d.gst.igst)}</dd></div>
+                </>}
+                <div><dt>{t.tax}</dt><dd>{rupees(d.tax)}</dd></div>
+                <div className="portal-quote-total"><dt>{t.grandTotal}</dt><dd>{rupees(d.total)}</dd></div>
+              </dl>
+              {d.status==='Awaiting Customer'&&
+                <label className="portal-quote-confirm">
+                  <input type="checkbox"
+                    checked={reviewedQuotes.has(d.id+':'+d.reviewHash)}
+                    onChange={event=>setReviewedQuotes(current=>{
+                      const next=new Set(current);
+                      const key=d.id+':'+d.reviewHash;
+                      if(event.target.checked)next.add(key);else next.delete(key);
+                      return next;
+                    })}
+                  />
+                  <span>{t.reviewConfirm}</span>
+                </label>}
+            </div>}
+          {d.docKind==='estimate'&&!d.reviewable&&<p className="portal-quote-unavailable">{t.quoteUnavailable}</p>}
+          {d.docKind==='estimate'&&d.status==='Awaiting Customer'&&d.reviewable&&d.reviewHash&&d.id&&
              Number(d.version)===latestQuoteVersions.get(String(d.jobId||''))&&
              <div className="portal-estimate-actions">
                <p>{t.reviewNote}</p>
                <button type="button" className="btn btn-solid"
-                 disabled={!!decisionBusy||demoMode}
+                 disabled={!!decisionBusy||demoMode||!reviewedQuotes.has(d.id+':'+d.reviewHash)}
                  onClick={()=>onEstimateDecision?.(d,'accept')}>
                  <CheckCircle2 size={16}/>{decisionBusy===d.id?t.submitting:t.acceptEstimate}
                </button>
                <button type="button" className="btn btn-outline"
-                 disabled={!!decisionBusy||demoMode}
+                 disabled={!!decisionBusy||demoMode||!reviewedQuotes.has(d.id+':'+d.reviewHash)}
                  onClick={()=>onEstimateDecision?.(d,'decline')}>{t.declineEstimate}</button>
              </div>}
         </div><b>{rupees(d.total)}</b></div>)}{!docs.length&&<p className="muted">{t.noData}</p>}
@@ -233,7 +286,7 @@ export default function App({demoMode=false,demoView='public'}){
     setDecisionError('');
     setDecisionNotice('');
     try{
-      await portalApi.decideEstimate(estimate.id,estimate.version,decision);
+      await portalApi.decideEstimate(estimate.id,estimate.version,decision,estimate.reviewHash);
       const latest=await portalApi.session();
       if(!latest.customer)throw new Error('Customer session required.');
       setData(latest);

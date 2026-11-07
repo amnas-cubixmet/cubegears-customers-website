@@ -34,6 +34,14 @@ export const copy = {
     declinedNotice:'Your response has been recorded. Please contact the workshop to discuss revisions.',
     quoteChanged:'This estimate changed or is no longer available. Refresh your records.',
     decisionFailed:'Could not save your decision. Please try again.',
+    quoteBreakdown:'Estimate item details', quoteItem:'Work / part', quantity:'Qty',
+    unitPrice:'Unit price', lineTotal:'Line total', subtotal:'Subtotal',
+    discount:'Discount', tax:'Total tax', grandTotal:'Grand total',
+    typePart:'Spare part', typeLabour:'Labour', typeService:'Service', typeOther:'Other',
+    reviewConfirm:'I reviewed the items, quantities, taxes and total for this exact estimate version.',
+    quoteUnavailable:'This estimate needs a corrected itemized breakdown from the workshop before you can respond.',
+    decisionReceipt:'Customer decision record', receiptReference:'Receipt ID',
+    decisionDate:'Decision recorded at',
     footer:'Powered by CubeGears'
   },
   ml:{
@@ -72,6 +80,15 @@ export const copy = {
     declinedNotice:'നിങ്ങളുടെ തീരുമാനം രേഖപ്പെടുത്തി. മാറ്റങ്ങൾക്കായി വർക്ക്‌ഷോപ്പുമായി ബന്ധപ്പെടുക.',
     quoteChanged:'ഈ എസ്റ്റിമേറ്റ് മാറിയിരിക്കാം. വിവരങ്ങൾ പുതുക്കുക.',
     decisionFailed:'തീരുമാനം സേവ് ചെയ്യാൻ കഴിഞ്ഞില്ല. വീണ്ടും ശ്രമിക്കുക.',
+    quoteBreakdown:'എസ്റ്റിമേറ്റ് ഇനം തിരിച്ചുള്ള വിവരങ്ങൾ', quoteItem:'ജോലി / സ്പെയർ പാർട്ട്',
+    quantity:'എണ്ണം', unitPrice:'യൂണിറ്റ് വില', lineTotal:'ഇനം തുക',
+    subtotal:'ഉപമൊത്തം', discount:'ഡിസ്കൗണ്ട്', tax:'ആകെ നികുതി',
+    grandTotal:'മൊത്തം തുക', typePart:'സ്പെയർ പാർട്ട്', typeLabour:'ലേബർ',
+    typeService:'സർവീസ്', typeOther:'മറ്റുള്ളവ',
+    reviewConfirm:'ഈ എസ്റ്റിമേറ്റിന്റെ ഇനങ്ങൾ, അളവുകൾ, നികുതി, ആകെ തുക എന്നിവ ഞാൻ പരിശോധിച്ചു.',
+    quoteUnavailable:'ഈ എസ്റ്റിമേറ്റ് അംഗീകരിക്കാൻ ഇനം തിരിച്ചുള്ള ശരിയായ വിവരങ്ങൾ വർക്ക്‌ഷോപ്പ് പുതുക്കണം.',
+    decisionReceipt:'കസ്റ്റമർ തീരുമാന രേഖ', receiptReference:'രസീത് ID',
+    decisionDate:'തീരുമാനം രേഖപ്പെടുത്തിയ സമയം',
     footer:'CubeGears'
   }
 };
