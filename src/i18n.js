@@ -24,6 +24,16 @@ export const copy = {
     invoiceOverview:'Invoice summary', invoiced:'Total invoiced', estimate:'Estimate',
     paidStatus:'Paid', partialStatus:'Partially paid', unpaidStatus:'Unpaid', approvedStatus:'Approved',
     balanceNote:'Figures are from finalized invoices recorded by the workshop. Payments cannot be made on this page.',
+    awaitingReview:'Awaiting your decision', customerAccepted:'Accepted by customer',
+    customerDeclined:'Declined by customer', awaitingWorkshopConfirmation:'Workshop will confirm the next step.',
+    reviewNote:'Review the exact estimate version and amount before deciding. Your response is recorded for the workshop.',
+    acceptEstimate:'Accept estimate', declineEstimate:'Decline estimate', submitting:'Submitting…',
+    confirmAccept:'Accept estimate V{version} for {total}? This records your decision for the workshop.',
+    confirmDecline:'Decline estimate V{version} for {total}? The workshop may send a revised estimate.',
+    acceptedNotice:'Your acceptance has been recorded. The workshop will confirm the next step.',
+    declinedNotice:'Your response has been recorded. Please contact the workshop to discuss revisions.',
+    quoteChanged:'This estimate changed or is no longer available. Refresh your records.',
+    decisionFailed:'Could not save your decision. Please try again.',
     footer:'Powered by CubeGears'
   },
   ml:{
@@ -52,6 +62,16 @@ export const copy = {
     invoiceOverview:'ഇൻവോയ്സ് സംഗ്രഹം', invoiced:'ആകെ ബിൽ തുക', estimate:'എസ്റ്റിമേറ്റ്',
     paidStatus:'അടച്ചു', partialStatus:'ഭാഗികമായി അടച്ചു', unpaidStatus:'അടച്ചിട്ടില്ല', approvedStatus:'അംഗീകരിച്ചു',
     balanceNote:'വർക്ക്‌ഷോപ്പ് ഫൈനലൈസ് ചെയ്ത ഇൻവോയ്സുകളിൽ നിന്നുള്ള കണക്കുകളാണിവ. ഇവിടെ പണമടയ്ക്കാനാകില്ല.',
+    awaitingReview:'നിങ്ങളുടെ തീരുമാനത്തിനായി കാത്തിരിക്കുന്നു', customerAccepted:'കസ്റ്റമർ അംഗീകരിച്ചു',
+    customerDeclined:'കസ്റ്റമർ നിരസിച്ചു', awaitingWorkshopConfirmation:'അടുത്ത ഘട്ടം വർക്ക്‌ഷോപ്പ് സ്ഥിരീകരിക്കും.',
+    reviewNote:'ഈ എസ്റ്റിമേറ്റിന്റെ വേർഷനും തുകയും പരിശോധിക്കുക. നിങ്ങളുടെ തീരുമാനം വർക്ക്‌ഷോപ്പിൽ രേഖപ്പെടുത്തും.',
+    acceptEstimate:'എസ്റ്റിമേറ്റ് അംഗീകരിക്കുക', declineEstimate:'എസ്റ്റിമേറ്റ് നിരസിക്കുക', submitting:'സമർപ്പിക്കുന്നു…',
+    confirmAccept:'{total} തുകയുള്ള എസ്റ്റിമേറ്റ് V{version} അംഗീകരിക്കണോ? തീരുമാനം രേഖപ്പെടുത്തും.',
+    confirmDecline:'{total} തുകയുള്ള എസ്റ്റിമേറ്റ് V{version} നിരസിക്കണോ? വർക്ക്‌ഷോപ്പ് പുതിയത് നൽകാം.',
+    acceptedNotice:'നിങ്ങളുടെ അംഗീകാരം രേഖപ്പെടുത്തി. അടുത്ത ഘട്ടം വർക്ക്‌ഷോപ്പ് സ്ഥിരീകരിക്കും.',
+    declinedNotice:'നിങ്ങളുടെ തീരുമാനം രേഖപ്പെടുത്തി. മാറ്റങ്ങൾക്കായി വർക്ക്‌ഷോപ്പുമായി ബന്ധപ്പെടുക.',
+    quoteChanged:'ഈ എസ്റ്റിമേറ്റ് മാറിയിരിക്കാം. വിവരങ്ങൾ പുതുക്കുക.',
+    decisionFailed:'തീരുമാനം സേവ് ചെയ്യാൻ കഴിഞ്ഞില്ല. വീണ്ടും ശ്രമിക്കുക.',
     footer:'CubeGears'
   }
 };
