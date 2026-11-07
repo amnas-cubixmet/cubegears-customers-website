@@ -1,6 +1,6 @@
-# CubeGears — Next.js Customer Website
+# cubixgear — Next.js Customer Website
 
-A dedicated **Next.js 16 App Router** customer-facing website for every CubeGears workshop. This project replaces the Vite standalone customer site and is **not hosted inside the Company Panel**.
+A dedicated **Next.js 16 App Router** customer-facing website for every cubixgear workshop. This project replaces the Vite standalone customer site and is **not hosted inside the Company Panel**.
 
 ## Domain-first routing
 

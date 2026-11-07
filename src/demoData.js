@@ -1,5 +1,5 @@
 /**
- * 100% fictional presentation records for the opt-in CubeGears demo.
+ * 100% fictional presentation records for the opt-in cubixgear demo.
  * Never load these records from a real tenant or submit demo transactions.
  */
 const photoPreview = (title, subtitle, accent) => {
@@ -20,8 +20,8 @@ const photoPreview = (title, subtitle, accent) => {
 };
 
 export const demoBranding = Object.freeze({
-  name: 'CubeGears Demo Garage',
-  publicName: 'CubeGears Demo Garage',
+  name: 'cubixgear Demo Garage',
+  publicName: 'cubixgear Demo Garage',
   welcomeMessage: 'Drive confidently. We handle the details.',
   description: 'A sample workshop website showing how your customers can follow repairs and service progress.',
   address: 'Demo Street, Sample Town',
