@@ -52,7 +52,7 @@ export const copy = {
     declineNotePlaceholder:'Describe what you would like changed (maximum 500 characters)',
     submitDecline:'Send feedback & decline', cancel:'Cancel',
     feedbackInvalid:'Please choose a valid reason and keep your message within 500 characters.',
-    footer:'Powered by CubixGear'
+    footer:'Powered by cubixgear'
   },
   ml:{
     portal:'കസ്റ്റമർ പോർട്ടൽ', home:'ഹോം', greeting:'നിങ്ങളുടെ വാഹന സർവീസ് വിവരങ്ങൾ ഒരിടത്ത്.',
@@ -109,7 +109,7 @@ export const copy = {
     declineNotePlaceholder:'വേണ്ട മാറ്റങ്ങൾ എഴുതുക (പരമാവധി 500 അക്ഷരങ്ങൾ)',
     submitDecline:'അഭിപ്രായം നൽകി നിരസിക്കുക', cancel:'റദ്ദാക്കുക',
     feedbackInvalid:'ശരിയായ കാരണം തിരഞ്ഞെടുക്കുക; സന്ദേശം 500 അക്ഷരത്തിനുള്ളിലാകണം.',
-    footer:'CubixGear'
+    footer:'cubixgear'
   }
 };
 export const stages=['received','inspection','inspection_completed','work_started','work_in_progress','quality_check','ready','delivered'];
