@@ -247,7 +247,7 @@ function Dashboard({data,brand,t,lang,onRefresh,refreshing,refreshError,lastRefr
                      </button>
                    </div>
                  </div>}
-             </div>
+             </div>}
         </div><b>{rupees(d.total)}</b></div>)}{!docs.length&&<p className="muted">{t.noData}</p>}
         {totals.count>0&&<div className="portal-balance-summary">
           <h3>{t.invoiceOverview}</h3>
