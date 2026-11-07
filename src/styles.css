@@ -140,3 +140,17 @@
 .portal-quote-receipt{display:grid;gap:6px;margin:12px 0;padding:12px;border:1px solid #c8e6db;border-radius:10px;background:#f2fbf7;font-size:12px;color:#26624e;overflow-wrap:anywhere}
 .portal-quote-receipt strong{font-size:13px}
 @media(max-width:630px){.portal-quote-breakdown{padding:11px}.portal-quote-table th,.portal-quote-table td{padding:9px 5px}.portal-quote-confirm{font-size:12px}}
+
+/* Part 20 — accessible customer estimate decline / revision request form */
+.portal-decline-form{flex:1 1 100%;width:100%;padding:14px;border:1px solid #b8d7cf;border-radius:12px;background:#f7fcfa;display:grid;gap:12px}
+.portal-decline-form h4{margin:0;font-size:15px;color:#204a43}
+.portal-decline-form p{margin:0;line-height:1.5;font-size:12px;color:#516c68}
+.portal-decline-form label{display:grid;gap:7px;font-size:13px;font-weight:600;color:#284f49}
+.portal-decline-form select,.portal-decline-form textarea{display:block;min-height:44px;width:100%;box-sizing:border-box;outline-offset:2px;border:1px solid #bbd7d0;border-radius:9px;background:#fff;color:#183f3a;padding:10px 12px;font:inherit;font-weight:400;font-size:14px}
+.portal-decline-form textarea{resize:vertical;min-height:92px;line-height:1.5}
+.portal-decline-form small{text-align:right;color:#657d77}
+.portal-decline-form-buttons{display:flex;gap:9px;justify-content:flex-end;flex-wrap:wrap}
+.portal-decline-form-buttons .btn{min-height:44px}
+.portal-decline-receipt{margin-top:6px;padding-top:8px;border-top:1px solid #b9ded0;display:grid;gap:5px}
+.portal-decline-receipt p{font-size:12px;margin:0;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere}
+@media(max-width:630px){.portal-decline-form{padding:12px}.portal-decline-form-buttons .btn{flex:1 1 100%;justify-content:center}}

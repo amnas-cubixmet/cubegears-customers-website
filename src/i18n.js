@@ -42,6 +42,16 @@ export const copy = {
     quoteUnavailable:'This estimate needs a corrected itemized breakdown from the workshop before you can respond.',
     decisionReceipt:'Customer decision record', receiptReference:'Receipt ID',
     decisionDate:'Decision recorded at',
+    declineFeedbackTitle:'Reason for declining',
+    declineFeedbackHelp:'Tell the workshop what needs to change. Your feedback will be recorded with this estimate.',
+    declineReason:'Reason', selectDeclineReason:'Select a reason',
+    reasonprice:'Price is too high', reasonitems:'Incorrect or unnecessary items',
+    reasontiming:'Timing is not suitable', reasonexplanation:'Need more details',
+    reasonother:'Other reason', reasonunspecified:'Reason not provided',
+    reasonUnspecified:'Reason not provided', declineNote:'Message to the workshop (optional)',
+    declineNotePlaceholder:'Describe what you would like changed (maximum 500 characters)',
+    submitDecline:'Send feedback & decline', cancel:'Cancel',
+    feedbackInvalid:'Please choose a valid reason and keep your message within 500 characters.',
     footer:'Powered by CubeGears'
   },
   ml:{
@@ -89,6 +99,16 @@ export const copy = {
     quoteUnavailable:'ഈ എസ്റ്റിമേറ്റ് അംഗീകരിക്കാൻ ഇനം തിരിച്ചുള്ള ശരിയായ വിവരങ്ങൾ വർക്ക്‌ഷോപ്പ് പുതുക്കണം.',
     decisionReceipt:'കസ്റ്റമർ തീരുമാന രേഖ', receiptReference:'രസീത് ID',
     decisionDate:'തീരുമാനം രേഖപ്പെടുത്തിയ സമയം',
+    declineFeedbackTitle:'എസ്റ്റിമേറ്റ് നിരസിക്കാനുള്ള കാരണം',
+    declineFeedbackHelp:'എന്ത് മാറ്റമാണ് വേണ്ടതെന്ന് വർക്ക്‌ഷോപ്പിനെ അറിയിക്കുക. നിങ്ങളുടെ അഭിപ്രായം ഈ എസ്റ്റിമേറ്റിനൊപ്പം രേഖപ്പെടുത്തും.',
+    declineReason:'കാരണം', selectDeclineReason:'കാരണം തിരഞ്ഞെടുക്കുക',
+    reasonprice:'വില കൂടുതലാണ്', reasonitems:'ആവശ്യമില്ലാത്ത / തെറ്റായ ഇനങ്ങൾ',
+    reasontiming:'സമയം അനുയോജ്യമല്ല', reasonexplanation:'കൂടുതൽ വിശദീകരണം വേണം',
+    reasonother:'മറ്റൊരു കാരണം', reasonunspecified:'കാരണം നൽകിയിട്ടില്ല',
+    reasonUnspecified:'കാരണം നൽകിയിട്ടില്ല', declineNote:'വർക്ക്‌ഷോപ്പിനുള്ള സന്ദേശം (ആവശ്യമെങ്കിൽ)',
+    declineNotePlaceholder:'വേണ്ട മാറ്റങ്ങൾ എഴുതുക (പരമാവധി 500 അക്ഷരങ്ങൾ)',
+    submitDecline:'അഭിപ്രായം നൽകി നിരസിക്കുക', cancel:'റദ്ദാക്കുക',
+    feedbackInvalid:'ശരിയായ കാരണം തിരഞ്ഞെടുക്കുക; സന്ദേശം 500 അക്ഷരത്തിനുള്ളിലാകണം.',
     footer:'CubeGears'
   }
 };

@@ -28,7 +28,7 @@ test('accept and decline require a reviewed exact quote and display server recei
   assert.match(app, /reviewedQuotes\.has\(d\.id\+':'\+d\.reviewHash\)/);
   assert.match(app, /<input type="checkbox"/);
   assert.match(app, /d\.status==='Awaiting Customer'&&d\.reviewable&&d\.reviewHash/);
-  assert.match(app, /portalApi\.decideEstimate\(estimate\.id,estimate\.version,decision,estimate\.reviewHash\)/);
+  assert.match(app, /portalApi\.decideEstimate\(estimate\.id,estimate\.version,decision,estimate\.reviewHash,feedback\)/);
   assert.match(app, /d\.decisionReceipt\?\.id/);
   assert.match(app, /d\.decisionReceipt\.respondedAt/);
   assert.match(app, /t\.quoteUnavailable/);

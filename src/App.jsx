@@ -51,6 +51,7 @@ function Dashboard({data,brand,t,lang,onRefresh,refreshing,refreshError,lastRefr
   const [selected,setSelected]=useState('all');
   const [query,setQuery]=useState('');
   const [reviewedQuotes,setReviewedQuotes]=useState(()=>new Set());
+  const [declineDraft,setDeclineDraft]=useState(null);
   const needle=query.trim().toLocaleLowerCase();
   const vehicles=data.vehicles||[];
   const allJobs=data.jobs||[];
@@ -145,6 +146,13 @@ function Dashboard({data,brand,t,lang,onRefresh,refreshing,refreshError,lastRefr
               <span>{t.decisionDate}: {d.decisionReceipt.respondedAt
                 ?new Date(d.decisionReceipt.respondedAt).toLocaleString(lang==='ml'?'ml-IN':'en-IN')
                 :'—'}</span>
+              {d.decisionReceipt.declineFeedback&&
+                <div className="portal-decline-receipt">
+                  <strong>{t.declineFeedbackTitle}</strong>
+                  <span>{t['reason'+d.decisionReceipt.declineFeedback.reason]||t.reasonUnspecified}</span>
+                  {d.decisionReceipt.declineFeedback.note&&
+                    <p>{d.decisionReceipt.declineFeedback.note}</p>}
+                </div>}
             </div>}
           {d.docKind==='estimate'&&d.reviewable&&Array.isArray(d.lines)&&d.lines.length>0&&
             <div className="portal-quote-breakdown">
@@ -201,7 +209,44 @@ function Dashboard({data,brand,t,lang,onRefresh,refreshing,refreshError,lastRefr
                </button>
                <button type="button" className="btn btn-outline"
                  disabled={!!decisionBusy||demoMode||!reviewedQuotes.has(d.id+':'+d.reviewHash)}
-                 onClick={()=>onEstimateDecision?.(d,'decline')}>{t.declineEstimate}</button>
+                 onClick={()=>setDeclineDraft(current=>
+                   current?.id===d.id?null:{id:d.id,reason:'',note:''}
+                 )}>{t.declineEstimate}</button>
+               {declineDraft?.id===d.id&&
+                 <div className="portal-decline-form" role="group" aria-label={t.declineFeedbackTitle}>
+                   <h4>{t.declineFeedbackTitle}</h4>
+                   <p>{t.declineFeedbackHelp}</p>
+                   <label>{t.declineReason}
+                     <select value={declineDraft.reason}
+                       onChange={event=>setDeclineDraft(old=>({...old,reason:event.target.value}))}>
+                       <option value="">{t.selectDeclineReason}</option>
+                       <option value="price">{t.reasonprice}</option>
+                       <option value="items">{t.reasonitems}</option>
+                       <option value="timing">{t.reasontiming}</option>
+                       <option value="explanation">{t.reasonexplanation}</option>
+                       <option value="other">{t.reasonother}</option>
+                     </select>
+                   </label>
+                   <label>{t.declineNote}
+                     <textarea rows={3} maxLength={500}
+                       value={declineDraft.note}
+                       placeholder={t.declineNotePlaceholder}
+                       onChange={event=>setDeclineDraft(old=>({...old,note:event.target.value}))}/>
+                   </label>
+                   <small>{declineDraft.note.length}/500</small>
+                   <div className="portal-decline-form-buttons">
+                     <button type="button" className="btn btn-outline" disabled={!!decisionBusy}
+                       onClick={()=>setDeclineDraft(null)}>{t.cancel}</button>
+                     <button type="button" className="btn btn-solid"
+                       disabled={!!decisionBusy||demoMode||!declineDraft.reason}
+                       onClick={()=>onEstimateDecision?.(d,'decline',{
+                         declineReason:declineDraft.reason,
+                         declineNote:declineDraft.note
+                       })}>
+                       {decisionBusy===d.id?t.submitting:t.submitDecline}
+                     </button>
+                   </div>
+                 </div>}
              </div>}
         </div><b>{rupees(d.total)}</b></div>)}{!docs.length&&<p className="muted">{t.noData}</p>}
         {totals.count>0&&<div className="portal-balance-summary">
@@ -276,7 +321,7 @@ export default function App({demoMode=false,demoView='public'}){
       else setRefreshError(t.refreshFailed);
     }finally{setRefreshing(false);}
   }
-  async function decideEstimate(estimate,decision){
+  async function decideEstimate(estimate,decision,feedback={}){
     if(demoMode||decisionBusy||!estimate?.id)return;
     const message=(decision==='accept'?t.confirmAccept:t.confirmDecline)
       .replace('{version}',String(estimate.version))
@@ -286,7 +331,7 @@ export default function App({demoMode=false,demoView='public'}){
     setDecisionError('');
     setDecisionNotice('');
     try{
-      await portalApi.decideEstimate(estimate.id,estimate.version,decision,estimate.reviewHash);
+      await portalApi.decideEstimate(estimate.id,estimate.version,decision,estimate.reviewHash,feedback);
       const latest=await portalApi.session();
       if(!latest.customer)throw new Error('Customer session required.');
       setData(latest);
@@ -294,7 +339,8 @@ export default function App({demoMode=false,demoView='public'}){
       setDecisionNotice(decision==='accept'?t.acceptedNotice:t.declinedNotice);
     }catch(error){
       if(error.status===401){setData(null);setState('public');}
-      else setDecisionError(error.status===409?t.quoteChanged:t.decisionFailed);
+      else setDecisionError(error.status===409?t.quoteChanged
+        :error.status===400?t.feedbackInvalid:t.decisionFailed);
     }finally{setDecisionBusy(null);}
   }
   async function logout(){try{await portalApi.logout();setData(null);setState('public');}catch{setErrorKind('unavailable');setState('error');}}
