@@ -106,3 +106,13 @@
 .portal-balance-summary p{font-size:11px;line-height:1.55;color:#6b8386;margin:12px 0 0}
 @media(max-width:920px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:630px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.stat{padding:13px}.stat .stat-money{font-size:17px}.portal-refresh{justify-content:space-between;margin-top:-9px}.portal-refresh .btn{font-size:13px;padding:10px}}
+
+/* Part 17 — clearly scoped customer quote decisions; no payment input. */
+.portal-document{align-items:flex-start;flex-wrap:wrap}
+.portal-document>div{flex:1 1 180px}
+.portal-estimate-actions{margin-top:13px;display:flex;flex-wrap:wrap;align-items:center;gap:9px}
+.portal-estimate-actions p{flex-basis:100%;font-size:12px;line-height:1.6;color:#48696d;margin:0 0 3px}
+.portal-estimate-actions .btn{min-height:44px;font-size:13px}
+.portal-estimate-actions .btn:disabled{opacity:.58;cursor:not-allowed}
+.portal-estimate-success{color:#155f4d;background:#edf9f1;border:1px solid #b7e3c9;border-radius:10px;padding:11px 13px}
+@media(max-width:630px){.portal-estimate-actions .btn{flex:1 1 100%;justify-content:center}}
