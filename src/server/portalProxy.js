@@ -7,7 +7,9 @@ export async function handlePortalRequest(request, segments) {
     return new Response(null, { status: 400 });
   }
   const hostname = host.split(':', 1)[0];
-  const isLocal = process.env.NODE_ENV !== 'production' && ['localhost', '127.0.0.1'].includes(hostname);
+  const isLocal = process.env.NODE_ENV !== 'production' &&
+    (['localhost', '127.0.0.1'].includes(hostname) ||
+      /^[a-z0-9](?:[a-z0-9-]{1,61}[a-z0-9])?\.localhost$/.test(hostname));
   const origin = request.headers.get('origin');
   if (request.method !== 'GET' && request.method !== 'POST') {
     return new Response(null, { status: 405, headers: { Allow: 'GET, POST' } });
