@@ -116,3 +116,27 @@
 .portal-estimate-actions .btn:disabled{opacity:.58;cursor:not-allowed}
 .portal-estimate-success{color:#155f4d;background:#edf9f1;border:1px solid #b7e3c9;border-radius:10px;padding:11px 13px}
 @media(max-width:630px){.portal-estimate-actions .btn{flex:1 1 100%;justify-content:center}}
+
+/* Part 18: transparent customer quote lines and persistent decision records. */
+.portal-quote-breakdown{margin:15px 0 12px;border:1px solid #d8e7e4;background:#fbfefd;border-radius:14px;padding:14px}
+.portal-quote-breakdown h4{margin:0 0 12px;font-size:15px;font-weight:700;color:#20464a}
+.portal-quote-table-wrap{overflow-x:auto;max-width:100%;-webkit-overflow-scrolling:touch}
+.portal-quote-table{width:100%;min-width:365px;border-collapse:collapse;text-align:left;font-variant-numeric:tabular-nums}
+.portal-quote-table th,.portal-quote-table td{padding:10px 7px;border-bottom:1px solid #e1eeeb;font-size:12px;vertical-align:top}
+.portal-quote-table th{font-weight:700;color:#48696d;white-space:nowrap}
+.portal-quote-table td:not(:first-child),.portal-quote-table th:not(:first-child){text-align:right;white-space:nowrap}
+.portal-quote-table td:first-child{min-width:140px;white-space:normal}
+.portal-quote-table td strong{font-size:13px;color:#24494b}
+.portal-quote-table td small{display:block;font-size:11px;color:#68858a;margin-top:4px;line-height:1.45}
+.portal-quote-totals{margin:10px 0 4px;display:grid;gap:1px}
+.portal-quote-totals>div{display:flex;justify-content:space-between;gap:12px;padding:7px 3px;font-size:12px;color:#55767a}
+.portal-quote-totals dt{font-weight:550}
+.portal-quote-totals dd{margin:0;font-weight:700;font-variant-numeric:tabular-nums;color:#22484a;white-space:nowrap}
+.portal-quote-totals .portal-quote-total{border-top:1px solid #bddad2;padding-top:12px;margin-top:4px;font-size:15px}
+.portal-quote-confirm{display:flex;align-items:flex-start;gap:11px;margin:14px 0 0;padding:12px;border:1px solid #bddbd2;border-radius:10px;background:#f1faf6;cursor:pointer;font-weight:550;font-size:13px;line-height:1.5;color:#215c4d}
+.portal-quote-confirm input{flex:none;width:20px;height:20px;margin:0;accent-color:#116f69}
+.portal-quote-confirm:focus-within{outline:2px solid #116f69;outline-offset:2px}
+.portal-quote-unavailable{padding:11px 13px;margin:12px 0;border-radius:9px;background:#fff7e9;color:#8a570d;font-size:12px;line-height:1.5}
+.portal-quote-receipt{display:grid;gap:6px;margin:12px 0;padding:12px;border:1px solid #c8e6db;border-radius:10px;background:#f2fbf7;font-size:12px;color:#26624e;overflow-wrap:anywhere}
+.portal-quote-receipt strong{font-size:13px}
+@media(max-width:630px){.portal-quote-breakdown{padding:11px}.portal-quote-table th,.portal-quote-table td{padding:9px 5px}.portal-quote-confirm{font-size:12px}}
