@@ -84,3 +84,25 @@
   .demo-banner-content a{font-size:14px}
   .demo-hero-action{width:100%}
 }
+
+
+/* Part 16: real invoice balances and on-demand customer session refresh. */
+.stats{grid-template-columns:repeat(4,minmax(0,1fr))}
+.stat{min-width:0}
+.stat .stat-money{font-size:clamp(16px,2vw,26px);overflow-wrap:anywhere}
+.portal-refresh{display:flex;justify-content:flex-end;align-items:center;flex-wrap:wrap;gap:13px;margin:-12px 0 19px;color:#66838a;font-size:12px}
+.portal-refresh .btn{min-height:44px}
+.portal-refresh .btn:disabled{opacity:.65;cursor:not-allowed;transform:none}
+.portal-refresh-error{color:#a42525;background:#fff5f5;border:1px solid #f2d1d1;border-radius:10px;padding:10px 13px;margin-bottom:14px}
+.document{align-items:center}
+.document>div{min-width:0}
+.document small{line-height:1.5}
+.portal-balance-summary{margin-top:20px;border:1px solid #d9e8e4;background:#f7fbf9;border-radius:15px;padding:16px}
+.portal-balance-summary h3{margin:0 0 14px;font-size:15px}
+.portal-balance-summary>div{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:8px 0;color:#4a6970;font-size:13px}
+.portal-balance-summary strong{font-size:14px;color:#20464a;font-variant-numeric:tabular-nums}
+.portal-balance-summary .portal-due{border-top:1px solid #d4e5df;margin-top:8px;padding-top:14px;font-weight:750}
+.portal-balance-summary .portal-due strong{font-size:17px}
+.portal-balance-summary p{font-size:11px;line-height:1.55;color:#6b8386;margin:12px 0 0}
+@media(max-width:920px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:630px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.stat{padding:13px}.stat .stat-money{font-size:17px}.portal-refresh{justify-content:space-between;margin-top:-9px}.portal-refresh .btn{font-size:13px;padding:10px}}
