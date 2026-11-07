@@ -47,7 +47,7 @@ function Timeline({job,t}){
   const current=Math.max(0,stages.indexOf(job.stage));
   return <ol className="timeline" aria-label={t.step}>{stages.map((s,i)=><li className={i<=current?'done':''} aria-current={i===current?'step':undefined} key={s}><span>{i<=current?<CheckCircle2 size={17}/>:<span className="empty-dot"/>}</span>{t[s]||s}</li>)}</ol>;
 }
-function Dashboard({data,brand,t,lang,onRefresh,refreshing,refreshError,lastRefreshed}){
+function Dashboard({data,brand,t,lang,onRefresh,refreshing,refreshError,lastRefreshed,onEstimateDecision,decisionBusy,decisionError,decisionNotice,demoMode}){
   const [selected,setSelected]=useState('all');
   const [query,setQuery]=useState('');
   const needle=query.trim().toLocaleLowerCase();
@@ -74,6 +74,12 @@ function Dashboard({data,brand,t,lang,onRefresh,refreshing,refreshError,lastRefr
     d.jobId && matchingJobIds.has(String(d.jobId))
   ));
   const totals=invoiceTotals(data.invoices);
+  const latestQuoteVersions=new Map();
+  for(const estimate of data.estimates||[]){
+    const jobId=String(estimate.jobId||'');
+    const version=Number(estimate.version)||0;
+    latestQuoteVersions.set(jobId,Math.max(latestQuoteVersions.get(jobId)||0,version));
+  }
   return <main className="wrap dashboard">
     <div className="welcome"><div><span className="eyebrow">{niceDate(new Date().toISOString(),lang)}</span><h1>{t.welcome}, {data.customer?.name||t.portal}</h1><p>{t.greeting}</p></div><div className="privacy"><ShieldCheck size={19}/>{t.security}</div></div>
     <div className="portal-refresh">
@@ -120,9 +126,30 @@ function Dashboard({data,brand,t,lang,onRefresh,refreshing,refreshError,lastRefr
         {photos.length?<div className="photo-grid">{photos.map(p=><figure key={p.id}><img loading="lazy" alt={p.caption||p.category} src={p.demoImage || portalApi.photoUrl(p.id)}/><figcaption><strong>{p.caption||p.category}</strong><small>{p.phase} · {niceDate(p.capturedAt,lang)}</small></figcaption></figure>)}</div>:<p className="blank">{t.nonePhotos}</p>}
       </section>
       <section className="surface"><div className="section-head"><FileText size={20}/><h2>{t.documents}</h2></div>
-        {docs.map(d=><div className="document" key={d.key}><div>
-          <strong>{d.label}</strong><small>{d.docKind==='invoice'?invoicePaymentLabel(d,t):t.approvedStatus}</small>
+        {decisionError&&<p className="portal-refresh-error" role="alert">{decisionError}</p>}
+        {decisionNotice&&<p className="portal-estimate-success" role="status">{decisionNotice}</p>}
+        {docs.map(d=><div className="document portal-document" key={d.key}><div>
+          <strong>{d.label}</strong>
+          <small>{d.docKind==='invoice'?invoicePaymentLabel(d,t):(
+            d.status==='Awaiting Customer'?t.awaitingReview:
+            d.status==='Customer Approved'?t.customerAccepted:
+            d.status==='Customer Rejected'?t.customerDeclined:t.approvedStatus
+          )}</small>
           {d.docKind==='invoice'&&<small>{t.paidAmount}: {rupees(d.paid)} · {t.balanceDue}: {rupees(d.balance)}</small>}
+          {d.docKind==='estimate'&&d.status==='Customer Approved'&&<small>{t.awaitingWorkshopConfirmation}</small>}
+          {d.docKind==='estimate'&&d.status==='Awaiting Customer'&&d.id&&
+             Number(d.version)===latestQuoteVersions.get(String(d.jobId||''))&&
+             <div className="portal-estimate-actions">
+               <p>{t.reviewNote}</p>
+               <button type="button" className="btn btn-solid"
+                 disabled={!!decisionBusy||demoMode}
+                 onClick={()=>onEstimateDecision?.(d,'accept')}>
+                 <CheckCircle2 size={16}/>{decisionBusy===d.id?t.submitting:t.acceptEstimate}
+               </button>
+               <button type="button" className="btn btn-outline"
+                 disabled={!!decisionBusy||demoMode}
+                 onClick={()=>onEstimateDecision?.(d,'decline')}>{t.declineEstimate}</button>
+             </div>}
         </div><b>{rupees(d.total)}</b></div>)}{!docs.length&&<p className="muted">{t.noData}</p>}
         {totals.count>0&&<div className="portal-balance-summary">
           <h3>{t.invoiceOverview}</h3>
@@ -145,6 +172,9 @@ export default function App({demoMode=false,demoView='public'}){
   const [refreshing,setRefreshing]=useState(false);
   const [refreshError,setRefreshError]=useState('');
   const [lastRefreshed,setLastRefreshed]=useState(null);
+  const [decisionBusy,setDecisionBusy]=useState(null);
+  const [decisionError,setDecisionError]=useState('');
+  const [decisionNotice,setDecisionNotice]=useState('');
   const t=useMemo(()=>copy[lang],[lang]);
   function setLang(next){setLanguage(next);localStorage.setItem('cubegears:portal-language',next);}
   useEffect(()=>{
@@ -193,6 +223,27 @@ export default function App({demoMode=false,demoView='public'}){
       else setRefreshError(t.refreshFailed);
     }finally{setRefreshing(false);}
   }
+  async function decideEstimate(estimate,decision){
+    if(demoMode||decisionBusy||!estimate?.id)return;
+    const message=(decision==='accept'?t.confirmAccept:t.confirmDecline)
+      .replace('{version}',String(estimate.version))
+      .replace('{total}',rupees(estimate.total));
+    if(!window.confirm(message))return;
+    setDecisionBusy(estimate.id);
+    setDecisionError('');
+    setDecisionNotice('');
+    try{
+      await portalApi.decideEstimate(estimate.id,estimate.version,decision);
+      const latest=await portalApi.session();
+      if(!latest.customer)throw new Error('Customer session required.');
+      setData(latest);
+      setLastRefreshed(new Date().toISOString());
+      setDecisionNotice(decision==='accept'?t.acceptedNotice:t.declinedNotice);
+    }catch(error){
+      if(error.status===401){setData(null);setState('public');}
+      else setDecisionError(error.status===409?t.quoteChanged:t.decisionFailed);
+    }finally{setDecisionBusy(null);}
+  }
   async function logout(){try{await portalApi.logout();setData(null);setState('public');}catch{setErrorKind('unavailable');setState('error');}}
   const theme=branding?{'--accent':branding.primaryColor||'#116f69','--accent-soft':branding.secondaryColor||'#e4f2ec'}:{};
   return <div className="app" lang={lang} style={theme}>
@@ -202,7 +253,9 @@ export default function App({demoMode=false,demoView='public'}){
     {state==='error'&&<main className="wrap center" role="alert"><ShieldCheck size={43}/><h1>{t[errorKind]}</h1><p>{t.accessNote}</p><button className="btn btn-outline" onClick={()=>window.location.reload()}>{t.retry}<ArrowRight size={16}/></button></main>}
     {state==='public'&&<PublicPage brand={branding} t={t} demoMode={demoMode}/>}
     {state==='dashboard'&&data&&<Dashboard data={data} brand={branding} t={t} lang={lang}
-      onRefresh={refresh} refreshing={refreshing} refreshError={refreshError} lastRefreshed={lastRefreshed}/>}
+      onRefresh={refresh} refreshing={refreshing} refreshError={refreshError} lastRefreshed={lastRefreshed}
+      onEstimateDecision={decideEstimate} decisionBusy={decisionBusy} decisionError={decisionError}
+      decisionNotice={decisionNotice} demoMode={demoMode}/>}
     <footer className="footer"><div className="wrap"><span>{branding?.publicName||branding?.name||'CubeGears'}</span><span><ShieldCheck size={16}/>{t.footer}</span></div></footer>
   </div>;
 }
