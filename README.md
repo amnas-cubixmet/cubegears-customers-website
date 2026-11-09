@@ -59,6 +59,48 @@ If it says "Portal backend is not configured", verify the matching
 `PORTAL_PROXY_SHARED_SECRET` and `PORTAL_BACKEND_URL` values.
 
 
+## Preview a purchased-style custom domain locally (no DNS purchase)
+
+This **development-only** preview lets two workshop sites open on different
+fake domains while sharing one Next.js app and one Django backend. It does not
+connect real DNS, register a domain in Vercel, or issue an HTTPS certificate.
+
+1. Create or use two **active** workshops in Django. For example their immutable
+   `Company.slug` values are `alpha-garage` and `beta-garage`.
+2. Start Django with `DJANGO_DEBUG=true`, a strong
+   `PORTAL_PROXY_SHARED_SECRET`, and the following JSON environment value:
+
+   ```env
+   PORTAL_DEV_CUSTOM_DOMAIN_MAP={"alpha-garage.test":"alpha-garage","beta-garage.test":"beta-garage"}
+   ```
+
+   This maps the local hostname to an existing company **login slug**, not the
+   editable website subdomain label. The mapping works only in DEBUG mode and
+   only for `.test` domains. An unlisted domain returns 404.
+3. As administrator, append these entries to the **local computer's** hosts
+   file (Windows: `C:\\Windows\\System32\\drivers\\etc\\hosts`; Linux/macOS:
+   `/etc/hosts`):
+
+   ```text
+   127.0.0.1 alpha-garage.test
+   127.0.0.1 beta-garage.test
+   ```
+
+4. Copy `.env.example` to `.env.local` in this repository. Set
+   `PORTAL_BACKEND_URL=http://127.0.0.1:8000` and the **same**
+   `PORTAL_PROXY_SHARED_SECRET` as Django. Leave
+   `CUBEGEARS_BACKEND_URL` unset locally. Run `npm run dev`.
+5. Visit `http://alpha-garage.test:5174/` and
+   `http://beta-garage.test:5174/`. Each hostname must show only its assigned
+   workshop's public branding. Unknown domains must show **Website not found**.
+   Customer tracking records require a valid link and same-tenant session.
+
+For a **real purchased** domain use the existing Company Panel **Settings →
+Customer Website → Domains** UI. The owner enters the hostname and DNS provider;
+Django fetches exact Vercel A/CNAME/TXT instructions, verifies ownership, checks
+HTTPS, and only then allows activation. Do not use `.test` or the DEBUG mapping
+as production configuration.
+
 ## Real workshop hero photograph and favicon
 
 The public workshop homepage uses a real car-service photo by
