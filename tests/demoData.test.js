@@ -10,7 +10,7 @@ test('demo workshop and customer records are clearly fictional and internally li
   assert.match(demoBranding.publicName, /Demo/i);
   assert.equal(demoBranding.phone, '');
   assert.equal(demoBranding.whatsapp, '');
-  assert.equal(demoSession.customer.name, 'Demo Customer');
+  assert.equal(demoSession.customer.name, 'Demo Driver');
   assert.ok(demoSession.vehicles.length >= 2);
   assert.ok(demoSession.jobs.length >= 3);
   assert.ok(demoSession.photos.length >= 2);
