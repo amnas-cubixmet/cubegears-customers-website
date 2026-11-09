@@ -58,6 +58,21 @@ subdomain exactly matches the saved label for an active Django workshop.
 If it says "Portal backend is not configured", verify the matching
 `PORTAL_PROXY_SHARED_SECRET` and `PORTAL_BACKEND_URL` values.
 
+
+## Real workshop hero photograph and favicon
+
+The public workshop homepage uses a real car-service photo by
+[Jimmy Nilsson Masth on Unsplash](https://unsplash.com/photos/a-man-working-on-a-car-in-a-garage-jL9zfzTVSwY).
+The image is an **illustrative automotive service photograph**, not a photo of
+any specific tenant's premises. It is served from the Unsplash image CDN under
+the [Unsplash License](https://unsplash.com/license).
+
+Next.js serves `app/icon.svg` as the default cubixgear favicon. Once a
+workshop's branding loads, the customer website uses that workshop's uploaded
+logo as the tab icon where available; otherwise it retains the bundled icon.
+The logo comes from the existing hostname-scoped `/api/portal/logo` route.
+Both desktop and mobile render the photograph; no customer data is included.
+
 ## Production (Vercel)
 
 Use one dedicated Vercel project for this repository; it must NOT be the Company Panel, backend, or public marketing website. The Django backend controls project-domain assignments with server-only VERCEL_CUSTOMER_DOMAIN_TOKEN, VERCEL_CUSTOMER_PROJECT_ID and VERCEL_CUSTOMER_TEAM_ID. Domain records must come from Vercel's live API, never hardcoded in the frontend.

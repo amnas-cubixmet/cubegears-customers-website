@@ -14,10 +14,20 @@ function Contacts({brand,t}){
     {wa&&<a className="btn btn-outline" href={'https://wa.me/'+wa} rel="noreferrer noopener" target="_blank">{t.whatsapp}<ArrowRight size={16}/></a>}
   </div>;
 }
+// The host is already tenant-verified by Django's signed branding gateway.
+// Use the workshop's own logo for its tab icon when available; otherwise
+// leave the bundled cubixgear favicon intact.
+function updateSiteFavicon(brand){
+  const icon = document.querySelector('link[rel="icon"]') || document.createElement('link');
+  icon.rel='icon';
+  icon.href=brand?.hasLogo ? portalApi.logoUrl : '/icon.svg';
+  if(!icon.isConnected)document.head.appendChild(icon);
+}
+
 function Header({brand,lang,setLang,logout,authenticated,t,demoMode=false}){
   return <header className="header"><div className="wrap nav">
     <a href={demoMode ? "/demo" : "/"} className="brand">
-      {brand?.hasLogo?<img alt="" src={portalApi.logoUrl}/>:<span className="brand-icon"><Wrench size={23}/></span>}
+      {brand?.hasLogo?<img alt="" src={portalApi.logoUrl}/>:<img alt="" src="/icon.svg" className="brand-fallback-logo"/>}
       <span className="brand-name"><strong>{brand?.publicName||brand?.name||'cubixgear'}</strong><small>{t.portal}</small></span>
     </a>
     <div className="nav-actions">
@@ -52,10 +62,20 @@ function PublicPage({brand,t,demoMode=false}){
         {demoMode&&<a className="btn btn-solid demo-hero-action" href="/demo/portal">{t.demoExplore}<ArrowRight size={16}/></a>}
         <div className="safety"><ShieldCheck size={21}/>{t.safe}</div>
       </div>
-      <div className="hero-graphic" aria-hidden="true">
-        <div className="circle circle-a"/><div className="circle circle-b"/>
-        <div className="car-graphic"><CarFront size={122} strokeWidth={1.1}/></div>
+      <div className="hero-graphic hero-photo">
+        <img
+          className="hero-real-photo"
+          src="https://images.unsplash.com/photo-1643700973089-baa86a1ab9ee?auto=format&fit=crop&w=1400&q=82"
+          alt={t.publicHeroPhotoAlt}
+          width="900"
+          height="1100"
+          loading="eager"
+          decoding="async"
+          fetchPriority="high"
+        />
         <div className="graphic-card"><CheckCircle2 size={19}/>{t.publicTrackService}</div>
+        <a className="hero-photo-credit" href="https://unsplash.com/photos/a-man-working-on-a-car-in-a-garage-jL9zfzTVSwY"
+          target="_blank" rel="noopener noreferrer">Photo: Jimmy Nilsson Masth / Unsplash</a>
       </div>
     </section>
 
@@ -348,6 +368,7 @@ export default function App({demoMode=false,demoView='public'}){
         const brand=await portalApi.branding();
         if(!active)return;
         setBranding(brand);
+        updateSiteFavicon(brand);
         document.title=(brand.publicName||brand.name||'Workshop')+' | Customer Portal';
         if(token){setState('signing');await portalApi.exchange(token);}
         try{
