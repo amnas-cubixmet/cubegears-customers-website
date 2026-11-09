@@ -28,7 +28,7 @@ function Header({brand,lang,setLang,logout,authenticated,t,demoMode=false}){
   return <header className="header"><div className="wrap nav">
     <a href={demoMode ? "/demo" : "/"} className="brand">
       {brand?.hasLogo?<img alt="" src={portalApi.logoUrl}/>:<img alt="" src="/icon.svg" className="brand-fallback-logo"/>}
-      <span className="brand-name"><strong>{brand?.publicName||brand?.name||'cubixgear'}</strong><small>{t.portal}</small></span>
+      <span className="brand-name"><strong>{brand?.publicName||brand?.name||'cubixgear'}</strong></span>
     </a>
     <div className="nav-actions">
       <label className="lang"><Globe2 size={17}/><select aria-label="Language" value={lang} onChange={e=>setLang(e.target.value)}><option value="en">English</option><option value="ml">മലയാളം</option></select></label>
@@ -349,7 +349,7 @@ export default function App({demoMode=false,demoView='public'}){
   const t=useMemo(()=>copy[lang],[lang]);
   function setLang(next){setLanguage(next);localStorage.setItem('cubegears:portal-language',next);}
   useEffect(()=>{
-    if(demoMode){document.title='cubixgear Demo Garage | DEMO PREVIEW';return undefined;}
+    if(demoMode){document.title='cubixgear Demo Garage';return undefined;}
     let active=true;
     const path=window.location.pathname;
     let token=null;
@@ -369,7 +369,7 @@ export default function App({demoMode=false,demoView='public'}){
         if(!active)return;
         setBranding(brand);
         updateSiteFavicon(brand);
-        document.title=(brand.publicName||brand.name||'Workshop')+' | Customer Portal';
+        document.title=(brand.publicName||brand.name||'Workshop')+' | cubixgear';
         if(token){setState('signing');await portalApi.exchange(token);}
         try{
           const response=await portalApi.session();
