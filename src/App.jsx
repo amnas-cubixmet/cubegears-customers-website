@@ -1,6 +1,6 @@
 'use client';
 import {useEffect,useMemo,useState} from 'react';
-import {ArrowRight,Camera,CarFront,CheckCircle2,Clock3,FileText,Globe2,LogOut,MapPin,Phone,RefreshCw,ShieldCheck,Wallet,Wrench} from 'lucide-react';
+import {Camera,CarFront,CheckCircle2,Clock3,FileText,Globe2,LogOut,MapPin,Phone,RefreshCw,ShieldCheck,Wallet,Wrench} from 'lucide-react';
 import {portalApi} from './api';
 import {demoBranding,demoSession} from './demoData';
 import {copy,stages,inProgress,niceDate,rupees,cleanPhone} from './i18n';
@@ -10,8 +10,8 @@ function Contacts({brand,t}){
   const phone=cleanPhone(brand?.phone);
   const wa=cleanPhone(brand?.whatsapp||brand?.phone).replace(/^\+/,'');
   return <div className="contacts">
-    {phone&&<a className="btn btn-solid" href={'tel:'+phone}><Phone size={16}/>{t.call}<ArrowRight size={16}/></a>}
-    {wa&&<a className="btn btn-outline" href={'https://wa.me/'+wa} rel="noreferrer noopener" target="_blank">{t.whatsapp}<ArrowRight size={16}/></a>}
+    {phone&&<a className="btn btn-solid" href={'tel:'+phone}><Phone size={16}/>{t.call}</a>}
+    {wa&&<a className="btn btn-outline" href={'https://wa.me/'+wa} rel="noreferrer noopener" target="_blank">{t.whatsapp}</a>}
   </div>;
 }
 // The host is already tenant-verified by Django's signed branding gateway.
@@ -57,9 +57,9 @@ function PublicPage({brand,t,demoMode=false}){
         <p>{brand?.description||t.publicIntro}</p>
         <Contacts brand={brand} t={t}/>
         {enquiry&&<a className="public-enquiry-link" href={enquiry} target="_blank" rel="noopener noreferrer">
-          {t.publicEnquiry} <ArrowRight size={16}/>
+          {t.publicEnquiry} 
         </a>}
-        {demoMode&&<a className="btn btn-solid demo-hero-action" href="/demo/portal">{t.demoExplore}<ArrowRight size={16}/></a>}
+        {demoMode&&<a className="btn btn-solid demo-hero-action" href="/demo/portal">{t.demoExplore}</a>}
         <div className="safety"><ShieldCheck size={21}/>{t.safe}</div>
       </div>
       <div className="hero-graphic hero-photo">
@@ -101,7 +101,7 @@ function PublicPage({brand,t,demoMode=false}){
         {address&&<p className="public-address"><MapPin size={19}/><span>{address}</span></p>}
         <Contacts brand={brand} t={t}/>
         {mapUrl&&<a className="public-directions" href={mapUrl} target="_blank" rel="noopener noreferrer">
-          <MapPin size={17}/>{t.publicDirections}<ArrowRight size={16}/>
+          <MapPin size={17}/>{t.publicDirections}
         </a>}
         {!address&&!brand?.phone&&!brand?.whatsapp&&<p className="muted">{t.publicContactUnavailable}</p>}
       </article>
@@ -421,9 +421,9 @@ export default function App({demoMode=false,demoView='public'}){
   const theme=branding?{'--accent':branding.primaryColor||'#116f69','--accent-soft':branding.secondaryColor||'#e4f2ec'}:{};
   return <div className="app" lang={lang} style={theme}>
     <Header brand={branding} lang={lang} setLang={setLang} logout={logout} authenticated={state==='dashboard'&&!demoMode} t={t} demoMode={demoMode}/>
-    {demoMode&&<div className="demo-banner" role="note"><div className="wrap demo-banner-content"><span><strong>{t.demoLabel}</strong> — {t.demoNotice}</span><a href={demoView==='portal'?'/demo':'/demo/portal'}>{demoView==='portal'?t.demoWorkshop:t.demoTrack} <ArrowRight size={15}/></a></div></div>}
+    {demoMode&&<div className="demo-banner" role="note"><div className="wrap demo-banner-content"><span><strong>{t.demoLabel}</strong> — {t.demoNotice}</span><a href={demoView==='portal'?'/demo':'/demo/portal'}>{demoView==='portal'?t.demoWorkshop:t.demoTrack} </a></div></div>}
     {['loading','signing'].includes(state)&&<main className="wrap center" role="status"><div className="spinner"/><h1>{state==='signing'?t.signing:t.loading}</h1></main>}
-    {state==='error'&&<main className="wrap center" role="alert"><ShieldCheck size={43}/><h1>{t[errorKind]}</h1><p>{t.accessNote}</p><button className="btn btn-outline" onClick={()=>window.location.reload()}>{t.retry}<ArrowRight size={16}/></button></main>}
+    {state==='error'&&<main className="wrap center" role="alert"><ShieldCheck size={43}/><h1>{t[errorKind]}</h1><p>{t.accessNote}</p><button className="btn btn-outline" onClick={()=>window.location.reload()}>{t.retry}</button></main>}
     {state==='public'&&<PublicPage brand={branding} t={t} demoMode={demoMode}/>}
     {state==='dashboard'&&data&&<Dashboard data={data} brand={branding} t={t} lang={lang}
       onRefresh={refresh} refreshing={refreshing} refreshError={refreshError} lastRefreshed={lastRefreshed}
