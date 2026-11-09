@@ -1,8 +1,8 @@
 import '../src/styles.css';
 
 export const metadata = {
-  title: 'Workshop Customer Website',
-  description: 'Workshop services and private customer vehicle tracking',
+  title: 'cubixgear | Workshop Services',
+  description: 'Workshop services, vehicle updates and private service tracking',
   robots: { index: false, follow: false },
 };
 export const viewport = { width: 'device-width', initialScale: 1 };
