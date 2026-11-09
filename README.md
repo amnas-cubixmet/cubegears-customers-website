@@ -23,6 +23,41 @@ The Django backend is the authoritative source for tenant routing, customer sess
 
 The public homepage must render under `/`. Private links are under `/access/<token>`. Django must have valid database migrations and workshop configuration.
 
+## Workshop-specific local public link (e.g. myworkshop.localhost)
+
+The workshop public website is at `http://myworkshop.localhost:5174/`;
+the same workshop's private customer dashboard is reachable only with its own
+`http://myworkshop.localhost:5174/access/<secure-token>` link.
+
+1. Run the Django backend locally with `DJANGO_DEBUG=True`, a migrated database
+   and a registered **active workshop**.
+2. In the Company Panel, open **Settings → Customer Website** and set the
+   **Default Website Subdomain** to `myworkshop`. Save the value; this must be
+   assigned to the workshop in Django. The name is not a demo toggle.
+3. Set Django's `PORTAL_PROXY_SHARED_SECRET` to a random 32+ character value
+   and set the same secret in Customer Website `.env.local`. For local
+   development configure `CUSTOMER_PORTAL_BASE_URL=http://localhost:5174/access`
+   and leave `CUSTOMER_WEBSITE_LINKS_ENABLED=false` until production DNS/TLS is
+   ready.
+4. Set `PORTAL_BACKEND_URL=http://127.0.0.1:8000` in the Customer Website
+   `.env.local`; run `npm install && npm run dev` (Node 22+).
+5. Open `http://myworkshop.localhost:5174/`. It displays **public workshop
+   branding and contact details only**, not private customer records.
+   Open the Company Panel Customer Details → Customer Tracking Portal to get
+   a tenant-bound secure customer URL. The generated link uses
+   `myworkshop.localhost:5174/access/...` in local DEBUG mode.
+
+The new `next.config.mjs` permits `*.localhost` for development assets
+only; it does **not** allow arbitrary remote origins or bypass Django tenant
+verification. The development link is only reachable on the machine running
+the local Next.js service, not a public internet link. For a static fictional
+preview without database data use `http://localhost:5174/demo` instead.
+
+If the public homepage says "Website not found", make sure the requested
+subdomain exactly matches the saved label for an active Django workshop.
+If it says "Portal backend is not configured", verify the matching
+`PORTAL_PROXY_SHARED_SECRET` and `PORTAL_BACKEND_URL` values.
+
 ## Production (Vercel)
 
 Use one dedicated Vercel project for this repository; it must NOT be the Company Panel, backend, or public marketing website. The Django backend controls project-domain assignments with server-only VERCEL_CUSTOMER_DOMAIN_TOKEN, VERCEL_CUSTOMER_PROJECT_ID and VERCEL_CUSTOMER_TEAM_ID. Domain records must come from Vercel's live API, never hardcoded in the frontend.
