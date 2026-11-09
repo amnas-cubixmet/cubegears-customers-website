@@ -7,7 +7,7 @@ const read = (path) => readFileSync(new URL('../' + path, import.meta.url), 'utf
 
 test('development allows workshop.localhost without trusting arbitrary remote domains', () => {
   const config = read('next.config.mjs');
-  assert.match(config, /allowedDevOrigins:\s*\['\*\.localhost'\]/);
+  assert.match(config, /allowedDevOrigins:\s*\['\*\.localhost', '\*\.test'\]/);
   assert.doesNotMatch(config, /allowedDevOrigins:\s*\['\*'\]/);
   assert.match(read('src/server/portalProxy.js'), /X-CG-Portal-Host/);
 });
