@@ -237,11 +237,11 @@ function Dashboard({data,brand,t,lang,onRefresh,refreshing,refreshError,lastRefr
                     <th scope="col">{t.unitPrice}</th><th scope="col">{t.lineTotal}</th>
                   </tr></thead>
                   <tbody>{d.lines.map((line,index)=><tr key={index}>
-                    <td><strong>{line.description}</strong><small>{t['type'+line.type]||line.type}
+                    <td data-label={t.quoteItem}><strong>{line.description}</strong><small>{t['type'+line.type]||line.type}
                       {line.hsnSac?' · HSN/SAC '+line.hsnSac:''}
                       {line.taxRate!==undefined?' · GST '+line.taxRate+'%':''}</small></td>
-                    <td>{line.quantity}</td><td>{rupees(line.unitPrice)}</td>
-                    <td>{rupees(line.total)}</td>
+                    <td data-label={t.quantity}>{line.quantity}</td><td data-label={t.unitPrice}>{rupees(line.unitPrice)}</td>
+                    <td data-label={t.lineTotal}>{rupees(line.total)}</td>
                   </tr>)}</tbody>
                 </table>
               </div>
