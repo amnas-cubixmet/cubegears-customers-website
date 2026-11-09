@@ -66,7 +66,7 @@ function PublicPage({brand,t,demoMode=false}){
         <img
           className="hero-real-photo"
           src="https://images.unsplash.com/photo-1643700973089-baa86a1ab9ee?auto=format&fit=crop&w=1400&q=82"
-          alt="Mechanic carrying out real vehicle maintenance in an automotive service garage"
+          alt={t.publicHeroPhotoAlt}
           width="900"
           height="1100"
           loading="eager"
