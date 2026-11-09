@@ -27,22 +27,75 @@ function Header({brand,lang,setLang,logout,authenticated,t,demoMode=false}){
   </div></header>;
 }
 function PublicPage({brand,t,demoMode=false}){
-  return <main className="wrap">
-    <section className="hero">
-      <div className="hero-text"><span className="topline"><span className="indicator"/>{t.label}</span>
-        <h1>{brand?.welcomeMessage||t.welcome+' '+(brand?.publicName||brand?.name||'cubixgear')}</h1>
-        <p>{brand?.description||t.greeting}</p><Contacts brand={brand} t={t}/>
-        {demoMode&&<a className="btn btn-solid demo-hero-action" href="/demo/portal">{t.demoExplore} <ArrowRight size={16}/></a>}
+  const workshop=brand?.publicName||brand?.name||'cubixgear';
+  const address=[brand?.address,brand?.city].filter(Boolean).join(', ');
+  const mapUrl=address?'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(address):'';
+  const whatsapp=cleanPhone(brand?.whatsapp||brand?.phone).replace(/^\+/,'');
+  const enquiry=whatsapp?'https://wa.me/'+whatsapp+'?text='+encodeURIComponent(
+    t.publicEnquiryMessage.replace('{workshop}',workshop)
+  ):'';
+  const steps=[
+    {icon:CarFront,title:t.publicStepOneTitle,body:t.publicStepOneBody},
+    {icon:FileText,title:t.publicStepTwoTitle,body:t.publicStepTwoBody},
+    {icon:CheckCircle2,title:t.publicStepThreeTitle,body:t.publicStepThreeBody}
+  ];
+  return <main className="wrap public-home">
+    <section className="hero public-hero">
+      <div className="hero-text">
+        <span className="topline"><span className="indicator"/>{t.label}</span>
+        <h1>{brand?.welcomeMessage||t.welcome+' '+workshop}</h1>
+        <p>{brand?.description||t.publicIntro}</p>
+        <Contacts brand={brand} t={t}/>
+        {enquiry&&<a className="public-enquiry-link" href={enquiry} target="_blank" rel="noopener noreferrer">
+          {t.publicEnquiry} <ArrowRight size={16}/>
+        </a>}
+        {demoMode&&<a className="btn btn-solid demo-hero-action" href="/demo/portal">{t.demoExplore}<ArrowRight size={16}/></a>}
         <div className="safety"><ShieldCheck size={21}/>{t.safe}</div>
       </div>
-      <div className="hero-graphic" aria-hidden="true"><div className="circle circle-a"/><div className="circle circle-b"/><div className="car-graphic"><CarFront size={122} strokeWidth={1.1}/></div><div className="graphic-card"><CheckCircle2 size={19}/>Service tracking</div></div>
+      <div className="hero-graphic" aria-hidden="true">
+        <div className="circle circle-a"/><div className="circle circle-b"/>
+        <div className="car-graphic"><CarFront size={122} strokeWidth={1.1}/></div>
+        <div className="graphic-card"><CheckCircle2 size={19}/>{t.publicTrackService}</div>
+      </div>
     </section>
-    <div className="info-grid">
-      <section className="surface"><div className="feature-icon"><ShieldCheck size={25}/></div><h2>{t.accessTitle}</h2><p>{t.accessDescription}</p><p className="muted">{t.accessNote}</p></section>
-      <section className="surface"><div className="feature-icon"><MapPin size={25}/></div><h2>{t.contact}</h2><strong>{brand?.publicName||brand?.name}</strong><p>{[brand?.address,brand?.city].filter(Boolean).join(', ')}</p><Contacts brand={brand} t={t}/></section>
-    </div>
+
+    <section className="public-how" aria-labelledby="public-how-title">
+      <div className="public-section-heading">
+        <span className="public-overline">{t.publicServiceExperience}</span>
+        <h2 id="public-how-title">{t.publicHowTitle}</h2>
+        <p>{t.publicHowDescription}</p>
+      </div>
+      <div className="public-steps">
+        {steps.map(({icon:Icon,title,body},index)=><article className="public-step" key={title}>
+          <span className="public-step-icon"><Icon size={23}/></span>
+          <span className="public-step-number">0{index+1}</span>
+          <h3>{title}</h3><p>{body}</p>
+        </article>)}
+      </div>
+    </section>
+
+    <section className="public-info-grid" aria-label={t.publicContactAndAccess}>
+      <article className="surface public-contact-card">
+        <span className="public-overline">{t.contact}</span>
+        <h2>{workshop}</h2>
+        {address&&<p className="public-address"><MapPin size={19}/><span>{address}</span></p>}
+        <Contacts brand={brand} t={t}/>
+        {mapUrl&&<a className="public-directions" href={mapUrl} target="_blank" rel="noopener noreferrer">
+          <MapPin size={17}/>{t.publicDirections}<ArrowRight size={16}/>
+        </a>}
+        {!address&&!brand?.phone&&!brand?.whatsapp&&<p className="muted">{t.publicContactUnavailable}</p>}
+      </article>
+      <article className="surface public-access-card">
+        <div className="feature-icon"><ShieldCheck size={25}/></div>
+        <h2>{t.accessTitle}</h2>
+        <p>{t.accessDescription}</p>
+        <p className="muted">{t.accessNote}</p>
+        <p className="public-privacy-note"><ShieldCheck size={17}/>{t.safe}</p>
+      </article>
+    </section>
   </main>;
 }
+
 function Timeline({job,t}){
   const current=Math.max(0,stages.indexOf(job.stage));
   return <ol className="timeline" aria-label={t.step}>{stages.map((s,i)=><li className={i<=current?'done':''} aria-current={i===current?'step':undefined} key={s}><span>{i<=current?<CheckCircle2 size={17}/>:<span className="empty-dot"/>}</span>{t[s]||s}</li>)}</ol>;

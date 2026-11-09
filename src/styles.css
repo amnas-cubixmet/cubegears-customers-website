@@ -154,3 +154,48 @@
 .portal-decline-receipt{margin-top:6px;padding-top:8px;border-top:1px solid #b9ded0;display:grid;gap:5px}
 .portal-decline-receipt p{font-size:12px;margin:0;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere}
 @media(max-width:630px){.portal-decline-form{padding:12px}.portal-decline-form-buttons .btn{flex:1 1 100%;justify-content:center}}
+
+/* Public workshop website — tenant data only; customer data stays behind /access. */
+.public-home{padding-bottom:30px}
+.public-hero{min-height:450px}
+.public-hero .hero-text>p{max-width:580px;line-height:1.7}
+.public-hero .contacts{margin-top:24px}
+.public-enquiry-link,.public-directions{display:inline-flex;align-items:center;gap:9px;min-height:44px;font-size:15px;font-weight:750;color:var(--accent,#116f69);text-decoration:none}
+.public-enquiry-link{margin-top:12px}
+.public-enquiry-link:hover,.public-directions:hover{text-decoration:underline}
+.public-how{padding:55px 0 40px}
+.public-section-heading{max-width:700px;margin:0 auto 27px;text-align:center}
+.public-overline{display:inline-block;color:var(--accent,#116f69);font-size:13px;line-height:1.5;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.public-section-heading h2{font-size:clamp(26px,4vw,38px);line-height:1.2;letter-spacing:-.04em;margin:10px 0}
+.public-section-heading p{font-size:16px;line-height:1.7;color:#547177;margin:0}
+.public-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.public-step{position:relative;min-width:0;background:#fff;border:1px solid #dfebe8;border-radius:21px;padding:26px 24px;box-shadow:0 10px 35px rgba(14,57,51,.04)}
+.public-step-icon{width:50px;height:50px;display:flex;align-items:center;justify-content:center;border-radius:15px;color:var(--accent,#116f69);background:#ebf6f3}
+.public-step-number{position:absolute;right:24px;top:26px;font-size:14px;font-weight:800;letter-spacing:.05em;color:#78908e}
+.public-step h3{margin:23px 0 10px;font-size:19px;line-height:1.3}
+.public-step p{margin:0;color:#547177;font-size:15px;line-height:1.7}
+.public-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:17px;margin:10px 0 45px}
+.public-contact-card,.public-access-card{min-width:0}
+.public-contact-card h2{margin:11px 0 18px;overflow-wrap:anywhere}
+.public-address{display:flex;align-items:flex-start;gap:10px;color:#496b70;font-size:16px;line-height:1.6;overflow-wrap:anywhere}
+.public-address svg{flex-shrink:0;margin-top:3px;color:var(--accent,#116f69)}
+.public-contact-card .contacts{flex-wrap:wrap;margin-top:20px}
+.public-directions{margin-top:14px}
+.public-access-card>.feature-icon{margin-bottom:20px}
+.public-access-card h2{margin:0 0 10px}
+.public-access-card p{font-size:15px;line-height:1.7}
+.public-privacy-note{display:flex;align-items:center;gap:10px;font-weight:650;color:#3b6964}
+.public-privacy-note svg{flex-shrink:0}
+@media(max-width:920px){
+  .public-steps{grid-template-columns:1fr 1fr}
+  .public-steps .public-step:last-child{grid-column:1/-1}
+}
+@media(max-width:630px){
+  .public-how{padding:36px 0 26px}
+  .public-steps,.public-info-grid{grid-template-columns:1fr}
+  .public-steps .public-step:last-child{grid-column:auto}
+  .public-step{padding:23px 21px}
+  .public-info-grid{margin-bottom:18px}
+  .public-hero .contacts{margin-top:20px}
+  .public-enquiry-link{font-size:16px}
+}
