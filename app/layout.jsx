@@ -1,4 +1,5 @@
 import '../src/styles.css';
+import '../src/referenceDashboard.css';
 
 export const metadata = {
   title: 'cubixgear | Workshop Services',
