@@ -512,7 +512,7 @@ export default function App({demoMode=false,demoView='public'}){
           onHome={openHome} onVehicleOpen={openVehicle}
           onRefresh={refresh} refreshing={refreshing} refreshError={refreshError} lastRefreshed={lastRefreshed}
           onEstimateDecision={decideEstimate} decisionBusy={decisionBusy} decisionError={decisionError}
-          decisionNotice={decisionNotice} demoMode={demoMode}/>)}}
+          decisionNotice={decisionNotice} demoMode={demoMode}/>)}
     <footer className="footer"><div className="wrap"><span>{branding?.publicName||branding?.name||'cubixgear'}</span><span><ShieldCheck size={16}/>{t.footer}</span></div></footer>
   </div>;
 }
