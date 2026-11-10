@@ -10,6 +10,7 @@ import PublishedInspectionGallery from './components/PublishedInspectionGallery'
 import VehicleOverviewCard, { RecentServiceActivity } from './components/VehicleOverviewCard';
 import CustomerHomeDashboard from './components/CustomerHomeDashboard';
 import { dashboardRoute, vehicleUrl } from './portalRouting';
+import CustomerHomeDashboard from './components/CustomerHomeDashboard';
 
 function Contacts({brand,t}){
   const phone=cleanPhone(brand?.phone);
@@ -354,6 +355,7 @@ export default function App({demoMode=false,demoView='public'}){
   const [lang,setLanguage]=useState(() => typeof window !== 'undefined' && window.localStorage.getItem('cubegears:portal-language') === 'ml' ? 'ml' : 'en');
   const [branding,setBranding]=useState(demoMode ? demoBranding : null);
   const [data,setData]=useState(demoMode ? demoSession : null);
+  const [viewVehicleId,setViewVehicleId]=useState(null);
   const [state,setState]=useState(demoMode ? (demoView === 'portal' ? 'dashboard' : 'public') : 'loading');
   const [errorKind,setErrorKind]=useState('unavailable');
   const pendingAccessToken=useRef(null);
@@ -365,6 +367,33 @@ export default function App({demoMode=false,demoView='public'}){
   const [decisionError,setDecisionError]=useState('');
   const [decisionNotice,setDecisionNotice]=useState('');
   const t=useMemo(()=>copy[lang],[lang]);
+  // Vehicle IDs are authorized against the signed-in session, never from URL alone.
+  function syncVehicleRoute(session, path=window.location.pathname) {
+    const route=dashboardRoute(session?.vehicles||[],path);
+    setViewVehicleId(route.vehicleId);
+    if(!demoMode && window.location.pathname!==route.path){
+      window.history.replaceState({},'',route.path);
+    }
+  }
+  function openVehicle(vehicleId) {
+    const allowed=data?.vehicles?.find(v=>String(v.id)===String(vehicleId));
+    if(!allowed)return;
+    setViewVehicleId(String(allowed.id));
+    if(!demoMode)window.history.pushState({},'',vehicleUrl(allowed.id));
+    window.scrollTo({top:0,behavior:'instant'});
+  }
+  function openHome() {
+    if((data?.vehicles||[]).length<=1)return;
+    setViewVehicleId(null);
+    if(!demoMode)window.history.pushState({},'','/');
+    window.scrollTo({top:0,behavior:'instant'});
+  }
+  useEffect(()=>{
+    if(demoMode||state!=='dashboard'||!data)return undefined;
+    const onPopState=()=>syncVehicleRoute(data);
+    window.addEventListener('popstate',onPopState);
+    return()=>window.removeEventListener('popstate',onPopState);
+  },[demoMode,state,data]);
   function setLang(next){setLanguage(next);localStorage.setItem('cubegears:portal-language',next);}
   useEffect(()=>{
     if(demoMode){document.title='cubixgear Demo Garage';return undefined;}
@@ -407,6 +436,7 @@ export default function App({demoMode=false,demoView='public'}){
           if(response.customer){
             pendingAccessToken.current=null;
             setData(response);
+            syncVehicleRoute(response);
             setLastRefreshed(new Date().toISOString());
             setState('dashboard');
           }else if(token){
@@ -437,6 +467,7 @@ export default function App({demoMode=false,demoView='public'}){
       const response=await portalApi.session();
       if(!response.customer)throw new Error('Customer session unavailable.');
       setData(response);
+      syncVehicleRoute(response);
       setLastRefreshed(new Date().toISOString());
     }catch(error){
       if(error.status===401){setData(null);setState('public');}
@@ -457,6 +488,7 @@ export default function App({demoMode=false,demoView='public'}){
       const latest=await portalApi.session();
       if(!latest.customer)throw new Error('Customer session required.');
       setData(latest);
+      syncVehicleRoute(latest);
       setLastRefreshed(new Date().toISOString());
       setDecisionNotice(decision==='accept'?t.acceptedNotice:t.declinedNotice);
     }catch(error){
@@ -465,7 +497,7 @@ export default function App({demoMode=false,demoView='public'}){
         :error.status===400?t.feedbackInvalid:t.decisionFailed);
     }finally{setDecisionBusy(null);}
   }
-  async function logout(){try{await portalApi.logout();setData(null);setState('public');}catch{setErrorKind('unavailable');setState('error');}}
+  async function logout(){try{await portalApi.logout();setData(null);setViewVehicleId(null);window.history.replaceState({},'','/');setState('public');}catch{setErrorKind('unavailable');setState('error');}}
   const theme=branding?{'--accent':branding.primaryColor||'#116f69','--accent-soft':branding.secondaryColor||'#e4f2ec'}:{};
   return <div className="app" lang={lang} style={theme}>
     <Header brand={branding} lang={lang} setLang={setLang} logout={logout} authenticated={state==='dashboard'&&!demoMode} t={t} demoMode={demoMode}/>
@@ -473,10 +505,14 @@ export default function App({demoMode=false,demoView='public'}){
     {['loading','signing'].includes(state)&&<main className="wrap center" role="status"><div className="spinner"/><h1>{state==='signing'?t.signing:t.loading}</h1></main>}
     {state==='error'&&<main className="wrap center" role="alert"><ShieldCheck size={43}/><h1>{t[errorKind]}</h1><p>{t.accessNote}</p><button className="btn btn-outline" onClick={()=>{setState('loading');setAccessRetry(count=>count+1);}}>{t.retry}</button></main>}
     {state==='public'&&<PublicPage brand={branding} t={t} demoMode={demoMode}/>}
-    {state==='dashboard'&&data&&<Dashboard data={data} brand={branding} t={t} lang={lang}
-      onRefresh={refresh} refreshing={refreshing} refreshError={refreshError} lastRefreshed={lastRefreshed}
-      onEstimateDecision={decideEstimate} decisionBusy={decisionBusy} decisionError={decisionError}
-      decisionNotice={decisionNotice} demoMode={demoMode}/>}
+    {state==='dashboard'&&data&&(!viewVehicleId
+      ? <CustomerHomeDashboard data={data} t={t} lang={lang} onVehicleOpen={openVehicle}
+          onRefresh={refresh} refreshing={refreshing} refreshError={refreshError} lastRefreshed={lastRefreshed}/>
+      : <Dashboard data={data} brand={branding} t={t} lang={lang} vehicleId={viewVehicleId}
+          onHome={openHome} onVehicleOpen={openVehicle}
+          onRefresh={refresh} refreshing={refreshing} refreshError={refreshError} lastRefreshed={lastRefreshed}
+          onEstimateDecision={decideEstimate} decisionBusy={decisionBusy} decisionError={decisionError}
+          decisionNotice={decisionNotice} demoMode={demoMode}/>)}}
     <footer className="footer"><div className="wrap"><span>{branding?.publicName||branding?.name||'cubixgear'}</span><span><ShieldCheck size={16}/>{t.footer}</span></div></footer>
   </div>;
 }
