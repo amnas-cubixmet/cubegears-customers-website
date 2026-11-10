@@ -57,9 +57,26 @@ export async function handlePortalRequest(request, segments) {
   if (request.headers.has('x-cg-csrf')) upstreamHeaders.set('X-CG-CSRF', request.headers.get('x-cg-csrf'));
   let body;
   if (request.method === 'POST') {
-    body = await request.text();
-    if (Buffer.byteLength(body) > 8192) return new Response(null, { status: 413 });
-    upstreamHeaders.set('Content-Type', 'application/json');
+    const isUpload = path.length === 1 && path[0] === 'uploads';
+    if (isUpload) {
+      const type = request.headers.get('content-type') || '';
+      if (!/^multipart\/form-data;\s*boundary=[A-Za-z0-9'()+_,.\/-]{1,200}$/.test(type)) {
+        return Response.json({ message: 'Photo upload must use multipart form data.' }, { status: 415 });
+      }
+      const limit = 10 * 1024 * 1024 + 32768;
+      if (Number(request.headers.get('content-length') || 0) > limit) {
+        return Response.json({ message: 'Photo exceeds the 10 MB limit.' }, { status: 413 });
+      }
+      body = await request.arrayBuffer();
+      if (body.byteLength > limit) {
+        return Response.json({ message: 'Photo exceeds the 10 MB limit.' }, { status: 413 });
+      }
+      upstreamHeaders.set('Content-Type', type);
+    } else {
+      body = await request.text();
+      if (Buffer.byteLength(body) > 8192) return new Response(null, { status: 413 });
+      upstreamHeaders.set('Content-Type', 'application/json');
+    }
   }
   try {
     const upstream = await fetch(url, {
