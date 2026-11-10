@@ -11,7 +11,7 @@ test('dashboard uses the reference-inspired warm cards and real vehicle/service 
   const hero=source('src/components/VehicleOverviewCard.jsx');
   assert.match(app,/className="wrap dashboard ref-dashboard ref-vehicle-details"/);
   assert.match(app,/<VehicleOverviewCard vehicles=\{vehicles\} jobs=\{scopedJobs\} photos=\{photos\}/);
-  assert.match(app,/<RecentServiceActivity jobs=\{allJobs\} lang=\{lang\} t=\{t\}/);
+  assert.match(app,/<RecentServiceActivity jobs=\{scopedJobs\} lang=\{lang\} t=\{t\}/);
   assert.match(app,/className="ref-dashboard-overview"/);
   assert.match(app,/className="ref-dashboard-rail"/);
   assert.match(hero,/const featured = vehicles\.find/);
