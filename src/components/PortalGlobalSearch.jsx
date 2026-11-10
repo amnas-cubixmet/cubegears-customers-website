@@ -48,10 +48,11 @@ export default function PortalGlobalSearch({ session, t, onVehicleOpen }) {
 
   return (
     <div className="portal-global-search" role="search" ref={wrapper}>
-      <label className="sr-only" htmlFor="portal-global-search-input">{t.globalSearch}</label>
+
       <div className="portal-global-search-input-row">
         <Search size={18} aria-hidden="true"/>
         <input id="portal-global-search-input" ref={input} type="search" autoComplete="off"
+          aria-label={t.globalSearchPlaceholder}
           value={query} maxLength={100} placeholder={t.globalSearchPlaceholder}
           aria-controls="portal-global-search-results" aria-expanded={showResults}
           onChange={event => { setQuery(event.target.value); setExpanded(true); }}
