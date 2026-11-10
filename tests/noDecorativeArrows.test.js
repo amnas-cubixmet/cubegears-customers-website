@@ -21,7 +21,7 @@ test('removing arrows does not remove workshop contact or customer action contro
   assert.match(app, /onClick=\{onRefresh\}/);
   assert.match(app, /onEstimateDecision\?\.\(d,'accept'\)/);
   assert.match(app, /onEstimateDecision\?\.\(d,'decline'/);
-  assert.match(app, /onClick=\{\(\)=>window\.location\.reload\(\)\}/);
+  assert.match(app, /setAccessRetry\(count=>count\+1\)/);
 });
 
 test('customer website pages and styles are free of hardcoded decorative arrow glyphs', () => {

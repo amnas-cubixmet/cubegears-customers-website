@@ -115,6 +115,39 @@ logo as the tab icon where available; otherwise it retains the bundled icon.
 The logo comes from the existing hostname-scoped `/api/portal/logo` route.
 Both desktop and mobile render the photograph; no customer data is included.
 
+## Private /access links in local development
+
+The Next.js client exchanges the generated `/access/<token>` capability on the
+same workshop hostname after loading workshop branding. The token is kept in
+memory through React Strict Mode effect replays and the visible URL is
+immediately scrubbed; the secure session lives in an HttpOnly browser cookie.
+
+If a tracking link fails:
+
+1. Check the workshop root homepage and `/api/portal/branding` on the **same**
+   `<workshop>.localhost:5174` hostname. Branding should return 200; a
+   successful unauthenticated `/api/portal/session` GET should return 401.
+2. In browser Developer Tools → Network, inspect the *status codes only* of
+   `/api/portal/branding`, POST `/api/portal/session`, and subsequent GET
+   `/api/portal/session`. Do **not** copy or share the POST request body,
+   `Set-Cookie`, CSRF headers, or full access URL.
+3. If branding is 404, confirm that the saved subdomain is assigned to the
+   active workshop in the **same Django database** used by the customer site.
+   If exchange is 403, confirm the same 32+ character
+   `PORTAL_PROXY_SHARED_SECRET` is set in both services and development
+   session cookies are not marked Secure on plain HTTP.
+4. If exchange is 404, the access record may be revoked, rotated, inactive
+   or issued with a different `CUSTOMER_PORTAL_SIGNING_KEY` (which defaults
+   to Django's `DJANGO_SECRET_KEY`). Use Company Panel → Customer Details →
+   Tracking Link → Regenerate to issue a new secure URL.
+5. If exchange is 200 but session GET is 401, check that the browser accepts
+   same-site HttpOnly session cookies, that the backend database session
+   migrations are applied, and that both requests use the same hostname.
+
+Do not log or paste raw bearer tokens or browser cookies into issue reports.
+A localhost link only works on the machine hosting the website; real
+customers require a deployed HTTPS hostname.
+
 ## Production (Vercel)
 
 Use one dedicated Vercel project for this repository; it must NOT be the Company Panel, backend, or public marketing website. The Django backend controls project-domain assignments with server-only VERCEL_CUSTOMER_DOMAIN_TOKEN, VERCEL_CUSTOMER_PROJECT_ID and VERCEL_CUSTOMER_TEAM_ID. Domain records must come from Vercel's live API, never hardcoded in the frontend.
