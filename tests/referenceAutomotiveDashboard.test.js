@@ -36,7 +36,8 @@ test('maintenance, history, documents, and private published photos keep their w
   assert.match(app,/id="maintenance"/);
   assert.match(app,/id="history"/);
   assert.match(app,/id="documents"/);
-  assert.match(app,/id="vehicles"/);
+  assert.doesNotMatch(app,/className="filter portal-filters" id="vehicles"/);
+  assert.match(source('src/components/CustomerHomeDashboard.jsx'),/className="portal-home-vehicle-list"/);
   assert.match(app,/href="#overview"/);
   assert.match(app,/href="#maintenance"/);
   assert.match(app,/href="#documents"/);

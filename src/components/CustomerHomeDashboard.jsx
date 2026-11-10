@@ -4,9 +4,19 @@ import { CarFront, Clock3, FileText, Wrench, Wallet } from 'lucide-react';
 import { portalApi } from '../api';
 import { niceDate, inProgress, rupees } from '../i18n';
 import { invoiceTotals } from '../portalBilling';
+import { vehicleUrl } from '../portalRouting';
 
 function latestFirst(items) {
   return [...items].sort((a,b) => (Date.parse(b.createdAt || '') || 0) - (Date.parse(a.createdAt || '') || 0));
+}
+
+function followVehicleLink(event, vehicleId, onVehicleOpen) {
+  // Keep a real href for copy/open-in-new-tab/keyboard accessibility.
+  // Intercept only an ordinary click for instant in-app navigation.
+  if (event.defaultPrevented || event.button !== 0 || event.metaKey ||
+      event.ctrlKey || event.shiftKey || event.altKey) return;
+  event.preventDefault();
+  onVehicleOpen(vehicleId);
 }
 
 function VehicleListPhoto({ vehicle, photos, t }) {
@@ -75,10 +85,11 @@ export default function CustomerHomeDashboard({ data, t, lang, onVehicleOpen, on
               <span><Clock3 size={15} aria-hidden="true"/>{niceDate(latestWork.createdAt,lang)}</span>
             </div>
             {vehicles.some(v => String(v.id) === String(latestWork.vehicleId)) && (
-              <button className="portal-home-view-latest" type="button"
-                onClick={() => onVehicleOpen(latestWork.vehicleId)}>
+              <a className="portal-home-view-latest"
+                href={vehicleUrl(latestWork.vehicleId)}
+                onClick={event => followVehicleLink(event, latestWork.vehicleId, onVehicleOpen)}>
                 {t.viewVehicleDetails}
-              </button>
+              </a>
             )}
           </> : <p className="portal-home-muted">{t.noServiceYet}</p>}
         </div>
@@ -97,9 +108,10 @@ export default function CustomerHomeDashboard({ data, t, lang, onVehicleOpen, on
               const vehicleJobs = latest.filter(job => String(job.vehicleId) === String(vehicle.id));
               const last = vehicleJobs[0];
               return (
-                <button key={vehicle.id} type="button"
+                <a key={vehicle.id}
                   className="portal-home-vehicle-card"
-                  onClick={() => onVehicleOpen(vehicle.id)}
+                  href={vehicleUrl(vehicle.id)}
+                  onClick={event => followVehicleLink(event, vehicle.id, onVehicleOpen)}
                   aria-label={t.viewVehicleDetails + ': ' + vehicle.registration}>
                   <VehicleListPhoto vehicle={vehicle} photos={allPhotos} t={t}/>
                   <span className="portal-home-vehicle-main">
@@ -108,7 +120,7 @@ export default function CustomerHomeDashboard({ data, t, lang, onVehicleOpen, on
                     {last && <small>{t.latestService}: {t[last.stage] || last.status}</small>}
                   </span>
                   <span className="portal-home-vehicle-cta">{t.viewDetails}</span>
-                </button>
+                </a>
               );
             })}
           </div>

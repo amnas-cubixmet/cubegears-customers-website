@@ -39,7 +39,7 @@ test('customer data visible only after tenant-bound signed-session response', ()
   assert.match(app, /const vehicles=data\.vehicles\|\|\[\]/);
   assert.match(app, /const allJobs=data\.jobs\|\|\[\]/);
   assert.match(app, /const scopedJobs=allJobs\.filter/);
-  assert.match(app, /const jobs=scopedJobs\.filter/);
+  assert.match(app, /const jobs=scopedJobs;/);
   assert.match(app, /matchingJobIds\.has/);
   assert.match(app, /const selected = vehicleId/);
   assert.match(app, /dashboardRoute\(session\?\.vehicles\|\|\[\],path\)/);
