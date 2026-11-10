@@ -8,6 +8,8 @@ import {copy,stages,inProgress,niceDate,rupees,cleanPhone} from './i18n';
 import {invoiceTotals,invoicePaymentLabel} from './portalBilling';
 import PublishedInspectionGallery from './components/PublishedInspectionGallery';
 import VehicleOverviewCard, { RecentServiceActivity } from './components/VehicleOverviewCard';
+import CustomerHomeDashboard from './components/CustomerHomeDashboard';
+import { dashboardRoute, vehicleUrl } from './portalRouting';
 
 function Contacts({brand,t}){
   const phone=cleanPhone(brand?.phone);
@@ -129,24 +131,25 @@ function Timeline({job,t}){
   const current=Math.max(0,stages.indexOf(job.stage));
   return <ol className="timeline" aria-label={t.step}>{stages.map((s,i)=><li className={i<=current?'done':''} aria-current={i===current?'step':undefined} key={s}><span>{i<=current?<CheckCircle2 size={17}/>:<span className="empty-dot"/>}</span>{t[s]||s}</li>)}</ol>;
 }
-function Dashboard({data,brand,t,lang,onRefresh,refreshing,refreshError,lastRefreshed,onEstimateDecision,decisionBusy,decisionError,decisionNotice,demoMode}){
-  const [selected,setSelected]=useState('all');
+function Dashboard({data,brand,t,lang,onRefresh,refreshing,refreshError,lastRefreshed,onEstimateDecision,decisionBusy,decisionError,decisionNotice,demoMode,vehicleId,onHome,onVehicleOpen}){
+  const selected = vehicleId;
   const [query,setQuery]=useState('');
   const [reviewedQuotes,setReviewedQuotes]=useState(()=>new Set());
   const [declineDraft,setDeclineDraft]=useState(null);
   const needle=query.trim().toLocaleLowerCase();
   const vehicles=data.vehicles||[];
   const allJobs=data.jobs||[];
+  const scopedJobs=allJobs.filter(j=>String(j.vehicleId)===String(vehicleId));
+  const scopedJobIds=new Set(scopedJobs.map(j=>String(j.id)));
+  const scopedInvoices=(data.invoices||[]).filter(i=>scopedJobIds.has(String(i.jobId)));
   const matchesJob=(j)=>!needle||[j.number,j.vehicleRegistration,j.vehicleModel,j.status]
     .some(value=>String(value||'').toLocaleLowerCase().includes(needle));
-  const jobs=allJobs.filter(j=>(selected==='all'||j.vehicleId===selected)&&matchesJob(j));
-  const visibleVehicles=vehicles.filter(v=>(selected==='all'||v.id===selected)&&(
-    !needle||[v.registration,v.model,v.year].some(value=>String(value||'').toLocaleLowerCase().includes(needle))
-  ));
+  const jobs=scopedJobs.filter(matchesJob);
+  const visibleVehicles=vehicles.filter(v=>String(v.id)===String(selected));
   const active=jobs.filter(j=>inProgress.has(j.status));
   const history=jobs.filter(j=>!inProgress.has(j.status));
   const matchingJobIds=new Set(jobs.map(j=>String(j.id)));
-  const photos=(data.photos||[]).filter(p=>(selected==='all'||p.vehicleId===selected)&&(
+  const photos=(data.photos||[]).filter(p=>String(p.vehicleId)===String(selected)&&(
     !needle||matchingJobIds.has(String(p.jobId))||[p.caption,p.category,p.phase].some(
       value=>String(value||'').toLocaleLowerCase().includes(needle)
     )
@@ -154,17 +157,17 @@ function Dashboard({data,brand,t,lang,onRefresh,refreshing,refreshError,lastRefr
   const docs=[
     ...(data.estimates||[]).map(e=>({...e,key:'e-'+e.jobId+'-'+e.version,label:t.estimate+' v'+e.version,docKind:'estimate'})),
     ...(data.invoices||[]).map(i=>({...i,key:'i-'+i.number,label:i.number,docKind:'invoice'}))
-  ].filter(d=>(selected==='all'&&!needle)||(
-    d.jobId && matchingJobIds.has(String(d.jobId))
-  ));
-  const totals=invoiceTotals(data.invoices);
+  ].filter(d=>d.jobId && matchingJobIds.has(String(d.jobId)));
+  const totals=invoiceTotals(scopedInvoices);
   const latestQuoteVersions=new Map();
   for(const estimate of data.estimates||[]){
     const jobId=String(estimate.jobId||'');
     const version=Number(estimate.version)||0;
     latestQuoteVersions.set(jobId,Math.max(latestQuoteVersions.get(jobId)||0,version));
   }
-  return <main className="wrap dashboard ref-dashboard">
+  return <main className="wrap dashboard ref-dashboard ref-vehicle-details">
+    {vehicles.length>1 && <button type="button" className="portal-back-home"
+      onClick={onHome}>{t.backToHome}</button>}
     <div className="welcome"><div><span className="eyebrow">{niceDate(new Date().toISOString(),lang)}</span><h1>{t.welcome}, {data.customer?.name||t.portal}</h1><p>{t.greeting}</p></div></div>
     <div className="portal-refresh">
       <span>{t.lastChecked}: {lastRefreshed?niceDate(lastRefreshed,lang):'—'}</span>
@@ -180,34 +183,27 @@ function Dashboard({data,brand,t,lang,onRefresh,refreshing,refreshError,lastRefr
       <a href="#history">{t.historyTab}</a>
     </nav>
     <div className="ref-dashboard-overview" id="overview">
-      <VehicleOverviewCard vehicles={vehicles} jobs={allJobs} photos={data.photos||[]}
-        selected={selected} onSelect={setSelected} lang={lang} t={t}/>
+      <VehicleOverviewCard vehicles={vehicles} jobs={scopedJobs} photos={photos}
+        selected={selected} onSelect={onVehicleOpen} lang={lang} t={t}/>
       <div className="ref-dashboard-rail">
         <div className="stats" aria-label={t.serviceAtGlance}>
-          <div className="stat"><CarFront size={24}/><div><strong>{vehicles.length}</strong><span>{t.vehicles}</span></div></div>
-          <div className="stat"><Wrench size={24}/><div><strong>{allJobs.filter(j=>inProgress.has(j.status)).length}</strong><span>{t.active}</span></div></div>
-          <div className="stat"><Clock3 size={24}/><div><strong>{allJobs.filter(j=>!inProgress.has(j.status)).length}</strong><span>{t.history}</span></div></div>
+          <div className="stat"><CarFront size={24}/><div><strong>{visibleVehicles.length}</strong><span>{t.vehicles}</span></div></div>
+          <div className="stat"><Wrench size={24}/><div><strong>{scopedJobs.filter(j=>inProgress.has(j.status)).length}</strong><span>{t.active}</span></div></div>
+          <div className="stat"><Clock3 size={24}/><div><strong>{scopedJobs.filter(j=>!inProgress.has(j.status)).length}</strong><span>{t.history}</span></div></div>
           <div className="stat"><Wallet size={24}/><div><strong className="stat-money">{rupees(totals.outstanding)}</strong><span>{t.outstanding}</span></div></div>
         </div>
-        <RecentServiceActivity jobs={allJobs} lang={lang} t={t}/>
+        <RecentServiceActivity jobs={scopedJobs} lang={lang} t={t}/>
       </div>
     </div>
     <div className="filter portal-filters" id="vehicles">
-      <h2>{t.vehicles}</h2>
-      <label className="portal-filter-select">
-        <span>{t.filterVehicle}</span>
-        <select value={selected} aria-label={t.vehicles} onChange={e=>setSelected(e.target.value)}>
-          <option value="all">{t.all}</option>
-          {vehicles.map(v=><option value={v.id} key={v.id}>{v.registration} · {v.model}</option>)}
-        </select>
-      </label>
+      <h2>{t.vehicleRecords}</h2>
       <label className="portal-filter-search">
         <span>{t.searchRecords}</span>
         <input type="search" value={query} maxLength={100} onChange={e=>setQuery(e.target.value)}
           placeholder={t.searchPlaceholder} autoComplete="off" />
       </label>
-      {(selected!=='all'||query)&&<button className="btn btn-outline" type="button"
-        onClick={()=>{setSelected('all');setQuery('');}}>{t.reset}</button>}
+      {query&&<button className="btn btn-outline" type="button"
+        onClick={()=>setQuery('')}>{t.reset}</button>}
     </div>
     <div className="vehicle-grid">{visibleVehicles.map(v=><article className="vehicle" key={v.id}><div className="feature-icon"><CarFront size={27}/></div><div><strong>{v.registration}</strong><span>{v.model} {v.year||''}</span></div></article>)}{!visibleVehicles.length&&<p className="blank">{t.noData}</p>}</div>
     <div className="panel-grid">
