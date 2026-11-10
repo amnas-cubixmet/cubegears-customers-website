@@ -71,6 +71,9 @@ test('header search only mounts with authenticated session and routes to allowed
   assert.match(app,/const allowed=data\?\.vehicles\?\.find/);
   assert.match(app,/\['overview','maintenance','documents','history'\]\.includes\(section\)/);
   assert.match(app,/document\.getElementById\(target\)\?\.scrollIntoView/);
+  assert.doesNotMatch(ui,/t\.globalSearch(?!Placeholder)/);
+  assert.doesNotMatch(ui,/<label[^>]*htmlFor="portal-global-search-input"/);
+  assert.match(ui,/aria-label=\{t\.globalSearchPlaceholder\}/);
   assert.match(ui,/buildPortalSearchRecords\(session\)/);
   assert.match(ui,/searchPortalRecords\(entries, query\)/);
   assert.match(ui,/event\.key === 'Enter'/);
@@ -105,7 +108,7 @@ test('mobile header places search beneath workshop name and actions',()=>{
 
 test('search and breadcrumb language labels available in English and Malayalam',()=>{
   for(const lang of ['en','ml']) for(const key of [
-    'globalSearch','globalSearchPlaceholder','clearSearch','searchResults','searchMatches',
+    'globalSearchPlaceholder','clearSearch','searchResults','searchMatches',
     'noSearchResults','searchTypeVehicle','searchTypeJob','searchTypeInvoice',
     'searchTypeEstimate','breadcrumbLabel',
   ]) assert.ok(copy[lang][key],lang+'.'+key);
