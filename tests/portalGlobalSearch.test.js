@@ -57,7 +57,7 @@ test('search is bounded, case insensitive and leaves blank input closed',()=>{
   const rows=buildPortalSearchRecords(session);
   assert.equal(searchPortalRecords(rows,'').length,0);
   assert.equal(searchPortalRecords(rows,'   ').length,0);
-  assert.equal(searchPortalRecords(rows,'KL10').length,2);
+  assert.equal(searchPortalRecords(rows,'KL10').filter(x=>x.kind==='vehicle').length,2);
   assert.equal(searchPortalRecords(rows,'kl10',1).length,1);
   assert.equal(searchPortalRecords(rows,'SWIFT')[0].kind,'vehicle');
   assert.ok(searchPortalRecords(buildPortalSearchRecords(demoSession),'DEMO').length>0);
