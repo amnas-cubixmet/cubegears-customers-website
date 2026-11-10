@@ -7,6 +7,7 @@ import {demoBranding,demoSession} from './demoData';
 import {copy,stages,inProgress,niceDate,rupees,cleanPhone} from './i18n';
 import {invoiceTotals,invoicePaymentLabel} from './portalBilling';
 import PublishedInspectionGallery from './components/PublishedInspectionGallery';
+import VehicleOverviewCard, { RecentServiceActivity } from './components/VehicleOverviewCard';
 
 function Contacts({brand,t}){
   const phone=cleanPhone(brand?.phone);
@@ -163,7 +164,7 @@ function Dashboard({data,brand,t,lang,onRefresh,refreshing,refreshError,lastRefr
     const version=Number(estimate.version)||0;
     latestQuoteVersions.set(jobId,Math.max(latestQuoteVersions.get(jobId)||0,version));
   }
-  return <main className="wrap dashboard">
+  return <main className="wrap dashboard ref-dashboard">
     <div className="welcome"><div><span className="eyebrow">{niceDate(new Date().toISOString(),lang)}</span><h1>{t.welcome}, {data.customer?.name||t.portal}</h1><p>{t.greeting}</p></div></div>
     <div className="portal-refresh">
       <span>{t.lastChecked}: {lastRefreshed?niceDate(lastRefreshed,lang):'—'}</span>
@@ -172,13 +173,26 @@ function Dashboard({data,brand,t,lang,onRefresh,refreshing,refreshError,lastRefr
       </button>
     </div>
     {refreshError&&<p className="portal-refresh-error" role="alert">{refreshError}</p>}
-    <div className="stats">
-      <div className="stat"><CarFront size={24}/><div><strong>{vehicles.length}</strong><span>{t.vehicles}</span></div></div>
-      <div className="stat"><Wrench size={24}/><div><strong>{allJobs.filter(j=>inProgress.has(j.status)).length}</strong><span>{t.active}</span></div></div>
-      <div className="stat"><Clock3 size={24}/><div><strong>{allJobs.filter(j=>!inProgress.has(j.status)).length}</strong><span>{t.history}</span></div></div>
-      <div className="stat"><Wallet size={24}/><div><strong className="stat-money">{rupees(totals.outstanding)}</strong><span>{t.outstanding}</span></div></div>
+    <nav className="ref-dashboard-tabs" aria-label={t.dashboardSections}>
+      <a href="#vehicles">{t.overviewTab}</a>
+      <a href="#maintenance">{t.maintenanceTab}</a>
+      <a href="#documents">{t.documentsTab}</a>
+      <a href="#history">{t.historyTab}</a>
+    </nav>
+    <div className="ref-dashboard-overview" id="overview">
+      <VehicleOverviewCard vehicles={vehicles} jobs={allJobs} photos={data.photos||[]}
+        selected={selected} onSelect={setSelected} lang={lang} t={t}/>
+      <div className="ref-dashboard-rail">
+        <div className="stats" aria-label={t.serviceAtGlance}>
+          <div className="stat"><CarFront size={24}/><div><strong>{vehicles.length}</strong><span>{t.vehicles}</span></div></div>
+          <div className="stat"><Wrench size={24}/><div><strong>{allJobs.filter(j=>inProgress.has(j.status)).length}</strong><span>{t.active}</span></div></div>
+          <div className="stat"><Clock3 size={24}/><div><strong>{allJobs.filter(j=>!inProgress.has(j.status)).length}</strong><span>{t.history}</span></div></div>
+          <div className="stat"><Wallet size={24}/><div><strong className="stat-money">{rupees(totals.outstanding)}</strong><span>{t.outstanding}</span></div></div>
+        </div>
+        <RecentServiceActivity jobs={allJobs} lang={lang} t={t}/>
+      </div>
     </div>
-    <div className="filter portal-filters">
+    <div className="filter portal-filters" id="vehicles">
       <h2>{t.vehicles}</h2>
       <label className="portal-filter-select">
         <span>{t.filterVehicle}</span>
@@ -197,16 +211,16 @@ function Dashboard({data,brand,t,lang,onRefresh,refreshing,refreshError,lastRefr
     </div>
     <div className="vehicle-grid">{visibleVehicles.map(v=><article className="vehicle" key={v.id}><div className="feature-icon"><CarFront size={27}/></div><div><strong>{v.registration}</strong><span>{v.model} {v.year||''}</span></div></article>)}{!visibleVehicles.length&&<p className="blank">{t.noData}</p>}</div>
     <div className="panel-grid">
-      <section className="surface"><div className="section-head"><Wrench size={20}/><h2>{t.active}</h2><span>{active.length}</span></div>
+      <section className="surface" id="maintenance"><div className="section-head"><Wrench size={20}/><h2>{t.active}</h2><span>{active.length}</span></div>
         {active.map(job=><article className="job" key={job.id}><div className="job-top"><div><small>{job.number}</small><h3>{job.vehicleRegistration}</h3><p>{job.vehicleModel}</p></div><span className="tag">{t[job.stage]||job.status}</span></div><Timeline job={job} t={t}/><small className="date">{t.date}: {niceDate(job.createdAt,lang)}</small></article>)}
         {!active.length&&<p className="muted">{t.noData}</p>}
       </section>
-      <section className="surface"><div className="section-head"><Clock3 size={20}/><h2>{t.history}</h2></div>
+      <section className="surface" id="history"><div className="section-head"><Clock3 size={20}/><h2>{t.history}</h2></div>
         {history.map(job=><div className="history" key={job.id}><strong>{job.vehicleRegistration}</strong><span>{job.number}</span><small>{t[job.stage]||job.status} · {niceDate(job.createdAt,lang)}</small></div>)}
         {!history.length&&<p className="muted">{t.noData}</p>}
       </section>
       <PublishedInspectionGallery photos={photos} t={t} lang={lang}/>
-      <section className="surface"><div className="section-head"><FileText size={20}/><h2>{t.documents}</h2></div>
+      <section className="surface" id="documents"><div className="section-head"><FileText size={20}/><h2>{t.documents}</h2></div>
         {decisionError&&<p className="portal-refresh-error" role="alert">{decisionError}</p>}
         {decisionNotice&&<p className="portal-estimate-success" role="status">{decisionNotice}</p>}
         {docs.map(d=><div className="document portal-document" key={d.key}><div>
