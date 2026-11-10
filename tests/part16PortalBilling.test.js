@@ -43,7 +43,7 @@ test('payment labels are localized and distinguish no payment from partial payme
 });
 
 test('customer dashboard uses authenticated session, not mock payment records', () => {
-  assert.match(source, /const totals=invoiceTotals\(data\.invoices\)/);
+  assert.match(source, /const totals=invoiceTotals\(scopedInvoices\)/);
   assert.match(source, /await portalApi\.session\(\)/);
   assert.match(source, /invoicePaymentLabel\(d,t\)/);
   assert.match(source, /matchingJobIds\.has/);
