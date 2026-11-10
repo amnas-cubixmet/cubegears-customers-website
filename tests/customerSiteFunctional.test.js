@@ -38,9 +38,11 @@ test('customer data visible only after tenant-bound signed-session response', ()
   const app = file('src/App.jsx');
   assert.match(app, /const vehicles=data\.vehicles\|\|\[\]/);
   assert.match(app, /const allJobs=data\.jobs\|\|\[\]/);
-  assert.match(app, /const jobs=allJobs\.filter/);
+  assert.match(app, /const scopedJobs=allJobs\.filter/);
+  assert.match(app, /const jobs=scopedJobs\.filter/);
   assert.match(app, /matchingJobIds\.has/);
-  assert.match(app, /setSelected\('all'\);setQuery\(''\)/);
+  assert.match(app, /const selected = vehicleId/);
+  assert.match(app, /dashboardRoute\(session\?\.vehicles\|\|\[\],path\)/);
   assert.doesNotMatch(app, /getCustomers\(|\/customers\/\w+\/?\?/);
   assert.match(app, /window\.history\.replaceState/);
 });

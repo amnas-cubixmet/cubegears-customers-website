@@ -8,6 +8,8 @@ import {copy,stages,inProgress,niceDate,rupees,cleanPhone} from './i18n';
 import {invoiceTotals,invoicePaymentLabel} from './portalBilling';
 import PublishedInspectionGallery from './components/PublishedInspectionGallery';
 import VehicleOverviewCard, { RecentServiceActivity } from './components/VehicleOverviewCard';
+import { dashboardRoute, vehicleUrl } from './portalRouting';
+import CustomerHomeDashboard from './components/CustomerHomeDashboard';
 
 function Contacts({brand,t}){
   const phone=cleanPhone(brand?.phone);
@@ -129,24 +131,25 @@ function Timeline({job,t}){
   const current=Math.max(0,stages.indexOf(job.stage));
   return <ol className="timeline" aria-label={t.step}>{stages.map((s,i)=><li className={i<=current?'done':''} aria-current={i===current?'step':undefined} key={s}><span>{i<=current?<CheckCircle2 size={17}/>:<span className="empty-dot"/>}</span>{t[s]||s}</li>)}</ol>;
 }
-function Dashboard({data,brand,t,lang,onRefresh,refreshing,refreshError,lastRefreshed,onEstimateDecision,decisionBusy,decisionError,decisionNotice,demoMode}){
-  const [selected,setSelected]=useState('all');
+function Dashboard({data,brand,t,lang,onRefresh,refreshing,refreshError,lastRefreshed,onEstimateDecision,decisionBusy,decisionError,decisionNotice,demoMode,vehicleId,onHome,onVehicleOpen}){
+  const selected = vehicleId;
   const [query,setQuery]=useState('');
   const [reviewedQuotes,setReviewedQuotes]=useState(()=>new Set());
   const [declineDraft,setDeclineDraft]=useState(null);
   const needle=query.trim().toLocaleLowerCase();
   const vehicles=data.vehicles||[];
   const allJobs=data.jobs||[];
+  const scopedJobs=allJobs.filter(j=>String(j.vehicleId)===String(vehicleId));
+  const scopedJobIds=new Set(scopedJobs.map(j=>String(j.id)));
+  const scopedInvoices=(data.invoices||[]).filter(i=>scopedJobIds.has(String(i.jobId)));
   const matchesJob=(j)=>!needle||[j.number,j.vehicleRegistration,j.vehicleModel,j.status]
     .some(value=>String(value||'').toLocaleLowerCase().includes(needle));
-  const jobs=allJobs.filter(j=>(selected==='all'||j.vehicleId===selected)&&matchesJob(j));
-  const visibleVehicles=vehicles.filter(v=>(selected==='all'||v.id===selected)&&(
-    !needle||[v.registration,v.model,v.year].some(value=>String(value||'').toLocaleLowerCase().includes(needle))
-  ));
+  const jobs=scopedJobs.filter(matchesJob);
+  const visibleVehicles=vehicles.filter(v=>String(v.id)===String(selected));
   const active=jobs.filter(j=>inProgress.has(j.status));
   const history=jobs.filter(j=>!inProgress.has(j.status));
   const matchingJobIds=new Set(jobs.map(j=>String(j.id)));
-  const photos=(data.photos||[]).filter(p=>(selected==='all'||p.vehicleId===selected)&&(
+  const photos=(data.photos||[]).filter(p=>String(p.vehicleId)===String(selected)&&(
     !needle||matchingJobIds.has(String(p.jobId))||[p.caption,p.category,p.phase].some(
       value=>String(value||'').toLocaleLowerCase().includes(needle)
     )
@@ -154,17 +157,17 @@ function Dashboard({data,brand,t,lang,onRefresh,refreshing,refreshError,lastRefr
   const docs=[
     ...(data.estimates||[]).map(e=>({...e,key:'e-'+e.jobId+'-'+e.version,label:t.estimate+' v'+e.version,docKind:'estimate'})),
     ...(data.invoices||[]).map(i=>({...i,key:'i-'+i.number,label:i.number,docKind:'invoice'}))
-  ].filter(d=>(selected==='all'&&!needle)||(
-    d.jobId && matchingJobIds.has(String(d.jobId))
-  ));
-  const totals=invoiceTotals(data.invoices);
+  ].filter(d=>d.jobId && matchingJobIds.has(String(d.jobId)));
+  const totals=invoiceTotals(scopedInvoices);
   const latestQuoteVersions=new Map();
   for(const estimate of data.estimates||[]){
     const jobId=String(estimate.jobId||'');
     const version=Number(estimate.version)||0;
     latestQuoteVersions.set(jobId,Math.max(latestQuoteVersions.get(jobId)||0,version));
   }
-  return <main className="wrap dashboard ref-dashboard">
+  return <main className="wrap dashboard ref-dashboard ref-vehicle-details">
+    {vehicles.length>1 && <button type="button" className="portal-back-home"
+      onClick={onHome}>{t.backToHome}</button>}
     <div className="welcome"><div><span className="eyebrow">{niceDate(new Date().toISOString(),lang)}</span><h1>{t.welcome}, {data.customer?.name||t.portal}</h1><p>{t.greeting}</p></div></div>
     <div className="portal-refresh">
       <span>{t.lastChecked}: {lastRefreshed?niceDate(lastRefreshed,lang):'—'}</span>
@@ -180,34 +183,27 @@ function Dashboard({data,brand,t,lang,onRefresh,refreshing,refreshError,lastRefr
       <a href="#history">{t.historyTab}</a>
     </nav>
     <div className="ref-dashboard-overview" id="overview">
-      <VehicleOverviewCard vehicles={vehicles} jobs={allJobs} photos={data.photos||[]}
-        selected={selected} onSelect={setSelected} lang={lang} t={t}/>
+      <VehicleOverviewCard vehicles={vehicles} jobs={scopedJobs} photos={photos}
+        selected={selected} onSelect={onVehicleOpen} lang={lang} t={t}/>
       <div className="ref-dashboard-rail">
         <div className="stats" aria-label={t.serviceAtGlance}>
-          <div className="stat"><CarFront size={24}/><div><strong>{vehicles.length}</strong><span>{t.vehicles}</span></div></div>
-          <div className="stat"><Wrench size={24}/><div><strong>{allJobs.filter(j=>inProgress.has(j.status)).length}</strong><span>{t.active}</span></div></div>
-          <div className="stat"><Clock3 size={24}/><div><strong>{allJobs.filter(j=>!inProgress.has(j.status)).length}</strong><span>{t.history}</span></div></div>
+          <div className="stat"><CarFront size={24}/><div><strong>{visibleVehicles.length}</strong><span>{t.vehicles}</span></div></div>
+          <div className="stat"><Wrench size={24}/><div><strong>{scopedJobs.filter(j=>inProgress.has(j.status)).length}</strong><span>{t.active}</span></div></div>
+          <div className="stat"><Clock3 size={24}/><div><strong>{scopedJobs.filter(j=>!inProgress.has(j.status)).length}</strong><span>{t.history}</span></div></div>
           <div className="stat"><Wallet size={24}/><div><strong className="stat-money">{rupees(totals.outstanding)}</strong><span>{t.outstanding}</span></div></div>
         </div>
-        <RecentServiceActivity jobs={allJobs} lang={lang} t={t}/>
+        <RecentServiceActivity jobs={scopedJobs} lang={lang} t={t}/>
       </div>
     </div>
     <div className="filter portal-filters" id="vehicles">
-      <h2>{t.vehicles}</h2>
-      <label className="portal-filter-select">
-        <span>{t.filterVehicle}</span>
-        <select value={selected} aria-label={t.vehicles} onChange={e=>setSelected(e.target.value)}>
-          <option value="all">{t.all}</option>
-          {vehicles.map(v=><option value={v.id} key={v.id}>{v.registration} · {v.model}</option>)}
-        </select>
-      </label>
+      <h2>{t.vehicleRecords}</h2>
       <label className="portal-filter-search">
         <span>{t.searchRecords}</span>
         <input type="search" value={query} maxLength={100} onChange={e=>setQuery(e.target.value)}
           placeholder={t.searchPlaceholder} autoComplete="off" />
       </label>
-      {(selected!=='all'||query)&&<button className="btn btn-outline" type="button"
-        onClick={()=>{setSelected('all');setQuery('');}}>{t.reset}</button>}
+      {query&&<button className="btn btn-outline" type="button"
+        onClick={()=>setQuery('')}>{t.reset}</button>}
     </div>
     <div className="vehicle-grid">{visibleVehicles.map(v=><article className="vehicle" key={v.id}><div className="feature-icon"><CarFront size={27}/></div><div><strong>{v.registration}</strong><span>{v.model} {v.year||''}</span></div></article>)}{!visibleVehicles.length&&<p className="blank">{t.noData}</p>}</div>
     <div className="panel-grid">
@@ -358,6 +354,7 @@ export default function App({demoMode=false,demoView='public'}){
   const [lang,setLanguage]=useState(() => typeof window !== 'undefined' && window.localStorage.getItem('cubegears:portal-language') === 'ml' ? 'ml' : 'en');
   const [branding,setBranding]=useState(demoMode ? demoBranding : null);
   const [data,setData]=useState(demoMode ? demoSession : null);
+  const [viewVehicleId,setViewVehicleId]=useState(null);
   const [state,setState]=useState(demoMode ? (demoView === 'portal' ? 'dashboard' : 'public') : 'loading');
   const [errorKind,setErrorKind]=useState('unavailable');
   const pendingAccessToken=useRef(null);
@@ -369,6 +366,33 @@ export default function App({demoMode=false,demoView='public'}){
   const [decisionError,setDecisionError]=useState('');
   const [decisionNotice,setDecisionNotice]=useState('');
   const t=useMemo(()=>copy[lang],[lang]);
+  // Vehicle IDs are authorized against the signed-in session, never from URL alone.
+  function syncVehicleRoute(session, path=window.location.pathname) {
+    const route=dashboardRoute(session?.vehicles||[],path);
+    setViewVehicleId(route.vehicleId);
+    if(!demoMode && window.location.pathname!==route.path){
+      window.history.replaceState({},'',route.path);
+    }
+  }
+  function openVehicle(vehicleId) {
+    const allowed=data?.vehicles?.find(v=>String(v.id)===String(vehicleId));
+    if(!allowed)return;
+    setViewVehicleId(String(allowed.id));
+    if(!demoMode)window.history.pushState({},'',vehicleUrl(allowed.id));
+    window.scrollTo({top:0,behavior:'instant'});
+  }
+  function openHome() {
+    if((data?.vehicles||[]).length<=1)return;
+    setViewVehicleId(null);
+    if(!demoMode)window.history.pushState({},'','/');
+    window.scrollTo({top:0,behavior:'instant'});
+  }
+  useEffect(()=>{
+    if(demoMode||state!=='dashboard'||!data)return undefined;
+    const onPopState=()=>syncVehicleRoute(data);
+    window.addEventListener('popstate',onPopState);
+    return()=>window.removeEventListener('popstate',onPopState);
+  },[demoMode,state,data]);
   function setLang(next){setLanguage(next);localStorage.setItem('cubegears:portal-language',next);}
   useEffect(()=>{
     if(demoMode){document.title='cubixgear Demo Garage';return undefined;}
@@ -411,6 +435,7 @@ export default function App({demoMode=false,demoView='public'}){
           if(response.customer){
             pendingAccessToken.current=null;
             setData(response);
+            syncVehicleRoute(response);
             setLastRefreshed(new Date().toISOString());
             setState('dashboard');
           }else if(token){
@@ -441,6 +466,7 @@ export default function App({demoMode=false,demoView='public'}){
       const response=await portalApi.session();
       if(!response.customer)throw new Error('Customer session unavailable.');
       setData(response);
+      syncVehicleRoute(response);
       setLastRefreshed(new Date().toISOString());
     }catch(error){
       if(error.status===401){setData(null);setState('public');}
@@ -461,6 +487,7 @@ export default function App({demoMode=false,demoView='public'}){
       const latest=await portalApi.session();
       if(!latest.customer)throw new Error('Customer session required.');
       setData(latest);
+      syncVehicleRoute(latest);
       setLastRefreshed(new Date().toISOString());
       setDecisionNotice(decision==='accept'?t.acceptedNotice:t.declinedNotice);
     }catch(error){
@@ -469,7 +496,7 @@ export default function App({demoMode=false,demoView='public'}){
         :error.status===400?t.feedbackInvalid:t.decisionFailed);
     }finally{setDecisionBusy(null);}
   }
-  async function logout(){try{await portalApi.logout();setData(null);setState('public');}catch{setErrorKind('unavailable');setState('error');}}
+  async function logout(){try{await portalApi.logout();setData(null);setViewVehicleId(null);window.history.replaceState({},'','/');setState('public');}catch{setErrorKind('unavailable');setState('error');}}
   const theme=branding?{'--accent':branding.primaryColor||'#116f69','--accent-soft':branding.secondaryColor||'#e4f2ec'}:{};
   return <div className="app" lang={lang} style={theme}>
     <Header brand={branding} lang={lang} setLang={setLang} logout={logout} authenticated={state==='dashboard'&&!demoMode} t={t} demoMode={demoMode}/>
@@ -477,10 +504,14 @@ export default function App({demoMode=false,demoView='public'}){
     {['loading','signing'].includes(state)&&<main className="wrap center" role="status"><div className="spinner"/><h1>{state==='signing'?t.signing:t.loading}</h1></main>}
     {state==='error'&&<main className="wrap center" role="alert"><ShieldCheck size={43}/><h1>{t[errorKind]}</h1><p>{t.accessNote}</p><button className="btn btn-outline" onClick={()=>{setState('loading');setAccessRetry(count=>count+1);}}>{t.retry}</button></main>}
     {state==='public'&&<PublicPage brand={branding} t={t} demoMode={demoMode}/>}
-    {state==='dashboard'&&data&&<Dashboard data={data} brand={branding} t={t} lang={lang}
-      onRefresh={refresh} refreshing={refreshing} refreshError={refreshError} lastRefreshed={lastRefreshed}
-      onEstimateDecision={decideEstimate} decisionBusy={decisionBusy} decisionError={decisionError}
-      decisionNotice={decisionNotice} demoMode={demoMode}/>}
+    {state==='dashboard'&&data&&(!viewVehicleId
+      ? <CustomerHomeDashboard data={data} t={t} lang={lang} onVehicleOpen={openVehicle}
+          onRefresh={refresh} refreshing={refreshing} refreshError={refreshError} lastRefreshed={lastRefreshed}/>
+      : <Dashboard data={data} brand={branding} t={t} lang={lang} vehicleId={viewVehicleId}
+          onHome={openHome} onVehicleOpen={openVehicle}
+          onRefresh={refresh} refreshing={refreshing} refreshError={refreshError} lastRefreshed={lastRefreshed}
+          onEstimateDecision={decideEstimate} decisionBusy={decisionBusy} decisionError={decisionError}
+          decisionNotice={decisionNotice} demoMode={demoMode}/>)}
     <footer className="footer"><div className="wrap"><span>{branding?.publicName||branding?.name||'cubixgear'}</span><span><ShieldCheck size={16}/>{t.footer}</span></div></footer>
   </div>;
 }
