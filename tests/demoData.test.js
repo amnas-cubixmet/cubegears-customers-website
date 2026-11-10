@@ -55,7 +55,8 @@ test('demo never replaces root or secure customer access and does not exchange t
   assert.match(app, /useState\(demoMode \? demoSession : null\)/);
   assert.match(app, /demoView === 'portal' \? 'dashboard' : 'public'/);
   assert.match(app, /demoMode&&<div className="demo-banner"/);
-  assert.match(app, /p\.demoImage \|\| portalApi\.photoUrl\(p\.id\)/);
+  assert.match(app, /<PublishedInspectionGallery photos=\{photos\}/);
+  assert.match(file('src/components/PublishedInspectionGallery.jsx'), /photo\.demoImage \|\| portalApi\.photoUrl\(photo\.id\)/);
 });
 
 test('demo notice and navigation are bilingual', () => {

@@ -466,3 +466,65 @@ button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible,te
   .public-secure-link-card strong{font-size:15px}
   .public-secure-link-card span{font-size:14px}
 }
+
+/* Published inspection gallery: customer-facing read-only photo cards. */
+.published-inspection-gallery{min-width:0;padding:24px}
+.published-inspection-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:18px}
+.published-inspection-heading .section-head{align-items:flex-start;gap:12px;margin:0;min-width:0}
+.published-inspection-heading .section-head>div{min-width:0}
+.published-inspection-heading .section-head h2{margin:1px 0 6px;font-size:19px;line-height:1.35;overflow-wrap:anywhere}
+.published-inspection-heading .section-head p{margin:0;font-size:13px;line-height:1.6;color:#648184}
+.published-inspection-heading-icon{display:grid;place-items:center;flex:0 0 auto;width:39px;height:39px;border-radius:12px;background:var(--accent-soft,#e4f2ec);color:var(--accent,#116f69)}
+.published-inspection-count{flex:0 0 auto;align-self:flex-start;padding:7px 10px;border-radius:999px;background:#eef7f3;color:var(--accent,#116f69);font-size:12px;font-weight:750;white-space:nowrap}
+.published-inspection-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;min-height:208px;padding:23px 15px;border:1px dashed #cfe4df;border-radius:17px;background:linear-gradient(180deg,#f8fcfb,#f2f9f6);text-align:center}
+.published-inspection-empty-icon{display:grid;place-items:center;width:55px;height:55px;border:1px solid #d3e9e0;border-radius:17px;background:#fff;color:var(--accent,#116f69)}
+.published-inspection-empty strong{max-width:100%;font-size:16px;line-height:1.35;color:#284d50;overflow-wrap:anywhere}
+.published-inspection-empty p{max-width:320px;margin:0;font-size:13px;line-height:1.6;color:#648084}
+.published-inspection-empty>span{display:inline-flex;align-items:center;justify-content:center;gap:6px;margin-top:4px;font-size:12px;font-weight:650;color:#438077}
+.published-inspection-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.published-inspection-grid .inspection-photo-tile{min-width:0;margin:0;border:1px solid #e1ece9;border-radius:15px;overflow:hidden;background:#fff;box-shadow:0 3px 13px #12353b08}
+.inspection-photo-open{display:block;width:100%;aspect-ratio:4/3;position:relative;padding:0;border:0;background:#eef6f3;overflow:hidden;text-align:left;cursor:zoom-in}
+.inspection-photo-open img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .2s ease}
+.inspection-photo-open:hover img{transform:scale(1.04)}
+.inspection-photo-open:focus-visible{outline:3px solid var(--accent,#116f69);outline-offset:-3px}
+.inspection-photo-open:disabled{cursor:default}
+.inspection-photo-zoom{position:absolute;right:10px;bottom:10px;display:grid;place-items:center;width:32px;height:32px;border-radius:10px;background:#fffef5eb;color:#214d48;box-shadow:0 2px 7px #102a2b1e}
+.inspection-photo-unavailable{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;width:100%;height:100%;padding:14px;text-align:center;font-size:12px;color:#617e80}
+.inspection-photo-tile figcaption{padding:12px 13px}
+.inspection-photo-tile figcaption strong{display:block;color:#294e51;font-size:14px;line-height:1.45;overflow-wrap:anywhere}
+.inspection-photo-tile figcaption small{display:block;margin-top:5px;color:#738d90;font-size:12px;line-height:1.4;overflow-wrap:anywhere}
+.inspection-photo-lightbox{position:fixed;z-index:1000;inset:0;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(8,30,35,.86);backdrop-filter:blur(6px)}
+.inspection-photo-lightbox-panel{display:flex;flex-direction:column;max-height:calc(100dvh - 40px);max-width:min(880px,100%);width:100%;border-radius:19px;background:#fff;overflow:hidden;box-shadow:0 25px 70px #0008}
+.inspection-photo-lightbox-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;color:#21474a;font-size:15px}
+.inspection-photo-close{display:grid;place-items:center;flex:0 0 auto;width:44px;height:44px;padding:0;border:1px solid #dce8e4;border-radius:12px;background:#f5f9f7;color:#21474a;cursor:pointer}
+.inspection-photo-close:focus-visible{outline:3px solid var(--accent,#116f69);outline-offset:2px}
+.inspection-photo-lightbox-panel>img{display:block;min-height:0;max-height:calc(100dvh - 165px);width:100%;object-fit:contain;background:#0b2024}
+.inspection-photo-preview-failed{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:12px;min-height:160px;padding:30px;color:#58767b}
+.inspection-photo-lightbox-caption{display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px 14px;align-items:center;padding:14px 18px;min-width:0;color:#294e51}
+.inspection-photo-lightbox-caption strong{font-size:14px;overflow-wrap:anywhere}
+.inspection-photo-lightbox-caption span{font-size:12px;color:#7d9395}
+@media(max-width:630px){
+  .published-inspection-gallery{padding:17px;border-radius:17px}
+  .published-inspection-heading{gap:8px;margin-bottom:15px}
+  .published-inspection-heading .section-head{gap:9px}
+  .published-inspection-heading-icon{width:36px;height:36px;border-radius:11px}
+  .published-inspection-heading .section-head h2{font-size:17px}
+  .published-inspection-heading .section-head p{font-size:12px}
+  .published-inspection-empty{min-height:182px;padding:19px 12px}
+  .published-inspection-empty strong{font-size:15px}
+  .published-inspection-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+  .inspection-photo-tile figcaption{padding:10px}
+  .inspection-photo-tile figcaption strong{font-size:13px}
+  .inspection-photo-tile figcaption small{font-size:11px}
+  .inspection-photo-lightbox{padding:10px}
+  .inspection-photo-lightbox-panel{max-height:calc(100dvh - 20px);border-radius:14px}
+  .inspection-photo-lightbox-panel>img{max-height:calc(100dvh - 150px)}
+}
+@media(max-width:360px){
+  .published-inspection-heading{flex-wrap:wrap}
+  .published-inspection-count{margin-left:45px}
+}
+@media(prefers-reduced-motion:reduce){
+  .inspection-photo-open img{transition:none}
+  .inspection-photo-open:hover img{transform:none}
+}
