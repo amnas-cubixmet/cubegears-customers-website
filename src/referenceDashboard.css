@@ -1,5 +1,5 @@
 /* Customer dashboard is always white with the workshop's primary and secondary
-   branding colors. No decorative warm/orange/rose accent palette. */
+   branding colors. No additional accent palette. */
 body:has(.ref-dashboard){background:#fff}
 body:has(.ref-dashboard) .header{background:#fff;border-bottom:1px solid #e3ebeb;backdrop-filter:blur(14px)}
 body:has(.ref-dashboard) .footer{background:#fff;border-top-color:#e3ebeb}
