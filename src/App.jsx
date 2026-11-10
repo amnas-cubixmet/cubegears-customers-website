@@ -1,6 +1,6 @@
 'use client';
 import {useEffect,useMemo,useRef,useState} from 'react';
-import {Camera,CarFront,CheckCircle2,Clock3,FileText,Globe2,LogOut,MapPin,Phone,RefreshCw,ShieldCheck,Wallet,Wrench} from 'lucide-react';
+import {Camera,CarFront,CheckCircle2,Clock3,FileText,Globe2,Link2,LogOut,MapPin,Phone,RefreshCw,ShieldCheck,Wallet,Wrench} from 'lucide-react';
 import {portalApi} from './api';
 import {capturePendingAccessToken} from './accessLink';
 import {demoBranding,demoSession} from './demoData';
@@ -107,11 +107,17 @@ function PublicPage({brand,t,demoMode=false}){
         {!address&&!brand?.phone&&!brand?.whatsapp&&<p className="muted">{t.publicContactUnavailable}</p>}
       </article>
       <article className="surface public-access-card">
-        <div className="feature-icon"><ShieldCheck size={25}/></div>
+        <div className="public-access-top"><div className="feature-icon"><Link2 size={24}/></div>
+          <span className="public-overline">{t.privateLinkLabel}</span>
+        </div>
         <h2>{t.accessTitle}</h2>
         <p>{t.accessDescription}</p>
-        <p className="muted">{t.accessNote}</p>
-        <p className="public-privacy-note"><ShieldCheck size={17}/>{t.safe}</p>
+        <div className="public-secure-link-card">
+          <Link2 size={20} aria-hidden="true"/>
+          <div><strong>{t.privateLinkTitle}</strong>
+            <span>{t.accessNote}</span>
+          </div>
+        </div>
       </article>
     </section>
   </main>;
@@ -157,7 +163,7 @@ function Dashboard({data,brand,t,lang,onRefresh,refreshing,refreshError,lastRefr
     latestQuoteVersions.set(jobId,Math.max(latestQuoteVersions.get(jobId)||0,version));
   }
   return <main className="wrap dashboard">
-    <div className="welcome"><div><span className="eyebrow">{niceDate(new Date().toISOString(),lang)}</span><h1>{t.welcome}, {data.customer?.name||t.portal}</h1><p>{t.greeting}</p></div><div className="privacy"><ShieldCheck size={19}/>{t.security}</div></div>
+    <div className="welcome"><div><span className="eyebrow">{niceDate(new Date().toISOString(),lang)}</span><h1>{t.welcome}, {data.customer?.name||t.portal}</h1><p>{t.greeting}</p></div></div>
     <div className="portal-refresh">
       <span>{t.lastChecked}: {lastRefreshed?niceDate(lastRefreshed,lang):'—'}</span>
       <button type="button" onClick={onRefresh} className="btn btn-outline" disabled={refreshing} aria-busy={refreshing}>
