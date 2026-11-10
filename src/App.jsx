@@ -1,11 +1,12 @@
 'use client';
 import {useEffect,useMemo,useRef,useState} from 'react';
-import {Camera,CarFront,CheckCircle2,Clock3,FileText,Globe2,Link2,LogOut,MapPin,Phone,RefreshCw,ShieldCheck,Wallet,Wrench} from 'lucide-react';
+import {CarFront,CheckCircle2,Clock3,FileText,Globe2,Link2,LogOut,MapPin,Phone,RefreshCw,ShieldCheck,Wallet,Wrench} from 'lucide-react';
 import {portalApi} from './api';
 import {capturePendingAccessToken} from './accessLink';
 import {demoBranding,demoSession} from './demoData';
 import {copy,stages,inProgress,niceDate,rupees,cleanPhone} from './i18n';
 import {invoiceTotals,invoicePaymentLabel} from './portalBilling';
+import PublishedInspectionGallery from './components/PublishedInspectionGallery';
 
 function Contacts({brand,t}){
   const phone=cleanPhone(brand?.phone);
@@ -204,9 +205,7 @@ function Dashboard({data,brand,t,lang,onRefresh,refreshing,refreshError,lastRefr
         {history.map(job=><div className="history" key={job.id}><strong>{job.vehicleRegistration}</strong><span>{job.number}</span><small>{t[job.stage]||job.status} · {niceDate(job.createdAt,lang)}</small></div>)}
         {!history.length&&<p className="muted">{t.noData}</p>}
       </section>
-      <section className="surface"><div className="section-head"><Camera size={20}/><h2>{t.photos}</h2></div><p className="muted micro">{t.onlyPublished}</p>
-        {photos.length?<div className="photo-grid">{photos.map(p=><figure key={p.id}><img loading="lazy" alt={p.caption||p.category} src={p.demoImage || portalApi.photoUrl(p.id)}/><figcaption><strong>{p.caption||p.category}</strong><small>{p.phase} · {niceDate(p.capturedAt,lang)}</small></figcaption></figure>)}</div>:<p className="blank">{t.nonePhotos}</p>}
-      </section>
+      <PublishedInspectionGallery photos={photos} t={t} lang={lang}/>
       <section className="surface"><div className="section-head"><FileText size={20}/><h2>{t.documents}</h2></div>
         {decisionError&&<p className="portal-refresh-error" role="alert">{decisionError}</p>}
         {decisionNotice&&<p className="portal-estimate-success" role="status">{decisionNotice}</p>}
