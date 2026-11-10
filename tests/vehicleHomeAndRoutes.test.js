@@ -44,7 +44,7 @@ test('multi-vehicle home renders latest real job and all authorized vehicle card
   assert.match(home,/const latestActive = latest\.find\(j => inProgress\.has\(j\.status\)\)/);
   assert.match(home,/const latestWork = latestActive \|\| latest\[0\]/);
   assert.match(home,/vehicles\.map\(vehicle =>/);
-  assert.match(home,/onVehicleOpen\(vehicle\.id\)/);
+  assert.match(home,/followVehicleLink\(event, vehicle\.id, onVehicleOpen\)/);
   assert.match(home,/String\(p\.vehicleId\) === String\(vehicle\.id\)/);
   assert.match(home,/portalApi\.photoUrl\(photo\.id\)/);
   assert.doesNotMatch(home,/type="file"|<ArrowRight|Math\.random\(/);
