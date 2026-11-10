@@ -8,7 +8,6 @@ import {copy,stages,inProgress,niceDate,rupees,cleanPhone} from './i18n';
 import {invoiceTotals,invoicePaymentLabel} from './portalBilling';
 import PublishedInspectionGallery from './components/PublishedInspectionGallery';
 import VehicleOverviewCard, { RecentServiceActivity } from './components/VehicleOverviewCard';
-import CustomerHomeDashboard from './components/CustomerHomeDashboard';
 import { dashboardRoute, vehicleUrl } from './portalRouting';
 import CustomerHomeDashboard from './components/CustomerHomeDashboard';
 
