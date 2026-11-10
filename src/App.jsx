@@ -133,27 +133,19 @@ function Timeline({job,t}){
 }
 function Dashboard({data,brand,t,lang,onRefresh,refreshing,refreshError,lastRefreshed,onEstimateDecision,decisionBusy,decisionError,decisionNotice,demoMode,vehicleId,onHome,onVehicleOpen}){
   const selected = vehicleId;
-  const [query,setQuery]=useState('');
   const [reviewedQuotes,setReviewedQuotes]=useState(()=>new Set());
   const [declineDraft,setDeclineDraft]=useState(null);
-  const needle=query.trim().toLocaleLowerCase();
   const vehicles=data.vehicles||[];
   const allJobs=data.jobs||[];
   const scopedJobs=allJobs.filter(j=>String(j.vehicleId)===String(vehicleId));
   const scopedJobIds=new Set(scopedJobs.map(j=>String(j.id)));
   const scopedInvoices=(data.invoices||[]).filter(i=>scopedJobIds.has(String(i.jobId)));
-  const matchesJob=(j)=>!needle||[j.number,j.vehicleRegistration,j.vehicleModel,j.status]
-    .some(value=>String(value||'').toLocaleLowerCase().includes(needle));
-  const jobs=scopedJobs.filter(matchesJob);
+  const jobs=scopedJobs;
   const visibleVehicles=vehicles.filter(v=>String(v.id)===String(selected));
   const active=jobs.filter(j=>inProgress.has(j.status));
   const history=jobs.filter(j=>!inProgress.has(j.status));
   const matchingJobIds=new Set(jobs.map(j=>String(j.id)));
-  const photos=(data.photos||[]).filter(p=>String(p.vehicleId)===String(selected)&&(
-    !needle||matchingJobIds.has(String(p.jobId))||[p.caption,p.category,p.phase].some(
-      value=>String(value||'').toLocaleLowerCase().includes(needle)
-    )
-  ));
+  const photos=(data.photos||[]).filter(p=>String(p.vehicleId)===String(selected));
   const docs=[
     ...(data.estimates||[]).map(e=>({...e,key:'e-'+e.jobId+'-'+e.version,label:t.estimate+' v'+e.version,docKind:'estimate'})),
     ...(data.invoices||[]).map(i=>({...i,key:'i-'+i.number,label:i.number,docKind:'invoice'}))
@@ -195,17 +187,8 @@ function Dashboard({data,brand,t,lang,onRefresh,refreshing,refreshError,lastRefr
         <RecentServiceActivity jobs={scopedJobs} lang={lang} t={t}/>
       </div>
     </div>
-    <div className="filter portal-filters" id="vehicles">
-      <h2>{t.vehicleRecords}</h2>
-      <label className="portal-filter-search">
-        <span>{t.searchRecords}</span>
-        <input type="search" value={query} maxLength={100} onChange={e=>setQuery(e.target.value)}
-          placeholder={t.searchPlaceholder} autoComplete="off" />
-      </label>
-      {query&&<button className="btn btn-outline" type="button"
-        onClick={()=>setQuery('')}>{t.reset}</button>}
-    </div>
-    <div className="vehicle-grid">{visibleVehicles.map(v=><article className="vehicle" key={v.id}><div className="feature-icon"><CarFront size={27}/></div><div><strong>{v.registration}</strong><span>{v.model} {v.year||''}</span></div></article>)}{!visibleVehicles.length&&<p className="blank">{t.noData}</p>}</div>
+    {/* Vehicle identity is already shown in the overview above.
+        Avoid duplicating a search form and non-interactive vehicle card here. */}
     <div className="panel-grid">
       <section className="surface" id="maintenance"><div className="section-head"><Wrench size={20}/><h2>{t.active}</h2><span>{active.length}</span></div>
         {active.map(job=><article className="job" key={job.id}><div className="job-top"><div><small>{job.number}</small><h3>{job.vehicleRegistration}</h3><p>{job.vehicleModel}</p></div><span className="tag">{t[job.stage]||job.status}</span></div><Timeline job={job} t={t}/><small className="date">{t.date}: {niceDate(job.createdAt,lang)}</small></article>)}
