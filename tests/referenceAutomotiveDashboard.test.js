@@ -9,8 +9,8 @@ const source = path => readFileSync(new URL('../' + path, import.meta.url), 'utf
 test('dashboard uses the reference-inspired warm cards and real vehicle/service records', () => {
   const app=source('src/App.jsx');
   const hero=source('src/components/VehicleOverviewCard.jsx');
-  assert.match(app,/className="wrap dashboard ref-dashboard"/);
-  assert.match(app,/<VehicleOverviewCard vehicles=\{vehicles\} jobs=\{allJobs\} photos=\{data\.photos\|\|\[\]\}/);
+  assert.match(app,/className="wrap dashboard ref-dashboard ref-vehicle-details"/);
+  assert.match(app,/<VehicleOverviewCard vehicles=\{vehicles\} jobs=\{scopedJobs\} photos=\{photos\}/);
   assert.match(app,/<RecentServiceActivity jobs=\{allJobs\} lang=\{lang\} t=\{t\}/);
   assert.match(app,/className="ref-dashboard-overview"/);
   assert.match(app,/className="ref-dashboard-rail"/);
