@@ -10,6 +10,7 @@ import PublishedInspectionGallery from './components/PublishedInspectionGallery'
 import VehicleOverviewCard, { RecentServiceActivity } from './components/VehicleOverviewCard';
 import { dashboardRoute, vehicleUrl } from './portalRouting';
 import CustomerHomeDashboard from './components/CustomerHomeDashboard';
+import PortalGlobalSearch from './components/PortalGlobalSearch';
 
 function Contacts({brand,t}){
   const phone=cleanPhone(brand?.phone);
@@ -29,12 +30,13 @@ function updateSiteFavicon(brand){
   if(!icon.isConnected)document.head.appendChild(icon);
 }
 
-function Header({brand,lang,setLang,logout,authenticated,t,demoMode=false}){
-  return <header className="header"><div className="wrap nav">
+function Header({brand,lang,setLang,logout,authenticated,t,demoMode=false,session,onVehicleOpen}){
+  return <header className={'header'+(session?' portal-has-search':'')}><div className="wrap nav">
     <a href={demoMode ? "/demo" : "/"} className="brand">
       {brand?.hasLogo?<img alt="" src={portalApi.logoUrl}/>:<img alt="" src="/icon.svg" className="brand-fallback-logo"/>}
       <span className="brand-name"><strong>{brand?.publicName||brand?.name||'cubixgear'}</strong></span>
     </a>
+    {session&&<PortalGlobalSearch session={session} t={t} onVehicleOpen={onVehicleOpen}/>}
     <div className="nav-actions">
       <label className="lang"><Globe2 size={17}/><select aria-label="Language" value={lang} onChange={e=>setLang(e.target.value)}><option value="en">English</option><option value="ml">മലയാളം</option></select></label>
       {authenticated&&<button className="logout" onClick={logout} type="button"><LogOut size={17}/><span>{t.logout}</span></button>}
@@ -158,8 +160,15 @@ function Dashboard({data,brand,t,lang,onRefresh,refreshing,refreshError,lastRefr
     latestQuoteVersions.set(jobId,Math.max(latestQuoteVersions.get(jobId)||0,version));
   }
   return <main className="wrap dashboard ref-dashboard ref-vehicle-details">
-    {vehicles.length>1 && <button type="button" className="portal-back-home"
-      onClick={onHome}>{t.backToHome}</button>}
+    {vehicles.length>1 && <div className="portal-vehicle-navigation">
+      <nav className="portal-vehicle-breadcrumb" aria-label={t.breadcrumbLabel}>
+        <button type="button" onClick={onHome}>{t.vehicles}</button>
+        <span aria-hidden="true">/</span>
+        <span aria-current="page">{vehicles.find(v=>String(v.id)===String(vehicleId))?.registration||t.featuredVehicle}</span>
+      </nav>
+      <button type="button" className="portal-back-home"
+        onClick={onHome}>{t.backToHome}</button>
+    </div>}
     <div className="welcome"><div><span className="eyebrow">{niceDate(new Date().toISOString(),lang)}</span><h1>{t.welcome}, {data.customer?.name||t.portal}</h1><p>{t.greeting}</p></div></div>
     <div className="portal-refresh">
       <span>{t.lastChecked}: {lastRefreshed?niceDate(lastRefreshed,lang):'—'}</span>
@@ -357,12 +366,19 @@ export default function App({demoMode=false,demoView='public'}){
       window.history.replaceState({},'',route.path);
     }
   }
-  function openVehicle(vehicleId) {
+  function openVehicle(vehicleId, section) {
     const allowed=data?.vehicles?.find(v=>String(v.id)===String(vehicleId));
     if(!allowed)return;
+    const target=['overview','maintenance','documents','history'].includes(section)?section:null;
     setViewVehicleId(String(allowed.id));
-    if(!demoMode)window.history.pushState({},'',vehicleUrl(allowed.id));
-    window.scrollTo({top:0,behavior:'instant'});
+    if(!demoMode)window.history.pushState({},'',vehicleUrl(allowed.id)+(target?'#'+target:''));
+    if(target){
+      window.requestAnimationFrame(()=>window.requestAnimationFrame(()=>
+        document.getElementById(target)?.scrollIntoView({block:'start',behavior:'smooth'})
+      ));
+    }else{
+      window.scrollTo({top:0,behavior:'instant'});
+    }
   }
   function openHome() {
     if((data?.vehicles||[]).length<=1)return;
@@ -482,7 +498,9 @@ export default function App({demoMode=false,demoView='public'}){
   async function logout(){try{await portalApi.logout();setData(null);setViewVehicleId(null);window.history.replaceState({},'','/');setState('public');}catch{setErrorKind('unavailable');setState('error');}}
   const theme=branding?{'--accent':branding.primaryColor||'#116f69','--accent-soft':branding.secondaryColor||'#e4f2ec'}:{};
   return <div className="app" lang={lang} style={theme}>
-    <Header brand={branding} lang={lang} setLang={setLang} logout={logout} authenticated={state==='dashboard'&&!demoMode} t={t} demoMode={demoMode}/>
+    <Header brand={branding} lang={lang} setLang={setLang} logout={logout}
+      authenticated={state==='dashboard'&&!demoMode} t={t} demoMode={demoMode}
+      session={state==='dashboard'?data:null} onVehicleOpen={openVehicle}/>
     {demoMode&&<div className="demo-banner" role="note"><div className="wrap demo-banner-content"><span><strong>{t.demoLabel}</strong> — {t.demoNotice}</span><a href={demoView==='portal'?'/demo':'/demo/portal'}>{demoView==='portal'?t.demoWorkshop:t.demoTrack} </a></div></div>}
     {['loading','signing'].includes(state)&&<main className="wrap center" role="status"><div className="spinner"/><h1>{state==='signing'?t.signing:t.loading}</h1></main>}
     {state==='error'&&<main className="wrap center" role="alert"><ShieldCheck size={43}/><h1>{t[errorKind]}</h1><p>{t.accessNote}</p><button className="btn btn-outline" onClick={()=>{setState('loading');setAccessRetry(count=>count+1);}}>{t.retry}</button></main>}
