@@ -1,7 +1,8 @@
 'use client';
-import {useEffect,useMemo,useState} from 'react';
+import {useEffect,useMemo,useRef,useState} from 'react';
 import {Camera,CarFront,CheckCircle2,Clock3,FileText,Globe2,LogOut,MapPin,Phone,RefreshCw,ShieldCheck,Wallet,Wrench} from 'lucide-react';
 import {portalApi} from './api';
+import {capturePendingAccessToken} from './accessLink';
 import {demoBranding,demoSession} from './demoData';
 import {copy,stages,inProgress,niceDate,rupees,cleanPhone} from './i18n';
 import {invoiceTotals,invoicePaymentLabel} from './portalBilling';
@@ -340,6 +341,8 @@ export default function App({demoMode=false,demoView='public'}){
   const [data,setData]=useState(demoMode ? demoSession : null);
   const [state,setState]=useState(demoMode ? (demoView === 'portal' ? 'dashboard' : 'public') : 'loading');
   const [errorKind,setErrorKind]=useState('unavailable');
+  const pendingAccessToken=useRef(null);
+  const [accessRetry,setAccessRetry]=useState(0);
   const [refreshing,setRefreshing]=useState(false);
   const [refreshError,setRefreshError]=useState('');
   const [lastRefreshed,setLastRefreshed]=useState(null);
@@ -351,36 +354,66 @@ export default function App({demoMode=false,demoView='public'}){
   useEffect(()=>{
     if(demoMode){document.title='cubixgear Demo Garage';return undefined;}
     let active=true;
+    const controller=new AbortController();
     const path=window.location.pathname;
-    let token=null;
+    let token=pendingAccessToken.current;
     if(path.startsWith('/access/')){
-      try{token=decodeURIComponent(path.slice(8));}
-      catch{
+      try{
+        token=capturePendingAccessToken(path,token);
+        pendingAccessToken.current=token;
+      }catch{
+        pendingAccessToken.current=null;
         window.history.replaceState({},'','/');
         setErrorKind('invalid');
         setState('error');
         return undefined;
       }
+      // Remove the bearer capability from the visible URL and browser history
+      // before network requests; the ref survives Strict Mode effect replays.
       window.history.replaceState({},'','/');
     }
     (async()=>{
+      let exchangeStarted=false;
       try{
-        const brand=await portalApi.branding();
+        const brand=await portalApi.branding(controller.signal);
         if(!active)return;
         setBranding(brand);
         updateSiteFavicon(brand);
         document.title=(brand.publicName||brand.name||'Workshop')+' | cubixgear';
-        if(token){setState('signing');await portalApi.exchange(token);}
-        try{
-          const response=await portalApi.session();
+        if(token){
+          setState('signing');
+          exchangeStarted=true;
+          await portalApi.exchange(token,controller.signal);
           if(!active)return;
-          if(response.customer){setData(response);setLastRefreshed(new Date().toISOString());setState('dashboard');}
-          else setState('public');
-        }catch(e){if(active){if(e.status===401)setState('public');else throw e;}}
-      }catch(e){if(active){setErrorKind(token&&[403,404].includes(e.status)?'invalid':'unavailable');setState('error');}}
+        }
+        try{
+          const response=await portalApi.session(controller.signal);
+          if(!active)return;
+          if(response.customer){
+            pendingAccessToken.current=null;
+            setData(response);
+            setLastRefreshed(new Date().toISOString());
+            setState('dashboard');
+          }else if(token){
+            throw new Error('Session not established');
+          }else setState('public');
+        }catch(e){
+          if(!active)return;
+          if(e.status===401 && !token)setState('public');
+          else throw e;
+        }
+      }catch(e){
+        if(!active)return;
+        // Only a 404 from the token exchange itself says that the link is
+        // invalid. Branding failures and CSRF 403s are service/config errors.
+        const invalid=exchangeStarted && e.status===404;
+        if(invalid)pendingAccessToken.current=null;
+        setErrorKind(invalid?'invalid':'unavailable');
+        setState('error');
+      }
     })();
-    return()=>{active=false;};
-  },[demoMode]);
+    return()=>{active=false;controller.abort();};
+  },[demoMode,accessRetry]);
   async function refresh(){
     if(refreshing || demoMode)return;
     setRefreshing(true);
@@ -423,7 +456,7 @@ export default function App({demoMode=false,demoView='public'}){
     <Header brand={branding} lang={lang} setLang={setLang} logout={logout} authenticated={state==='dashboard'&&!demoMode} t={t} demoMode={demoMode}/>
     {demoMode&&<div className="demo-banner" role="note"><div className="wrap demo-banner-content"><span><strong>{t.demoLabel}</strong> — {t.demoNotice}</span><a href={demoView==='portal'?'/demo':'/demo/portal'}>{demoView==='portal'?t.demoWorkshop:t.demoTrack} </a></div></div>}
     {['loading','signing'].includes(state)&&<main className="wrap center" role="status"><div className="spinner"/><h1>{state==='signing'?t.signing:t.loading}</h1></main>}
-    {state==='error'&&<main className="wrap center" role="alert"><ShieldCheck size={43}/><h1>{t[errorKind]}</h1><p>{t.accessNote}</p><button className="btn btn-outline" onClick={()=>window.location.reload()}>{t.retry}</button></main>}
+    {state==='error'&&<main className="wrap center" role="alert"><ShieldCheck size={43}/><h1>{t[errorKind]}</h1><p>{t.accessNote}</p><button className="btn btn-outline" onClick={()=>{setState('loading');setAccessRetry(count=>count+1);}}>{t.retry}</button></main>}
     {state==='public'&&<PublicPage brand={branding} t={t} demoMode={demoMode}/>}
     {state==='dashboard'&&data&&<Dashboard data={data} brand={branding} t={t} lang={lang}
       onRefresh={refresh} refreshing={refreshing} refreshError={refreshError} lastRefreshed={lastRefreshed}
