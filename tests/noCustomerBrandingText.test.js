@@ -36,7 +36,7 @@ test('secure tracking workflow and internal API status names remain intact', () 
   const app = read('src/App.jsx');
   assert.match(app, /d\.status==='Awaiting Customer'/);
   assert.match(app, /d\.status==='Customer Approved'/);
-  assert.match(app, /portalApi\.exchange\(token\)/);
+  assert.match(app, /portalApi\.exchange\(token,controller\.signal\)/);
   assert.match(app, /portalApi\.session\(\)/);
   assert.match(app, /data\.customer\?\.name/);
   assert.match(app, /onEstimateDecision\?\.\(d,'accept'\)/);
