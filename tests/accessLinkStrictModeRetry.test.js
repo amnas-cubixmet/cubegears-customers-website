@@ -14,7 +14,7 @@ test('token survives the effect replay after the URL is scrubbed', () => {
 test('malformed tokens are rejected without logging or storage', () => {
   assert.throws(() => capturePendingAccessToken('/access/bad'),/Invalid access link/);
   assert.throws(() => capturePendingAccessToken('/access/%zz'),/Invalid access link/);
-  assert.doesNotMatch(read('src/accessLink.js'),/localStorage|sessionStorage|console\.log/);
+  assert.doesNotMatch(read('src/accessLink.js').split('\n').filter(line=>!line.trim().startsWith('//')).join('\n'),/localStorage|sessionStorage|console\.log/);
 });
 test('effect replay and retry do not remove pending token', () => {
   const app=read('src/App.jsx');
