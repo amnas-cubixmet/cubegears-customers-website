@@ -23,7 +23,6 @@ export default function VehicleOverviewCard({ vehicles = [], jobs = [], photos =
   // These are the existing private session's workshop-published photos only.
   const photo = featured ? photos.find(item => item.vehicleId === featured.id) : null;
   const hasPhoto = Boolean(photo && failedPhotoId !== photo.id);
-  const activity = newest(jobs).slice(0, 3);
 
   return (
     <section className="ref-vehicle-feature" aria-label={t.featuredVehicle}>
