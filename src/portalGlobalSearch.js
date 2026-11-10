@@ -1,3 +1,5 @@
+import { inProgress } from './i18n.js';
+
 // Search runs only on the signed-in, workshop-scoped session records returned
 // by the portal API. A search result is always linked to an authorized vehicle.
 export function buildPortalSearchRecords(session = {}) {
@@ -27,7 +29,7 @@ export function buildPortalSearchRecords(session = {}) {
     const vehicle = allowedVehicles.get(String(job.vehicleId));
     entries.push({
       key: 'job:' + String(job.id), kind: 'job',
-      vehicleId: String(job.vehicleId), section: 'maintenance',
+      vehicleId: String(job.vehicleId), section: inProgress.has(job.status) ? 'maintenance' : 'history',
       title: String(job.number || job.vehicleRegistration || ''),
       description: [vehicle?.registration || job.vehicleRegistration, job.status, job.stage]
         .filter(Boolean).join(' · '),
