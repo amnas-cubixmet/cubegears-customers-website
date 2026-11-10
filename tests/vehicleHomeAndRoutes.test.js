@@ -29,7 +29,7 @@ test('the Next.js vehicle route is a client view and never resolves unauthorized
   assert.match(page,/<App \/>/);
   assert.match(app,/const \[viewVehicleId,setViewVehicleId\]=useState\(null\)/);
   assert.match(app,/syncVehicleRoute\(response\)/);
-  assert.match(app,/window\.history\.pushState\(\{\},'',vehicleUrl\(allowed\.id\)\)/);
+  assert.match(app,/window\.history\.pushState\(\{\},'',vehicleUrl\(allowed\.id\)\+\(target\?'#'\+target:''\)\)/);
   assert.match(app,/window\.addEventListener\('popstate',onPopState\)/);
   assert.match(app,/<CustomerHomeDashboard data=\{data\}/);
   assert.match(app,/vehicleId=\{viewVehicleId\}/);
