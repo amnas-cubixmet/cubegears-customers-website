@@ -174,7 +174,7 @@ function Dashboard({data,brand,t,lang,onRefresh,refreshing,refreshError,lastRefr
     </div>
     {refreshError&&<p className="portal-refresh-error" role="alert">{refreshError}</p>}
     <nav className="ref-dashboard-tabs" aria-label={t.dashboardSections}>
-      <a href="#vehicles">{t.overviewTab}</a>
+      <a href="#overview">{t.overviewTab}</a>
       <a href="#maintenance">{t.maintenanceTab}</a>
       <a href="#documents">{t.documentsTab}</a>
       <a href="#history">{t.historyTab}</a>
