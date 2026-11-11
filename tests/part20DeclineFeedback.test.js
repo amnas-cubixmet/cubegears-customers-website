@@ -58,9 +58,9 @@ test('signed BFF forwards exact customer revision feedback without leaking a ten
     return Response.json({status:'Customer Rejected',decisionReceipt:{id:'receipt-20'}});
   };
   try {
-    const request = new Request('https://garage.example.com/api/portal/estimates/12345678-1234-1234-1234-123456789abc/decision',{
+    const request = new Request('https://garage.cubegears.com/api/portal/estimates/12345678-1234-1234-1234-123456789abc/decision',{
       method:'POST',
-      headers:{host:'garage.example.com',origin:'https://garage.example.com',
+      headers:{host:'garage.cubegears.com',origin:'https://garage.cubegears.com',
         'x-cg-csrf':'csrf',cookie:'sessionid=abc; cg_portal_csrf=csrf'},
       body:JSON.stringify({
         decision:'decline', version:2,reviewHash:'f'.repeat(64),

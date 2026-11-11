@@ -9,8 +9,17 @@ export async function handlePortalRequest(request, segments) {
   const hostname = host.split(':', 1)[0];
   const isLocal = process.env.NODE_ENV !== 'production' &&
     (['localhost', '127.0.0.1'].includes(hostname) ||
-      /^[a-z0-9](?:[a-z0-9-]{1,61}[a-z0-9])?\.localhost$/.test(hostname) ||
-      /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.test$/.test(hostname));
+      /^[a-z0-9](?:[a-z0-9-]{1,61}[a-z0-9])?\.localhost$/.test(hostname));
+  // Only the platform-owned, one-label workshop subdomain can reach the
+  // customer BFF. A signed arbitrary external hostname must never resolve.
+  const root = String(process.env.CUSTOMER_PORTAL_ROOT_DOMAIN || 'cubegears.com')
+    .trim().toLowerCase().replace(/^\.+|\.+$/g, '');
+  const label = root && hostname.endsWith('.' + root)
+    ? hostname.slice(0, -root.length - 1) : '';
+  const isWorkshopHost = /^[a-z0-9](?:[a-z0-9-]{1,61}[a-z0-9])?$/.test(label);
+  if (!isLocal && !isWorkshopHost) {
+    return new Response(null, { status: 404 });
+  }
   const origin = request.headers.get('origin');
   if (request.method !== 'GET' && request.method !== 'POST') {
     return new Response(null, { status: 405, headers: { Allow: 'GET, POST' } });
