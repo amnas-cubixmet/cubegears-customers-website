@@ -18,7 +18,14 @@ The Django backend is the authoritative source for tenant routing and private cu
 3. Copy `.env.example` to `.env.local`.
 4. Set `PORTAL_BACKEND_URL=http://127.0.0.1:8000` and a random `PORTAL_PROXY_SHARED_SECRET` of at least 32 characters, matching Django's value.
 5. Configure Django with `DEBUG=true` and `PORTAL_DEV_COMPANY_SLUG=<existing-workshop-slug>` for local host mapping.
-6. Run `npm run dev` and open `http://localhost:5174/`.
+6. Run `npm run dev -- -p 5174` and open `http://localhost:5174/` (or choose a different port).
+
+The Customer Website port is **not hard-coded in the application**.
+Run `npm run dev -- -p 5174` for the examples below or
+`npm run dev -- -p 5414` if your machine uses port 5414.
+Keep the Company Panel `VITE_CUSTOMER_WEBSITE_DEV_ORIGIN` and Django
+`CUSTOMER_PORTAL_BASE_URL` values aligned with that selected port.
+Production hosting uses the configured HTTPS platform root, never localhost.
 
 The public homepage must render under `/`. Private links are under `/access/<token>`. Django must have valid database migrations and workshop configuration.
 
@@ -39,7 +46,7 @@ the same workshop's private customer dashboard is reachable only with its own
    and leave `CUSTOMER_WEBSITE_LINKS_ENABLED=false` until production DNS/TLS is
    ready.
 4. Set `PORTAL_BACKEND_URL=http://127.0.0.1:8000` in the Customer Website
-   `.env.local`; run `npm install && npm run dev` (Node 22+).
+   `.env.local`; run `npm install && npm run dev -- -p 5174` (Node 22+).
 5. Open `http://myworkshop.localhost:5174/`. It displays **public workshop
    branding and contact details only**, not private customer records.
    Open the Company Panel Customer Details → Customer Tracking Portal to get
