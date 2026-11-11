@@ -120,7 +120,13 @@
     max-width:none;white-space:normal;overflow:visible;
     overflow-wrap:anywhere;line-height:1.25
   }
-  .portal-has-search .nav-actions .lang{padding-inline:7px}
+  .portal-has-search .nav-actions .lang{
+    flex:none;min-height:36px;padding:4px 6px;border-radius:9px
+  }
+  .portal-has-search .nav-actions .lang select{max-width:74px;font-size:14px}
+  .portal-has-search .nav-actions .logout{
+    width:36px;min-width:36px;min-height:36px;padding:0;border-radius:9px
+  }
   .portal-has-search .nav-actions .lang svg{display:none}
   .portal-global-search-input-row{height:46px}
   .portal-global-search-dropdown{top:calc(100% + 7px)}
@@ -140,8 +146,5 @@
     grid-column:2;grid-row:1;min-width:0;width:auto;
     display:flex;gap:6px;justify-content:flex-end
   }
-  .portal-has-search .nav-actions .lang{flex:initial;min-height:44px;padding:8px}
-  .portal-has-search .nav-actions .lang select{max-width:78px;font-size:16px}
-  .portal-has-search .nav-actions .logout{width:44px;min-width:44px;padding:8px}
   .portal-has-search .portal-global-search{grid-column:1/-1;grid-row:2}
 }
