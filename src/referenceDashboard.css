@@ -193,34 +193,39 @@ body:has(.ref-dashboard) .nav-actions .logout{background:#fff;border-color:#dce8
  .ref-dashboard .panel-grid #documents,.ref-dashboard .panel-grid .published-inspection-gallery{grid-column:auto;grid-row:auto}
 }
 @media(max-width:680px){
- .ref-dashboard{padding-top:21px;padding-bottom:43px}
- .ref-dashboard .welcome h1{font-size:clamp(24px,7vw,33px)}
- .ref-dashboard .welcome p{font-size:14px}
+ .ref-dashboard{padding-top:16px;padding-bottom:43px}
+ .ref-dashboard .welcome{margin-bottom:12px}
+ .ref-dashboard .welcome h1{font-size:clamp(21px,5.8vw,27px);margin:5px 0}
+ .ref-dashboard .welcome p{font-size:13px;line-height:1.45}
  .ref-dashboard .portal-refresh{justify-content:space-between;gap:8px;margin:0 0 13px}
- .ref-dashboard .portal-refresh>span{font-size:11px}
+ .ref-dashboard .portal-refresh>span{flex:1 1 110px;font-size:11px;line-height:1.4}
+ .ref-dashboard .portal-refresh .btn{min-height:36px;padding:6px 9px;font-size:12px}
+ .ref-dashboard .portal-refresh .btn svg{width:14px;height:14px}
  .ref-dashboard-tabs a{font-size:12px;padding:10px 13px}
  .ref-dashboard-overview{gap:12px}
  .ref-dashboard-rail{grid-template-columns:minmax(0,1fr)}
  .ref-vehicle-feature{padding:17px;min-height:350px}
- .ref-vehicle-description strong{font-size:24px}
+ .ref-vehicle-description strong{font-size:20px}
  .ref-vehicle-stage,.ref-vehicle-placeholder{min-height:180px}
  .ref-vehicle-placeholder>svg{width:80px;height:80px}
  .ref-dashboard .stats{gap:9px}
- .ref-dashboard .stat{min-height:106px;padding:13px;border-radius:15px}
- .ref-dashboard .stat strong{font-size:25px}
- .ref-dashboard .stat .stat-money{font-size:clamp(18px,5.4vw,24px)}
+ .ref-dashboard .stat{min-height:88px;gap:7px;padding:12px;border-radius:14px}
+ .ref-dashboard .stat strong{font-size:22px}
+ .ref-dashboard .stat .stat-money{font-size:clamp(17px,5vw,22px)}
  .ref-recent-activity{padding:16px;border-radius:17px}
  .ref-dashboard .filter.portal-filters{margin:17px 0 12px;padding:16px;border-radius:16px}
  .ref-dashboard .portal-filters label{min-width:0;flex:1 1 100%}
  .ref-dashboard .portal-filters button{width:100%}
  .ref-dashboard .panel-grid{gap:12px}
- .ref-dashboard .panel-grid .surface{padding:17px;border-radius:16px}
+ .ref-dashboard .panel-grid .surface{padding:14px;border-radius:15px}
+ .ref-dashboard .section-head h2,.ref-feature-heading h2,.ref-activity-head h2{font-size:16px}
+ .ref-dashboard .job-top h3{font-size:16px}
  .ref-home-dashboard .portal-home-overview{gap:12px;margin-bottom:22px}
  .portal-home-metrics{gap:9px}
- .portal-home-metric{min-height:111px;padding:14px;border-radius:15px}
- .portal-home-metric strong{font-size:26px}
+ .portal-home-metric{min-height:88px;gap:6px;padding:12px;border-radius:14px}
+ .portal-home-metric strong{font-size:22px}
  .portal-home-latest{padding:17px;border-radius:17px}
- .portal-home-section-heading h2{font-size:23px}
+ .portal-home-section-heading h2{font-size:19px}
  .portal-home-vehicle-list{grid-template-columns:minmax(0,1fr);gap:10px}
  .portal-home-vehicle-card{min-height:93px;padding:13px;gap:11px;border-radius:14px}
  .portal-home-vehicle-image{flex-basis:61px;width:61px;height:61px}
@@ -297,7 +302,7 @@ body:has(.ref-dashboard) .nav-actions .logout{background:#fff;border-color:#dce8
     aspect-ratio: 4 / 3;
   }
   .portal-home-vehicle-cta { display: none; }
-  .portal-home-vehicle-main strong { font-size: 16px; }
+  .portal-home-vehicle-main strong { font-size: 14px; }
 
   .portal-document-actions { width: 100%; justify-items: stretch; }
   .portal-document-actions b { text-align: end; }
