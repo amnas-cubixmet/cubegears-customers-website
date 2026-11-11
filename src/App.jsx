@@ -39,7 +39,7 @@ function Header({brand,lang,setLang,logout,authenticated,t,demoMode=false,sessio
     {session&&<PortalGlobalSearch session={session} t={t} onVehicleOpen={onVehicleOpen}/>}
     <div className="nav-actions">
       <label className="lang"><Globe2 size={17}/><select aria-label="Language" value={lang} onChange={e=>setLang(e.target.value)}><option value="en">English</option><option value="ml">മലയാളം</option></select></label>
-      {authenticated&&<button className="logout" onClick={logout} type="button"><LogOut size={17}/><span>{t.logout}</span></button>}
+      {authenticated&&<button className="logout" aria-label={t.logout} onClick={logout} type="button"><LogOut size={17}/><span>{t.logout}</span></button>}
     </div>
   </div></header>;
 }

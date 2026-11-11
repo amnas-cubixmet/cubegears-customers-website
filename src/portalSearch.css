@@ -114,7 +114,14 @@
 }
 @media(max-width:630px){
   .portal-has-search .nav{min-height:0;padding-top:10px;padding-bottom:12px}
-  .portal-has-search .brand-name strong{max-width:clamp(100px,37vw,225px)}
+  .portal-has-search .brand{gap:8px}
+  .portal-has-search .brand img{flex:0 0 36px;width:36px;height:36px}
+  .portal-has-search .brand-name strong{
+    max-width:none;white-space:normal;overflow:visible;
+    overflow-wrap:anywhere;line-height:1.25
+  }
+  .portal-has-search .nav-actions .lang{padding-inline:7px}
+  .portal-has-search .nav-actions .lang svg{display:none}
   .portal-global-search-input-row{height:46px}
   .portal-global-search-dropdown{top:calc(100% + 7px)}
   .portal-global-search-result{gap:8px;padding:9px 8px}
@@ -129,14 +136,12 @@
     gap:9px;padding-top:10px;padding-bottom:12px;height:auto
   }
   .portal-has-search .brand{grid-column:1;grid-row:1;flex:initial}
-  .portal-has-search .brand-name strong{max-width:calc(100vw - 184px)}
   .portal-has-search .nav-actions{
     grid-column:2;grid-row:1;min-width:0;width:auto;
     display:flex;gap:6px;justify-content:flex-end
   }
   .portal-has-search .nav-actions .lang{flex:initial;min-height:44px;padding:8px}
-  .portal-has-search .nav-actions .lang svg{display:none}
   .portal-has-search .nav-actions .lang select{max-width:78px;font-size:16px}
-  .portal-has-search .nav-actions .logout{width:42px;min-width:42px;padding:8px}
+  .portal-has-search .nav-actions .logout{width:44px;min-width:44px;padding:8px}
   .portal-has-search .portal-global-search{grid-column:1/-1;grid-row:2}
 }
