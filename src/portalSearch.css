@@ -118,14 +118,14 @@
   .portal-has-search .brand img{flex:0 0 36px;width:36px;height:36px}
   .portal-has-search .brand-name strong{
     max-width:none;white-space:normal;overflow:visible;
-    overflow-wrap:anywhere;line-height:1.25
+    overflow-wrap:anywhere;font-size:13px;line-height:1.25
   }
   .portal-has-search .nav-actions .lang{
-    flex:none;min-height:36px;padding:4px 6px;border-radius:9px
+    flex:none;min-height:30px;padding:2px 5px;border-radius:8px
   }
-  .portal-has-search .nav-actions .lang select{max-width:74px;font-size:14px}
+  .portal-has-search .nav-actions .lang select{max-width:68px;font-size:13px}
   .portal-has-search .nav-actions .logout{
-    width:36px;min-width:36px;min-height:36px;padding:0;border-radius:9px
+    width:30px;min-width:30px;min-height:30px;padding:0;border-radius:8px
   }
   .portal-has-search .nav-actions .lang svg{display:none}
   .portal-global-search-input-row{height:46px}
