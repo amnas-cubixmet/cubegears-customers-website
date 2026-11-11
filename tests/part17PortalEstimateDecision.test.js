@@ -46,9 +46,9 @@ test('same-origin BFF signs customer estimate POST, forwards session and csrf, n
     return Response.json({id:'12345678-1234-1234-1234-123456789abc',status:'Customer Approved'});
   };
   try {
-    const request = new Request('https://garage.example.com/api/portal/estimates/12345678-1234-1234-1234-123456789abc/decision',{
+    const request = new Request('https://garage.cubegears.com/api/portal/estimates/12345678-1234-1234-1234-123456789abc/decision',{
       method:'POST',
-      headers:{host:'garage.example.com',origin:'https://garage.example.com',
+      headers:{host:'garage.cubegears.com',origin:'https://garage.cubegears.com',
         'x-cg-csrf':'csrf-from-cookie',cookie:'sessionid=private; cg_portal_csrf=csrf-from-cookie'},
       body:JSON.stringify({decision:'accept',version:2}),
     });
@@ -68,8 +68,8 @@ test('same-origin BFF signs customer estimate POST, forwards session and csrf, n
 test('cross-site origin is blocked even when quote path is valid', async () => {
   process.env.CUBEGEARS_BACKEND_URL = 'https://api.example.test';
   process.env.PORTAL_PROXY_SHARED_SECRET = 'part17-test-shared-secret-has-32-characters';
-  const request=new Request('https://garage.example.com/api/portal/estimates/123/decision',{
-    method:'POST',headers:{host:'garage.example.com',origin:'https://malicious.example'},
+  const request=new Request('https://garage.cubegears.com/api/portal/estimates/123/decision',{
+    method:'POST',headers:{host:'garage.cubegears.com',origin:'https://malicious.example'},
     body:'{"decision":"accept","version":1}',
   });
   assert.equal((await handlePortalRequest(request,['estimates','123','decision'])).status,403);
