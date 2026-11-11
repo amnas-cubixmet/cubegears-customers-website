@@ -1,4 +1,12 @@
-:root{font-family:Inter,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;color:#14343b;background:#f5f8f7;font-synthesis:none;text-rendering:optimizeLegibility}
+:root{
+  --ui-text: 14px;
+  --ui-small: 12px;
+  --ui-card-title: 16px;
+  --ui-card-radius: 16px;
+  --ui-card-padding: clamp(14px, 3.2vw, 22px);
+  --ui-button-radius: 10px;
+  --ui-card-shadow: 0 4px 16px rgb(20 52 59 / 5%);
+  font-family:Inter,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;color:#14343b;background:#f5f8f7;font-synthesis:none;text-rendering:optimizeLegibility}
 *{box-sizing:border-box}body{margin:0;min-width:320px}button,select{font:inherit}button{cursor:pointer}a{text-decoration:none;color:inherit}h1,h2,h3,p{margin:0}h1,h2,h3{letter-spacing:-.035em}h1{line-height:1.14}p{line-height:1.65}
 .wrap{max-width:1210px;margin:0 auto;padding-left:27px;padding-right:27px}.app{min-height:100vh;display:flex;flex-direction:column}
 .header{background:#ffffffec;border-bottom:1px solid #e3ecea;position:sticky;top:0;z-index:10;backdrop-filter:blur(14px)}
@@ -10,12 +18,12 @@
 .hero-text{padding:75px 59px;z-index:1;position:relative}.topline{display:inline-flex;gap:9px;align-items:center;color:#a5e6ce;text-transform:uppercase;font-size:11px;letter-spacing:.14em;font-weight:800}
 .indicator{height:8px;width:8px;background:#58e5ab;border-radius:50%;box-shadow:0 0 0 4px #58e5ab25}.hero h1{font-size:clamp(35px,4.7vw,61px);font-weight:800;margin:26px 0;max-width:590px}
 .hero-text>p{font-size:17px;color:#bed6d7;max-width:490px;margin-bottom:30px}.contacts{display:flex;gap:10px;flex-wrap:wrap}
-.btn{min-height:47px;display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:11px 17px;border:1px solid transparent;border-radius:12px;font-size:13px;font-weight:750;transition:transform .16s,filter .16s}
-.btn:hover{transform:translateY(-2px);filter:brightness(1.04)}.btn-solid{background:#baf6d7;color:#144b47}.btn-outline{background:#fff;color:#17444c;border-color:#d8e7e3}
+.btn{min-height:44px;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:8px 14px;border:1px solid transparent;border-radius:var(--ui-button-radius);font-size:var(--ui-text);font-weight:700;line-height:1.3;text-align:center;transition:filter .16s}
+.btn:not(:disabled):hover{filter:brightness(.96)}.btn-solid{background:#baf6d7;color:#144b47}.btn-outline{background:#fff;color:#17444c;border-color:#d8e7e3}
 .hero .btn-outline{background:transparent;color:white;border-color:#648c90}.safety{display:flex;gap:11px;align-items:center;margin-top:32px;font-size:12px;color:#abc9cb}
 .hero-graphic{position:relative;display:grid;place-items:center;background:radial-gradient(circle,#2879826b 0%,transparent 65%);overflow:hidden}
 .graphic-card{position:absolute;bottom:72px;left:8%;display:flex;align-items:center;gap:9px;background:white;color:#194d52;padding:15px 18px;border-radius:13px;box-shadow:0 18px 35px #05272f42;font-size:13px;font-weight:700}
-.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin:24px 0 68px}.surface{border:1px solid #e0ebe9;border-radius:21px;background:#fff;box-shadow:0 4px 15px #12353b06;padding:27px}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin:24px 0 68px}.surface{border:1px solid #e0ebe9;border-radius:var(--ui-card-radius);background:#fff;box-shadow:var(--ui-card-shadow);padding:var(--ui-card-padding)}
 .feature-icon{height:50px;width:50px;flex:none;display:grid;place-items:center;color:var(--accent,#116f69);background:var(--accent-soft,#e4f2ec);border-radius:14px}.info-grid .feature-icon{margin-bottom:20px}
 .surface h2{font-size:20px;margin-bottom:13px}.surface p{color:#5f7b7e;margin-bottom:12px}.surface .contacts{margin-top:24px}.muted{color:#81989b!important}
 .dashboard{padding-top:43px;padding-bottom:65px}.welcome{display:flex;align-items:center;justify-content:space-between;gap:22px;margin-bottom:27px}
@@ -167,7 +175,7 @@
 .public-section-heading h2{font-size:clamp(26px,4vw,38px);line-height:1.2;letter-spacing:-.04em;margin:10px 0}
 .public-section-heading p{font-size:16px;line-height:1.7;color:#547177;margin:0}
 .public-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
-.public-step{position:relative;min-width:0;background:#fff;border:1px solid #dfebe8;border-radius:21px;padding:26px 24px;box-shadow:0 10px 35px rgba(14,57,51,.04)}
+.public-step{position:relative;min-width:0;background:#fff;border:1px solid #dfebe8;border-radius:var(--ui-card-radius);padding:var(--ui-card-padding);box-shadow:var(--ui-card-shadow)}
 .public-step-icon{width:50px;height:50px;display:flex;align-items:center;justify-content:center;border-radius:15px;color:var(--accent,#116f69);background:#ebf6f3}
 .public-step-number{position:absolute;right:24px;top:26px;font-size:14px;font-weight:800;letter-spacing:.05em;color:#78908e}
 .public-step h3{margin:23px 0 10px;font-size:19px;line-height:1.3}
@@ -527,4 +535,42 @@ button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible,te
 @media(prefers-reduced-motion:reduce){
   .inspection-photo-open img{transition:none}
   .inspection-photo-open:hover img{transform:none}
+}
+
+.btn > svg { flex-shrink: 0; }
+
+@media (max-width: 680px) {
+  .public-home { padding-inline: 14px; }
+  .public-hero .hero-text { padding: 22px 16px; }
+  .public-hero h1 { font-size: clamp(24px, 6.5vw, 34px); line-height: 1.2; }
+  .public-hero .hero-text > p,
+  .public-section-heading p,
+  .public-step p,
+  .public-access-card p,
+  .public-address,
+  .center > p { font-size: var(--ui-text); line-height: 1.55; }
+
+  .public-how { padding-block: 26px 18px; }
+  .public-section-heading { margin-bottom: 15px; }
+  .public-section-heading h2 { font-size: clamp(20px, 5.5vw, 26px); }
+  .public-steps, .public-info-grid { gap: 10px; }
+  .public-step, .public-home .surface {
+    padding: var(--ui-card-padding);
+    border-radius: var(--ui-card-radius);
+  }
+
+  .public-step h3, .public-home .surface h2 {
+    font-size: var(--ui-card-title);
+    line-height: 1.35;
+  }
+
+  .public-step h3 { margin-block: 12px 6px; }
+  .public-step-icon { width: 36px; height: 36px; border-radius: 10px; }
+  .public-step-icon svg { width: 18px; height: 18px; }
+  .public-overline, .public-step-number, .demo-banner-content { font-size: var(--ui-small); }
+
+  .public-home .btn, .center .btn { font-size: 13px; }
+  .center { gap: 12px; }
+  .center h1 { font-size: clamp(20px, 5.5vw, 26px); }
+  .footer .wrap { padding-block: 12px; }
 }
