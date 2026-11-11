@@ -20,14 +20,14 @@ function followVehicleLink(event, vehicleId, onVehicleOpen) {
 }
 
 function VehicleListPhoto({ vehicle, photos, t }) {
-  const [imageError,setImageError] = useState(false);
+  const [failedPhotoId, setFailedPhotoId] = useState(null);
   const photo = photos.find(p => String(p.vehicleId) === String(vehicle.id));
   return (
     <span className="portal-home-vehicle-image">
-      {photo && !imageError ? (
+      {photo && photo.id !== failedPhotoId ? (
         <img src={photo.demoImage || portalApi.photoUrl(photo.id)}
           alt={photo.caption || t.workshopVehiclePhoto} loading="lazy"
-          onError={() => setImageError(true)} />
+          onError={() => setFailedPhotoId(photo.id)} />
       ) : <CarFront size={29} strokeWidth={1.55} aria-hidden="true"/>}
     </span>
   );
@@ -95,7 +95,7 @@ export default function CustomerHomeDashboard({ data, t, lang, onVehicleOpen, on
         </div>
       </section>
 
-      <section className="portal-home-all-vehicles" aria-labelledby="portal-home-vehicles-heading">
+      <section className="portal-home-all-vehicles" id="vehicles" aria-labelledby="portal-home-vehicles-heading">
         <div className="portal-home-section-heading">
           <div><span className="ref-kicker">{t.myGarage}</span>
             <h2 id="portal-home-vehicles-heading">{t.vehicles}</h2>

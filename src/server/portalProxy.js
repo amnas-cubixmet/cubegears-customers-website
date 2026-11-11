@@ -41,10 +41,12 @@ export async function handlePortalRequest(request, segments) {
   } catch {
     return Response.json({ message: 'Backend URL must be HTTPS.' }, { status: 503 });
   }
+  const isInvoicePdf = request.method === 'GET' &&
+    path.length === 3 && path[0] === 'invoices' && path[2] === 'pdf';
   const timestamp = String(Math.floor(Date.now() / 1000));
   const signature = createHmac('sha256', secret).update(timestamp + ':' + host).digest('hex');
   const upstreamHeaders = new Headers({
-    Accept: request.headers.get('accept') || 'application/json',
+    Accept: isInvoicePdf ? 'application/pdf, application/json' : (request.headers.get('accept') || 'application/json'),
     'X-CG-Portal-Host': host,
     'X-CG-Portal-TS': timestamp,
     'X-CG-Portal-Sig': signature,
@@ -93,6 +95,9 @@ export async function handlePortalRequest(request, segments) {
       'X-Content-Type-Options': 'nosniff',
     });
     if (upstream.headers.has('content-type')) headers.set('Content-Type', upstream.headers.get('content-type'));
+    if (isInvoicePdf && upstream.ok && headers.get('Content-Type') === 'application/pdf') {
+      headers.set('Content-Disposition', upstream.headers.get('Content-Disposition') || 'attachment; filename="invoice.pdf"');
+    }
     for (const cookie of upstream.headers.getSetCookie?.() || []) {
       headers.append('Set-Cookie', cookie);
     }

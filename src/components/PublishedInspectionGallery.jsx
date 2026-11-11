@@ -75,7 +75,7 @@ export default function PublishedInspectionGallery({ photos = [], t, lang }) {
   };
 
   return (
-    <section className="surface published-inspection-gallery" aria-label={t.photos}>
+    <section id="inspection-photos" className="surface published-inspection-gallery" aria-label={t.photos}>
       <div className="published-inspection-heading">
         <div className="section-head">
           <span className="published-inspection-heading-icon"><Camera size={20} aria-hidden="true"/></span>

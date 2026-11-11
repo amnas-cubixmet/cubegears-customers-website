@@ -43,5 +43,6 @@ export const portalApi = {
   },
   pendingPhotoUrl: id => API + '/uploads/' + encodeURIComponent(id),
   photoUrl: id => API + '/photos/' + encodeURIComponent(id),
+  invoicePdfUrl: id => API + '/invoices/' + encodeURIComponent(id) + '/pdf',
   logoUrl: API + '/logo'
 };

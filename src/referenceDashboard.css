@@ -17,7 +17,7 @@ body:has(.ref-dashboard) .nav-actions .logout{background:#fff;border-color:#dce8
 }
 .ref-dashboard .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 .ref-dashboard #overview,.ref-dashboard #maintenance,.ref-dashboard #history,
-.ref-dashboard #documents,.ref-dashboard #vehicles{scroll-margin-top:115px}
+.ref-dashboard #documents,.ref-dashboard #vehicles,.ref-dashboard #inspection-photos{scroll-margin-top:115px}
 .ref-dashboard .welcome{margin-bottom:16px}
 .ref-dashboard .welcome .eyebrow{color:var(--portal-brand);font-size:11px;letter-spacing:.09em}
 .ref-dashboard .welcome h1{color:var(--portal-text-primary);font-size:clamp(27px,3vw,38px);font-weight:750;letter-spacing:-.04em;margin:9px 0 7px}
@@ -43,7 +43,23 @@ body:has(.ref-dashboard) .nav-actions .logout{background:#fff;border-color:#dce8
 .ref-vehicle-description strong{font-size:clamp(22px,2.4vw,30px);color:var(--portal-text-primary);letter-spacing:-.035em;line-height:1.15;overflow-wrap:anywhere}
 .ref-vehicle-description span{font-size:13px;color:var(--portal-text-secondary)}
 .ref-vehicle-stage{position:relative;display:flex;align-items:center;justify-content:center;min-height:215px;flex:1;min-width:0;overflow:hidden}
-.ref-vehicle-stage>img{display:block;object-fit:contain;width:100%;height:240px;max-height:100%;border-radius:13px}
+.ref-vehicle-photo-link {
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 14px;
+  background: #f3f5f5;
+}
+.ref-vehicle-photo-link img {
+  display: block;
+  width: 100%;
+  height: clamp(240px, 30vw, 360px);
+  object-fit: contain;
+}
+.ref-dashboard-tabs svg { margin-inline-end: 7px; flex-shrink: 0; }
+.portal-document-actions { display: grid; justify-items: end; gap: 8px; }
+.portal-document-actions .btn { min-height: 44px; white-space: nowrap; }
+.portal-document-actions b { color: var(--portal-text-primary); }
 .ref-vehicle-placeholder{display:flex;justify-content:center;align-items:center;position:relative;min-height:210px;width:100%;color:var(--portal-brand)}
 .ref-vehicle-placeholder>svg{z-index:1;color:var(--portal-brand)}
 .ref-vehicle-oval{position:absolute;left:50%;top:49%;transform:translate(-50%,-50%);border:1px solid var(--portal-border);border-radius:50%;width:min(82%,360px);aspect-ratio:1.95}
@@ -225,4 +241,70 @@ body:has(.ref-dashboard) .nav-actions .logout{background:#fff;border-color:#dce8
 }
 @media(prefers-reduced-motion:reduce){
  .portal-home-vehicle-card{transition:none}
+}
+
+@media (max-width: 680px) {
+  .ref-dashboard {
+    padding-inline: 14px;
+  }
+
+  .ref-vehicle-details {
+    padding-bottom: calc(90px + env(safe-area-inset-bottom));
+  }
+
+  .ref-dashboard-tabs {
+    position: fixed;
+    z-index: 12;
+    inset: auto 0 0;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 2px;
+    margin: 0;
+    padding: 6px 5px calc(6px + env(safe-area-inset-bottom));
+    background: #fff;
+    border-top: 1px solid var(--portal-border);
+    border-bottom: 0;
+    box-shadow: 0 -4px 20px rgba(24, 58, 64, .08);
+  }
+
+  .ref-dashboard-tabs a {
+    flex-direction: column;
+    gap: 5px;
+    min-height: 49px;
+    padding: 5px 2px;
+    font-size: 10px;
+    line-height: 1.2;
+    text-align: center;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .ref-dashboard-tabs svg { margin-inline-end: 0; }
+  .ref-dashboard-tabs a:first-child:not(:hover):not(:focus-visible) {
+    background: transparent;
+    color: var(--portal-text-secondary);
+  }
+
+  .ref-vehicle-feature { min-height: 0; }
+  .ref-vehicle-stage { order: -1; margin-bottom: 12px; }
+  .ref-vehicle-photo-link img { height: auto; aspect-ratio: 4 / 3; }
+  .ref-vehicle-description { margin-block: 10px; }
+
+  .portal-home-vehicle-card { gap: 12px; flex-wrap: nowrap; }
+  .portal-home-vehicle-image {
+    flex: 0 0 clamp(84px, 26vw, 125px);
+    height: auto;
+    aspect-ratio: 4 / 3;
+  }
+  .portal-home-vehicle-cta { display: none; }
+  .portal-home-vehicle-main strong { font-size: 16px; }
+
+  .portal-document-actions { width: 100%; justify-items: stretch; }
+  .portal-document-actions b { text-align: end; }
+  .portal-document-actions .btn { min-height: 48px; }
+
+  .ref-dashboard #overview, .ref-dashboard #maintenance, .ref-dashboard #history,
+  .ref-dashboard #documents, .ref-dashboard #vehicles, .ref-dashboard #inspection-photos {
+    scroll-margin-top: 150px;
+  }
 }
