@@ -8,7 +8,7 @@ import { copy, niceDate } from '../src/i18n.js';
 const file = (path) => readFileSync(new URL('../' + path, import.meta.url), 'utf8');
 
 function request(path = 'branding', options = {}) {
-  const host = options.host || 'garage.example.com';
+  const host = options.host || 'garage.cubegears.com';
   const method = options.method || 'GET';
   return new Request('https://' + host + '/api/portal/' + path, {
     method,
@@ -87,10 +87,10 @@ test('Next BFF HMAC-signs the requested workshop host and never exposes tenant-i
     assert.match(response.headers.get('set-cookie') || '', /cg_portal_csrf/);
     assert.equal(sent.url, 'https://api.example.test/api/v1/customer-website/branding');
     const h = sent.options.headers;
-    assert.equal(h.get('X-CG-Portal-Host'), 'garage.example.com');
+    assert.equal(h.get('X-CG-Portal-Host'), 'garage.cubegears.com');
     const ts = h.get('X-CG-Portal-TS');
     const expected = createHmac('sha256', process.env.PORTAL_PROXY_SHARED_SECRET)
-      .update(ts + ':garage.example.com').digest('hex');
+      .update(ts + ':garage.cubegears.com').digest('hex');
     assert.equal(h.get('X-CG-Portal-Sig'), expected);
     assert.equal(h.has('X-CG-Portal-Tenant-ID'), false);
     assert.equal((await response.json()).publicName, 'Test Workshop');
@@ -109,7 +109,7 @@ test('Next BFF preserves CSRF and HttpOnly session cookies on POST', async () =>
   };
   try {
     const response = await handlePortalRequest(request('session', {
-      method: 'POST', origin: 'https://garage.example.com', csrf: 'csrf-value',
+      method: 'POST', origin: 'https://garage.cubegears.com', csrf: 'csrf-value',
       cookie: 'sessionid=secret; cg_portal_csrf=token', body: { token: 'securetoken' },
     }), ['session']);
     assert.equal(response.status, 200);
