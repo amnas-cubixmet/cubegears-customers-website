@@ -198,8 +198,8 @@ body:has(.ref-dashboard) .nav-actions .logout{background:#fff;border-color:#dce8
  .ref-dashboard .welcome h1{font-size:clamp(21px,5.8vw,27px);margin:5px 0}
  .ref-dashboard .welcome p{font-size:13px;line-height:1.45}
  .ref-dashboard .portal-refresh{justify-content:space-between;gap:8px;margin:0 0 13px}
- .ref-dashboard .portal-refresh>span{flex:1 1 110px;font-size:11px;line-height:1.4}
- .ref-dashboard .portal-refresh .btn{min-height:36px;padding:6px 9px;font-size:12px}
+ .ref-dashboard .portal-refresh>span{flex:1 1 110px;font-size:10px;line-height:1.4}
+ .ref-dashboard .portal-refresh .btn{min-height:36px;padding:6px 9px;font-size:11px}
  .ref-dashboard .portal-refresh .btn svg{width:14px;height:14px}
  .ref-dashboard-tabs a{font-size:12px;padding:10px 13px}
  .ref-dashboard-overview{gap:12px}
@@ -292,7 +292,7 @@ body:has(.ref-dashboard) .nav-actions .logout{background:#fff;border-color:#dce8
 
   .ref-vehicle-feature { min-height: 0; }
   .ref-vehicle-stage { order: -1; margin-bottom: 12px; }
-  .ref-vehicle-photo-link img { height: auto; aspect-ratio: 4 / 3; }
+  .ref-vehicle-photo-link img { height: auto; aspect-ratio: 4 / 3; object-fit: cover; }
   .ref-vehicle-description { margin-block: 10px; }
 
   .portal-home-vehicle-card { gap: 12px; flex-wrap: nowrap; }
