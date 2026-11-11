@@ -1,6 +1,6 @@
 'use client';
 import {useEffect,useMemo,useRef,useState} from 'react';
-import {CarFront,CheckCircle2,Clock3,FileText,Globe2,Link2,LogOut,MapPin,Phone,RefreshCw,ShieldCheck,Wallet,Wrench} from 'lucide-react';
+import {CarFront,CheckCircle2,Clock3,Download,FileText,Images,Globe2,Link2,LogOut,MapPin,Phone,RefreshCw,ShieldCheck,Wallet,Wrench} from 'lucide-react';
 import {portalApi} from './api';
 import {capturePendingAccessToken} from './accessLink';
 import {demoBranding,demoSession} from './demoData';
@@ -141,7 +141,8 @@ function Dashboard({data,brand,t,lang,onRefresh,refreshing,refreshError,lastRefr
   const allJobs=data.jobs||[];
   const scopedJobs=allJobs.filter(j=>String(j.vehicleId)===String(vehicleId));
   const scopedJobIds=new Set(scopedJobs.map(j=>String(j.id)));
-  const scopedInvoices=(data.invoices||[]).filter(i=>scopedJobIds.has(String(i.jobId)));
+  const scopedInvoices=(data.invoices||[]).filter(i=>scopedJobIds.has(String(i.jobId)) ||
+    (!i.jobId && i.vehicleId && String(i.vehicleId)===String(selected)));
   const jobs=scopedJobs;
   const visibleVehicles=vehicles.filter(v=>String(v.id)===String(selected));
   const active=jobs.filter(j=>inProgress.has(j.status));
@@ -149,9 +150,9 @@ function Dashboard({data,brand,t,lang,onRefresh,refreshing,refreshError,lastRefr
   const matchingJobIds=new Set(jobs.map(j=>String(j.id)));
   const photos=(data.photos||[]).filter(p=>String(p.vehicleId)===String(selected));
   const docs=[
-    ...(data.estimates||[]).map(e=>({...e,key:'e-'+e.jobId+'-'+e.version,label:t.estimate+' v'+e.version,docKind:'estimate'})),
-    ...(data.invoices||[]).map(i=>({...i,key:'i-'+i.number,label:i.number,docKind:'invoice'}))
-  ].filter(d=>d.jobId && matchingJobIds.has(String(d.jobId)));
+    ...(data.estimates||[]).filter(e=>matchingJobIds.has(String(e.jobId))).map(e=>({...e,key:'e-'+e.jobId+'-'+e.version,label:t.estimate+' v'+e.version,docKind:'estimate'})),
+    ...scopedInvoices.map(i=>({...i,key:'i-'+(i.id||i.number),label:i.number,docKind:'invoice'}))
+  ];
   const totals=invoiceTotals(scopedInvoices);
   const latestQuoteVersions=new Map();
   for(const estimate of data.estimates||[]){
@@ -178,10 +179,11 @@ function Dashboard({data,brand,t,lang,onRefresh,refreshing,refreshError,lastRefr
     </div>
     {refreshError&&<p className="portal-refresh-error" role="alert">{refreshError}</p>}
     <nav className="ref-dashboard-tabs" aria-label={t.dashboardSections}>
-      <a href="#overview">{t.overviewTab}</a>
-      <a href="#maintenance">{t.maintenanceTab}</a>
-      <a href="#documents">{t.documentsTab}</a>
-      <a href="#history">{t.historyTab}</a>
+      <a href="#overview"><CarFront size={19} aria-hidden="true"/>{t.overviewTab}</a>
+      <a href="#maintenance"><Wrench size={19} aria-hidden="true"/>{t.maintenanceTab}</a>
+      <a href="#inspection-photos"><Images size={19} aria-hidden="true"/>{t.photosTab}</a>
+      <a href="#documents"><FileText size={19} aria-hidden="true"/>{t.documentsTab}</a>
+      <a href="#history"><Clock3 size={19} aria-hidden="true"/>{t.historyTab}</a>
     </nav>
     <div className="ref-dashboard-overview" id="overview">
       <VehicleOverviewCard vehicles={vehicles} jobs={scopedJobs} photos={photos}
@@ -329,7 +331,13 @@ function Dashboard({data,brand,t,lang,onRefresh,refreshing,refreshError,lastRefr
                    </div>
                  </div>}
              </div>}
-        </div><b>{rupees(d.total)}</b></div>)}{!docs.length&&<p className="muted">{t.noData}</p>}
+        </div><aside className="portal-document-actions">
+          <b>{rupees(d.total)}</b>
+          {d.docKind==='invoice'&&d.id&&
+            <a className="btn btn-outline" href={portalApi.invoicePdfUrl(d.id)} download>
+              <Download size={17} aria-hidden="true"/>{t.downloadPdf}
+            </a>}
+        </aside></div>)}{!docs.length&&<p className="muted">{t.noData}</p>}
         {totals.count>0&&<div className="portal-balance-summary">
           <h3>{t.invoiceOverview}</h3>
           <div><span>{t.invoiced}</span><strong>{rupees(totals.total)}</strong></div>

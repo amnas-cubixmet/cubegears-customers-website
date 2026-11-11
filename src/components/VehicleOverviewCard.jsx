@@ -21,7 +21,7 @@ export default function VehicleOverviewCard({ vehicles = [], jobs = [], photos =
   const vehicleJobs = featured ? newest(jobs.filter(job => job.vehicleId === featured.id)) : [];
   const latestJob = vehicleJobs[0];
   // These are the existing private session's workshop-published photos only.
-  const photo = featured ? photos.find(item => item.vehicleId === featured.id) : null;
+  const photo = featured ? photos.find(item => String(item.vehicleId) === String(featured.id)) : null;
   const hasPhoto = Boolean(photo && failedPhotoId !== photo.id);
 
   return (
@@ -48,13 +48,14 @@ export default function VehicleOverviewCard({ vehicles = [], jobs = [], photos =
       </div>
       <div className={'ref-vehicle-stage' + (hasPhoto ? ' ref-has-photo' : '')}>
         {hasPhoto ? (
-          <img
-            src={photo.demoImage || portalApi.photoUrl(photo.id)}
-            alt={photo.caption || t.workshopVehiclePhoto}
-            loading="lazy"
-            decoding="async"
-            onError={() => setFailedPhotoId(photo.id)}
-          />
+          <a className="ref-vehicle-photo-link" href="#inspection-photos" aria-label={t.photos}>
+            <img
+              src={photo.demoImage || portalApi.photoUrl(photo.id)}
+              alt={photo.caption || t.workshopVehiclePhoto}
+              decoding="async"
+              onError={() => setFailedPhotoId(photo.id)}
+            />
+          </a>
         ) : (
           <div className="ref-vehicle-placeholder" aria-label={t.vehiclePhotoNotAvailable}>
             <span className="ref-vehicle-oval ref-oval-one" aria-hidden="true"/>
