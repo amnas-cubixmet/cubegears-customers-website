@@ -23,7 +23,7 @@ test('public home renders real workshop branding and contact actions, not custom
   assert.match(publicHome, /public-directions/);
   assert.match(publicHome, /maps\/search\/\?api=1/);
   assert.match(publicHome, /encodeURIComponent\(/);
-  assert.match(publicHome, /cleanPhone\(/);
+  assert.match(publicHome, /whatsappDigits\(/);
   assert.doesNotMatch(publicHome, /portalApi\.session\(/);
   assert.doesNotMatch(publicHome, /data\.jobs|data\.vehicles|data\.invoices/);
 });
