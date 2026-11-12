@@ -4,7 +4,7 @@ import {CarFront,CheckCircle2,Clock3,Download,FileText,Images,Globe2,Link2,LogOu
 import {portalApi} from './api';
 import {capturePendingAccessToken} from './accessLink';
 import {demoBranding,demoSession} from './demoData';
-import {copy,stages,inProgress,niceDate,rupees,cleanPhone} from './i18n';
+import {copy,stages,inProgress,niceDate,rupees,cleanPhone,whatsappDigits} from './i18n';
 import {invoiceTotals,invoicePaymentLabel} from './portalBilling';
 import PublishedInspectionGallery from './components/PublishedInspectionGallery';
 import VehicleOverviewCard, { RecentServiceActivity } from './components/VehicleOverviewCard';
@@ -14,7 +14,7 @@ import PortalGlobalSearch from './components/PortalGlobalSearch';
 
 function Contacts({brand,t}){
   const phone=cleanPhone(brand?.phone);
-  const wa=cleanPhone(brand?.whatsapp||brand?.phone).replace(/^\+/,'');
+  const wa=whatsappDigits(brand?.whatsapp||brand?.phone);
   return <div className="contacts">
     {phone&&<a className="btn btn-solid" href={'tel:'+phone}><Phone size={16}/>{t.call}</a>}
     {wa&&<a className="btn btn-outline" href={'https://wa.me/'+wa} rel="noreferrer noopener" target="_blank">{t.whatsapp}</a>}
@@ -47,7 +47,7 @@ function PublicPage({brand,t,demoMode=false}){
   const workshop=brand?.publicName||brand?.name||'cubixgear';
   const address=[brand?.address,brand?.city].filter(Boolean).join(', ');
   const mapUrl=address?'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(address):'';
-  const whatsapp=cleanPhone(brand?.whatsapp||brand?.phone).replace(/^\+/,'');
+  const whatsapp=whatsappDigits(brand?.whatsapp||brand?.phone);
   const enquiry=whatsapp?'https://wa.me/'+whatsapp+'?text='+encodeURIComponent(
     t.publicEnquiryMessage.replace('{workshop}',workshop)
   ):'';

@@ -205,3 +205,15 @@ export const niceDate=(date,lang)=>{
 };
 export const rupees=value=>new Intl.NumberFormat('en-IN',{style:'currency',currency:'INR'}).format(Number(value)||0);
 export const cleanPhone=value=>String(value||'').replace(/[^\d+]/g,'');
+
+
+/** International Click-to-Chat recipient. Never infer a country code. */
+export const whatsappDigits = (value) => {
+  const raw = String(value || '').trim();
+  const digits = raw.replace(/\D/g, '');
+  const allowedLengths = { '91': 10, '971': 9, '966': 9, '974': 8, '968': 8, '965': 8, '973': 8 };
+  if (!raw.startsWith('+') && !Object.keys(allowedLengths).some(code => digits.startsWith(code))) return '';
+  return Object.entries(allowedLengths).some(([code, length]) =>
+    digits.startsWith(code) && digits.length === code.length + length
+  ) ? digits : '';
+};
