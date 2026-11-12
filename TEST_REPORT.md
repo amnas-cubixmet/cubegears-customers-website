@@ -9,4 +9,4 @@ Updated: 2026-11-12
 - Other customer portal security/access token handling is unchanged.
 - Browser/real WhatsApp delivery is not inferred from link opening.
 
-CI: pending. Branch: `feature/manual-whatsapp-only-20261112`.
+Implementation PR [#33](https://github.com/amnas-cubixmet/cubegears-customers-website/pull/33) merged to main as `b514d68949a82bb05220951d6cdad3b62cdf016b`. Merged-main [CI 43171281680](https://github.com/amnas-cubixmet/cubegears-customers-website/actions/runs/43171281680): **success** (Node tests and Next.js build). No authenticated live customer or mobile WhatsApp delivery retest has been completed; do not infer delivery from a draft.
