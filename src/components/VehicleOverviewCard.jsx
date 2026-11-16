@@ -13,7 +13,7 @@ function newest(items) {
   });
 }
 
-export default function VehicleOverviewCard({ vehicles = [], jobs = [], photos = [], selected, onSelect, lang, t }) {
+export default function VehicleOverviewCard({ vehicles = [], jobs = [], photos = [], selected, onSelect, onShowPhotos, lang, t }) {
   const [failedPhotoId, setFailedPhotoId] = useState(null);
   const featured = vehicles.find(vehicle => vehicle.id === selected)
     || vehicles.find(vehicle => jobs.some(job => job.vehicleId === vehicle.id && inProgress.has(job.status)))
@@ -48,14 +48,14 @@ export default function VehicleOverviewCard({ vehicles = [], jobs = [], photos =
       </div>
       <div className={'ref-vehicle-stage' + (hasPhoto ? ' ref-has-photo' : '')}>
         {hasPhoto ? (
-          <a className="ref-vehicle-photo-link" href="#inspection-photos" aria-label={t.photos}>
+          <button type="button" className="ref-vehicle-photo-link" onClick={onShowPhotos} aria-label={t.photos}>
             <img
               src={photo.demoImage || portalApi.photoUrl(photo.id)}
               alt={photo.caption || t.workshopVehiclePhoto}
               decoding="async"
               onError={() => setFailedPhotoId(photo.id)}
             />
-          </a>
+          </button>
         ) : (
           <div className="ref-vehicle-placeholder" aria-label={t.vehiclePhotoNotAvailable}>
             <span className="ref-vehicle-oval ref-oval-one" aria-hidden="true"/>

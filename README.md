@@ -148,7 +148,7 @@ cross-origin protection before deployment.
 
 The separate routes `/demo` (sample public workshop website) and
 `/demo/portal` (sample customer tracking dashboard) display **fictional**
-vehicles, job cards, invoice/estimate figures and illustrative SVG vehicle pictures.
+vehicles, job cards, invoice figures and illustrative SVG vehicle pictures.
 
 - In local development, open `http://localhost:5174/demo`.
 - In production, set `CUBEGEARS_DEMO_ENABLED=true` on the **Customer Website Vercel project**

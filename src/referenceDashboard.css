@@ -16,8 +16,8 @@ body:has(.ref-dashboard) .nav-actions .logout{background:#fff;border-color:#dce8
   color:var(--portal-text-primary)
 }
 .ref-dashboard .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
-.ref-dashboard #overview,.ref-dashboard #maintenance,.ref-dashboard #history,
-.ref-dashboard #documents,.ref-dashboard #vehicles,.ref-dashboard #inspection-photos{scroll-margin-top:115px}
+.ref-vehicle-details{width:100%}
+.ref-vehicle-tabs-content,.ref-dashboard #vehicles{scroll-margin-top:115px}
 .ref-dashboard .welcome{margin-bottom:16px}
 .ref-dashboard .welcome .eyebrow{color:var(--portal-brand);font-size:11px;letter-spacing:.09em}
 .ref-dashboard .welcome h1{color:var(--portal-text-primary);font-size:clamp(27px,3vw,38px);font-weight:750;letter-spacing:-.04em;margin:9px 0 7px}
@@ -28,8 +28,12 @@ body:has(.ref-dashboard) .nav-actions .logout{background:#fff;border-color:#dce8
 .ref-dashboard .portal-refresh-error{color:var(--portal-text-primary);background:#fff;border-color:var(--portal-border)}
 .ref-dashboard-tabs{display:flex;align-items:center;gap:4px;overflow-x:auto;scrollbar-width:none;padding:5px 0 12px;margin-bottom:18px;border-bottom:1px solid var(--portal-border)}
 .ref-dashboard-tabs::-webkit-scrollbar{display:none}
-.ref-dashboard-tabs a{display:flex;align-items:center;justify-content:center;min-height:44px;padding:10px 15px;border-radius:11px;color:var(--portal-text-secondary);font-size:13px;font-weight:650;white-space:nowrap}
-.ref-dashboard-tabs a:hover,.ref-dashboard-tabs a:first-child,.ref-dashboard-tabs a:focus-visible{background:var(--portal-brand-soft);color:var(--portal-brand)}
+.ref-dashboard-tabs button{display:flex;border:0;background:transparent;align-items:center;justify-content:center;min-height:44px;padding:10px 15px;border-radius:11px;color:var(--portal-text-secondary);font-size:13px;font-weight:650;white-space:nowrap}
+.ref-dashboard-tabs button:hover{color:var(--portal-brand)}
+.ref-dashboard-tabs button[aria-selected="true"]{background:var(--portal-brand-soft);color:var(--portal-brand)}
+.ref-dashboard-tabs button:focus-visible{outline-offset:-3px}
+.ref-vehicle-tab-panel{min-width:0}
+.ref-vehicle-tab-panel:focus-visible{outline:2px solid var(--portal-brand);outline-offset:3px}
 .ref-dashboard .ref-kicker{display:block;font-size:11px;font-weight:750;letter-spacing:.055em;text-transform:uppercase;color:var(--portal-brand)}
 .ref-dashboard-overview{display:grid;grid-template-columns:minmax(0,1.02fr) minmax(0,1fr);align-items:stretch;gap:15px;margin-bottom:23px;min-width:0}
 .ref-vehicle-feature,.ref-recent-activity{min-width:0;background:#fff;border:1px solid var(--portal-border);border-radius:var(--ui-card-radius);box-shadow:var(--portal-shadow)}
@@ -46,10 +50,13 @@ body:has(.ref-dashboard) .nav-actions .logout{background:#fff;border-color:#dce8
 .ref-vehicle-photo-link {
   display: block;
   width: 100%;
+  border: 0;
+  padding: 0;
   overflow: hidden;
   border-radius: 14px;
   background: #f3f5f5;
 }
+.ref-vehicle-photo-link:focus-visible { outline-offset: -3px; }
 .ref-vehicle-photo-link img {
   display: block;
   width: 100%;
@@ -106,12 +113,11 @@ body:has(.ref-dashboard) .nav-actions .logout{background:#fff;border-color:#dce8
 .ref-dashboard .vehicle .feature-icon{width:44px;height:44px;border-radius:12px;background:var(--portal-brand-soft);color:var(--portal-brand)}
 .ref-dashboard .vehicle strong{color:var(--portal-text-primary);font-size:15px}
 .ref-dashboard .vehicle span{color:var(--portal-text-secondary);font-size:12px}
-.ref-dashboard .panel-grid{grid-template-columns:minmax(0,1.25fr) minmax(0,.85fr);gap:15px;align-items:start}
-.ref-dashboard .panel-grid .surface{min-width:0;padding:var(--ui-card-padding);border-radius:var(--ui-card-radius);border:1px solid var(--portal-border);background:#fff;box-shadow:var(--portal-shadow)}
-.ref-dashboard .panel-grid #maintenance{grid-column:1;grid-row:1}
-.ref-dashboard .panel-grid #history{grid-column:2;grid-row:1}
-.ref-dashboard .panel-grid #documents{grid-column:1;grid-row:2}
-.ref-dashboard .panel-grid .published-inspection-gallery{grid-column:2;grid-row:2}
+.ref-vehicle-tab-panel > .surface{min-width:0;padding:var(--ui-card-padding);border-radius:var(--ui-card-radius);border:1px solid var(--portal-border);background:#fff;box-shadow:var(--portal-shadow)}
+.ref-vehicle-tab-panel .surface .contacts{margin-top:20px}
+@media(min-width:901px){
+  .ref-vehicle-tab-panel .published-inspection-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
 .ref-dashboard .section-head{color:var(--portal-brand);margin-bottom:15px}
 .ref-dashboard .section-head h2{color:var(--portal-text-primary);font-size:17px}
 .ref-dashboard .section-head>span{background:var(--portal-brand-soft);color:var(--portal-brand)}
@@ -129,10 +135,8 @@ body:has(.ref-dashboard) .nav-actions .logout{background:#fff;border-color:#dce8
 .ref-dashboard .document{border-color:var(--portal-border);align-items:flex-start}
 .ref-dashboard .document strong,.ref-dashboard .document>b{color:var(--portal-text-primary)}
 .ref-dashboard .document small{color:var(--portal-text-secondary)}
-.ref-dashboard .portal-quote-breakdown,.ref-dashboard .portal-balance-summary{background:#fff;border-color:var(--portal-border)}
+.ref-dashboard .portal-balance-summary{background:#fff;border-color:var(--portal-border)}
 .ref-dashboard .portal-balance-summary strong,.ref-dashboard .portal-balance-summary .portal-due strong{color:var(--portal-text-primary)}
-.ref-dashboard .portal-estimate-actions .btn-solid{background:var(--portal-brand);color:#fff}
-.ref-dashboard .portal-estimate-actions .btn-outline{background:#fff;border-color:var(--portal-border);color:var(--portal-brand)}
 .ref-dashboard .published-inspection-heading-icon,.ref-dashboard .published-inspection-empty-icon{background:var(--portal-brand-soft);color:var(--portal-brand);border-color:var(--portal-border)}
 .ref-dashboard .published-inspection-count{background:var(--portal-brand-soft);color:var(--portal-brand)}
 .ref-dashboard .published-inspection-empty{background:#fff;border-color:var(--portal-border)}
@@ -180,7 +184,6 @@ body:has(.ref-dashboard) .nav-actions .logout{background:#fff;border-color:#dce8
 @media(max-width:1130px){
  .ref-dashboard-overview{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
  .ref-vehicle-feature{min-height:405px}
- .ref-dashboard .panel-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
  .portal-home-vehicle-list{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media(max-width:900px){
@@ -188,9 +191,6 @@ body:has(.ref-dashboard) .nav-actions .logout{background:#fff;border-color:#dce8
  .ref-dashboard-overview,.ref-home-dashboard .portal-home-overview{grid-template-columns:minmax(0,1fr)}
  .ref-dashboard-rail{grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:auto}
  .ref-vehicle-feature{min-height:365px}
- .ref-dashboard .panel-grid{grid-template-columns:minmax(0,1fr)}
- .ref-dashboard .panel-grid #maintenance,.ref-dashboard .panel-grid #history,
- .ref-dashboard .panel-grid #documents,.ref-dashboard .panel-grid .published-inspection-gallery{grid-column:auto;grid-row:auto}
 }
 @media(max-width:680px){
  .ref-dashboard{padding-top:16px;padding-bottom:43px}
@@ -201,7 +201,6 @@ body:has(.ref-dashboard) .nav-actions .logout{background:#fff;border-color:#dce8
  .ref-dashboard .portal-refresh>span{flex:1 1 110px;font-size:10px;line-height:1.4}
  .ref-dashboard .portal-refresh .btn{min-height:36px;padding:6px 9px;font-size:11px}
  .ref-dashboard .portal-refresh .btn svg{width:14px;height:14px}
- .ref-dashboard-tabs a{font-size:12px;padding:10px 13px}
  .ref-dashboard-overview{gap:12px}
  .ref-dashboard-rail{grid-template-columns:minmax(0,1fr)}
  .ref-vehicle-feature{padding:17px;min-height:350px}
@@ -216,8 +215,7 @@ body:has(.ref-dashboard) .nav-actions .logout{background:#fff;border-color:#dce8
  .ref-dashboard .filter.portal-filters{margin:17px 0 12px;padding:16px;border-radius:16px}
  .ref-dashboard .portal-filters label{min-width:0;flex:1 1 100%}
  .ref-dashboard .portal-filters button{width:100%}
- .ref-dashboard .panel-grid{gap:12px}
- .ref-dashboard .panel-grid .surface{padding:14px;border-radius:15px}
+ .ref-vehicle-tab-panel > .surface{padding:14px;border-radius:15px}
  .ref-dashboard .section-head h2,.ref-feature-heading h2,.ref-activity-head h2{font-size:var(--ui-card-title)}
  .ref-dashboard .job-top h3{font-size:var(--ui-card-title)}
  .ref-activity-item {
@@ -229,7 +227,7 @@ body:has(.ref-dashboard) .nav-actions .logout{background:#fff;border-color:#dce8
  .ref-activity-count{padding:4px 8px}
  .ref-dashboard .document strong,.ref-dashboard .history strong{font-size:var(--ui-text)}
  .ref-dashboard .document small,.ref-dashboard .history small{font-size:var(--ui-small)}
- .ref-dashboard .portal-document-actions .btn,.ref-dashboard .portal-estimate-actions .btn{font-size:13px}
+ .ref-dashboard .portal-document-actions .btn{font-size:13px}
  .ref-home-dashboard .portal-home-overview{gap:12px;margin-bottom:22px}
  .portal-home-metrics{gap:9px}
  .portal-home-metric{min-height:88px;gap:6px;padding:12px;border-radius:14px}
@@ -282,7 +280,7 @@ body:has(.ref-dashboard) .nav-actions .logout{background:#fff;border-color:#dce8
     box-shadow: 0 -4px 20px rgba(24, 58, 64, .08);
   }
 
-  .ref-dashboard-tabs a {
+  .ref-dashboard-tabs button {
     flex-direction: column;
     gap: 5px;
     min-height: 49px;
@@ -295,10 +293,6 @@ body:has(.ref-dashboard) .nav-actions .logout{background:#fff;border-color:#dce8
   }
 
   .ref-dashboard-tabs svg { margin-inline-end: 0; }
-  .ref-dashboard-tabs a:first-child:not(:hover):not(:focus-visible) {
-    background: transparent;
-    color: var(--portal-text-secondary);
-  }
 
   .ref-vehicle-feature { min-height: 0; }
   .ref-vehicle-stage { order: -1; margin-bottom: 12px; }
@@ -318,8 +312,7 @@ body:has(.ref-dashboard) .nav-actions .logout{background:#fff;border-color:#dce8
   .portal-document-actions b { text-align: end; }
   .portal-document-actions .btn { min-height: 48px; }
 
-  .ref-dashboard #overview, .ref-dashboard #maintenance, .ref-dashboard #history,
-  .ref-dashboard #documents, .ref-dashboard #vehicles, .ref-dashboard #inspection-photos {
+  .ref-vehicle-tabs-content, .ref-dashboard #vehicles {
     scroll-margin-top: 150px;
   }
 }

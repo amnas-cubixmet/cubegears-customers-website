@@ -68,9 +68,6 @@ export const demoSession = Object.freeze({
       demoImage: photoPreview('WORK UPDATE', 'Sample work photo preview', '#4c7761'),
     },
   ],
-  estimates: [
-    { jobId: 'demo-job-1', version: 1, status: 'Approved', total: 4850 },
-  ],
   invoices: [
     { jobId: 'demo-job-3', number: 'DEMO-INV-003', status: 'Paid', total: 2360 },
   ],
