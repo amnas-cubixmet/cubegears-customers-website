@@ -88,6 +88,7 @@ body:has(.ref-dashboard) .nav-actions .logout{background:#fff;border-color:#dce8
 .ref-dashboard .stat strong{font-size:clamp(24px,2.4vw,30px);line-height:1.08;font-weight:750;letter-spacing:-.035em;color:var(--portal-text-primary)}
 .ref-dashboard .stat .stat-money{font-size:clamp(19px,2.1vw,26px);overflow-wrap:anywhere;color:var(--portal-text-primary)}
 .ref-dashboard .stat span{font-size:12px;line-height:1.4;color:var(--portal-text-secondary);margin:0}
+.ref-dashboard .portal-vehicle-list-button:hover,.ref-dashboard .portal-vehicle-list-button:focus-visible{background:var(--portal-brand-soft);border-color:var(--portal-brand)}
 .ref-recent-activity{padding:20px 20px 12px}
 .ref-activity-head{display:flex;justify-content:space-between;align-items:flex-start;gap:9px;margin-bottom:12px}
 .ref-activity-head h2{font-size:17px;line-height:1.25;margin:5px 0 0;color:var(--portal-text-primary)}
@@ -166,8 +167,9 @@ body:has(.ref-dashboard) .nav-actions .logout{background:#fff;border-color:#dce8
 .portal-home-view-latest:hover{filter:brightness(.93)}
 .portal-home-muted{color:var(--portal-text-secondary);font-size:14px}
 .portal-home-all-vehicles{padding-bottom:22px}
+.ref-vehicle-list{width:100%}
+.portal-home-section-heading h1,.portal-home-section-heading h2{font-size:clamp(22px,2.5vw,27px);margin:5px 0;color:var(--portal-text-primary)}
 .portal-home-section-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:17px}
-.portal-home-section-heading h2{font-size:clamp(22px,2.5vw,27px);margin:5px 0;color:var(--portal-text-primary)}
 .portal-home-section-heading p{font-size:14px;color:var(--portal-text-secondary)}
 .portal-home-total{display:grid;place-items:center;flex:0 0 auto;min-width:34px;min-height:34px;padding:6px 10px;border-radius:999px;background:var(--portal-brand-soft);color:var(--portal-brand);font-weight:750;font-size:14px}
 .portal-home-vehicle-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
