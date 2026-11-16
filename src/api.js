@@ -28,13 +28,6 @@ export const portalApi = {
   session: signal => call('/session','GET',undefined,signal),
   exchange: (token,signal) => call('/session','POST',{token},signal),
   logout: () => call('/logout','POST',{}),
-  decideEstimate: (id, version, decision, reviewHash, feedback = {}) => call(
-    '/estimates/' + encodeURIComponent(id) + '/decision', 'POST',
-    {version, decision, reviewHash,
-      ...(decision === 'decline'
-        ? { declineReason: feedback.declineReason, declineNote: feedback.declineNote || '' }
-        : {})}
-  ),
   uploadPhoto: (file, vehicleId) => {
     const form = new FormData();
     form.append('image', file);

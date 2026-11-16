@@ -6,7 +6,6 @@ export function buildPortalSearchRecords(session = {}) {
   const vehicles = Array.isArray(session.vehicles) ? session.vehicles : [];
   const jobs = Array.isArray(session.jobs) ? session.jobs : [];
   const invoices = Array.isArray(session.invoices) ? session.invoices : [];
-  const estimates = Array.isArray(session.estimates) ? session.estimates : [];
   const allowedVehicles = new Map(vehicles.map(vehicle => [String(vehicle.id), vehicle]));
   const allowedJobs = new Map(
     jobs.filter(job => allowedVehicles.has(String(job.vehicleId)))
@@ -51,23 +50,6 @@ export function buildPortalSearchRecords(session = {}) {
         .filter(Boolean).join(' · '),
       searchText: [invoice.number, invoice.status, job.number,
         vehicle?.registration, job.vehicleRegistration].filter(Boolean).join(' '),
-    });
-  }
-
-  for (const estimate of estimates) {
-    const job = allowedJobs.get(String(estimate.jobId || ''));
-    if (!job) continue;
-    const vehicle = allowedVehicles.get(String(job.vehicleId));
-    entries.push({
-      key: 'estimate:' + String(estimate.id || estimate.jobId) + ':' + String(estimate.version || ''),
-      kind: 'estimate', vehicleId: String(job.vehicleId),
-      section: 'documents', title: job.number || vehicle?.registration || '',
-      description: [vehicle?.registration || job.vehicleRegistration,
-        estimate.status, estimate.version == null ? '' : 'v' + estimate.version]
-        .filter(Boolean).join(' · '),
-      searchText: [job.number, vehicle?.registration, job.vehicleRegistration,
-        estimate.status, 'estimate', estimate.version == null ? '' : 'v' + estimate.version]
-        .filter(Boolean).join(' '),
     });
   }
 

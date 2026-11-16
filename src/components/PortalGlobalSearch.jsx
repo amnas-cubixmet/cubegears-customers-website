@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { CarFront, FileText, Search, Wrench, X } from 'lucide-react';
 import { buildPortalSearchRecords, searchPortalRecords } from '../portalGlobalSearch';
 
-const ICONS = { vehicle: CarFront, job: Wrench, invoice: FileText, estimate: FileText };
+const ICONS = { vehicle: CarFront, job: Wrench, invoice: FileText };
 
 export default function PortalGlobalSearch({ session, t, onVehicleOpen }) {
   const [query, setQuery] = useState('');
@@ -82,7 +82,7 @@ export default function PortalGlobalSearch({ session, t, onVehicleOpen }) {
                 const Icon = ICONS[result.kind] || Search;
                 const kindLabels = {
                   vehicle: t.searchTypeVehicle, job: t.searchTypeJob,
-                  invoice: t.searchTypeInvoice, estimate: t.searchTypeEstimate,
+                  invoice: t.searchTypeInvoice,
                 };
                 return (
                   <button type="button" key={result.key}

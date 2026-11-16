@@ -113,53 +113,8 @@
 @media(max-width:920px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:630px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.stat{padding:13px}.stat .stat-money{font-size:17px}.portal-refresh{justify-content:space-between;margin-top:-9px}.portal-refresh .btn{font-size:13px;padding:10px}}
 
-/* Part 17 — clearly scoped customer quote decisions; no payment input. */
 .portal-document{align-items:flex-start;flex-wrap:wrap}
 .portal-document>div{flex:1 1 180px}
-.portal-estimate-actions{margin-top:13px;display:flex;flex-wrap:wrap;align-items:center;gap:9px}
-.portal-estimate-actions p{flex-basis:100%;font-size:12px;line-height:1.6;color:#48696d;margin:0 0 3px}
-.portal-estimate-actions .btn{min-height:44px;font-size:13px}
-.portal-estimate-actions .btn:disabled{opacity:.58;cursor:not-allowed}
-.portal-estimate-success{color:#155f4d;background:#edf9f1;border:1px solid #b7e3c9;border-radius:10px;padding:11px 13px}
-@media(max-width:630px){.portal-estimate-actions .btn{flex:1 1 100%;justify-content:center}}
-
-/* Part 18: transparent customer quote lines and persistent decision records. */
-.portal-quote-breakdown{margin:15px 0 12px;border:1px solid #d8e7e4;background:#fbfefd;border-radius:14px;padding:14px}
-.portal-quote-breakdown h4{margin:0 0 12px;font-size:15px;font-weight:700;color:#20464a}
-.portal-quote-table-wrap{overflow-x:auto;max-width:100%;-webkit-overflow-scrolling:touch}
-.portal-quote-table{width:100%;min-width:365px;border-collapse:collapse;text-align:left;font-variant-numeric:tabular-nums}
-.portal-quote-table th,.portal-quote-table td{padding:10px 7px;border-bottom:1px solid #e1eeeb;font-size:12px;vertical-align:top}
-.portal-quote-table th{font-weight:700;color:#48696d;white-space:nowrap}
-.portal-quote-table td:not(:first-child),.portal-quote-table th:not(:first-child){text-align:right;white-space:nowrap}
-.portal-quote-table td:first-child{min-width:140px;white-space:normal}
-.portal-quote-table td strong{font-size:13px;color:#24494b}
-.portal-quote-table td small{display:block;font-size:11px;color:#68858a;margin-top:4px;line-height:1.45}
-.portal-quote-totals{margin:10px 0 4px;display:grid;gap:1px}
-.portal-quote-totals>div{display:flex;justify-content:space-between;gap:12px;padding:7px 3px;font-size:12px;color:#55767a}
-.portal-quote-totals dt{font-weight:550}
-.portal-quote-totals dd{margin:0;font-weight:700;font-variant-numeric:tabular-nums;color:#22484a;white-space:nowrap}
-.portal-quote-totals .portal-quote-total{border-top:1px solid #bddad2;padding-top:12px;margin-top:4px;font-size:15px}
-.portal-quote-confirm{display:flex;align-items:flex-start;gap:11px;margin:14px 0 0;padding:12px;border:1px solid #bddbd2;border-radius:10px;background:#f1faf6;cursor:pointer;font-weight:550;font-size:13px;line-height:1.5;color:#215c4d}
-.portal-quote-confirm input{flex:none;width:20px;height:20px;margin:0;accent-color:#116f69}
-.portal-quote-confirm:focus-within{outline:2px solid #116f69;outline-offset:2px}
-.portal-quote-unavailable{padding:11px 13px;margin:12px 0;border-radius:9px;background:#fff7e9;color:#8a570d;font-size:12px;line-height:1.5}
-.portal-quote-receipt{display:grid;gap:6px;margin:12px 0;padding:12px;border:1px solid #c8e6db;border-radius:10px;background:#f2fbf7;font-size:12px;color:#26624e;overflow-wrap:anywhere}
-.portal-quote-receipt strong{font-size:13px}
-@media(max-width:630px){.portal-quote-breakdown{padding:11px}.portal-quote-table th,.portal-quote-table td{padding:9px 5px}.portal-quote-confirm{font-size:12px}}
-
-/* Part 20 — accessible customer estimate decline / revision request form */
-.portal-decline-form{flex:1 1 100%;width:100%;padding:14px;border:1px solid #b8d7cf;border-radius:12px;background:#f7fcfa;display:grid;gap:12px}
-.portal-decline-form h4{margin:0;font-size:15px;color:#204a43}
-.portal-decline-form p{margin:0;line-height:1.5;font-size:12px;color:#516c68}
-.portal-decline-form label{display:grid;gap:7px;font-size:13px;font-weight:600;color:#284f49}
-.portal-decline-form select,.portal-decline-form textarea{display:block;min-height:44px;width:100%;box-sizing:border-box;outline-offset:2px;border:1px solid #bbd7d0;border-radius:9px;background:#fff;color:#183f3a;padding:10px 12px;font:inherit;font-weight:400;font-size:14px}
-.portal-decline-form textarea{resize:vertical;min-height:92px;line-height:1.5}
-.portal-decline-form small{text-align:right;color:#657d77}
-.portal-decline-form-buttons{display:flex;gap:9px;justify-content:flex-end;flex-wrap:wrap}
-.portal-decline-form-buttons .btn{min-height:44px}
-.portal-decline-receipt{margin-top:6px;padding-top:8px;border-top:1px solid #b9ded0;display:grid;gap:5px}
-.portal-decline-receipt p{font-size:12px;margin:0;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere}
-@media(max-width:630px){.portal-decline-form{padding:12px}.portal-decline-form-buttons .btn{flex:1 1 100%;justify-content:center}}
 
 /* Public workshop website — tenant data only; customer data stays behind /access. */
 .public-home{padding-bottom:30px}
@@ -276,14 +231,12 @@
 }
 
 
-/* Mobile-first hardening across the public website and customer portal.
-   Preserve document/estimate semantics and tenant-specific functionality. */
+/* Mobile layout for the public website and customer portal. */
 html{min-width:0;-webkit-text-size-adjust:100%;text-size-adjust:100%}
 body{min-width:0}
 .app,.wrap,.hero,.hero-text,.public-home,.dashboard,.surface,
 .public-step,.public-info-grid,.panel-grid,.panel-grid>*,
-.job,.document,.portal-document,.portal-quote-breakdown,
-.portal-quote-table-wrap,.portal-balance-summary{min-width:0}
+.job,.document,.portal-document,.portal-balance-summary{min-width:0}
 img,svg{max-width:100%}
 .hero,.public-info-grid{grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr)}
 .public-info-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -292,9 +245,9 @@ img,svg{max-width:100%}
 .hero h1,.public-step h3,.surface h2,.section-head h2,.job-top h3,
 .document strong,.vehicle strong,.welcome h1{overflow-wrap:anywhere}
 .vehicle>div:last-child,.job-top>div,.document>div,.section-head h2{min-width:0}
-.portal-quote-totals>div,.portal-balance-summary>div{min-width:0}
-.portal-quote-totals dd,.portal-balance-summary strong{overflow-wrap:anywhere;white-space:normal;text-align:right}
-.contacts .btn,.portal-estimate-actions .btn,.portal-decline-form-buttons .btn{min-width:0}
+.portal-balance-summary>div{min-width:0}
+.portal-balance-summary strong{overflow-wrap:anywhere;white-space:normal;text-align:right}
+.contacts .btn{min-width:0}
 .portal-refresh .btn,.nav-actions .logout,.nav-actions .lang{flex-shrink:0}
 button,a,select{touch-action:manipulation}
 button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--accent,#116f69);outline-offset:3px}
@@ -388,41 +341,10 @@ button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible,te
   .portal-document{flex-direction:column;align-items:stretch}
   .portal-document>div{flex:1 1 auto;width:100%;min-width:0}
   .portal-document>b{align-self:flex-end}
-  .portal-quote-breakdown{padding:12px;margin:14px 0}
-  .portal-quote-confirm{font-size:14px;line-height:1.55}
-  .portal-quote-totals>div{font-size:13px;gap:8px}
-  .portal-quote-totals dd{max-width:65%;overflow-wrap:anywhere}
   .portal-balance-summary>div{font-size:13px;gap:8px}
   .portal-balance-summary strong{max-width:60%;font-size:14px}
-  .portal-estimate-actions{align-items:stretch}
-  .portal-estimate-actions .btn,.portal-decline-form-buttons .btn{min-height:48px;font-size:14px;width:100%;white-space:normal}
-  .portal-decline-form select,.portal-decline-form textarea{font-size:16px}
   .footer .wrap{min-height:0;padding-block:18px;gap:5px}
   .footer .wrap span{font-size:13px;line-height:1.5;overflow-wrap:anywhere}
-}
-
-/* On narrow phones, show itemized estimates as readable cards instead
-   of requiring a sideways-scrolled 365px table. All financial values stay. */
-@media(max-width:540px){
-  .portal-quote-table-wrap{width:100%;max-width:100%;overflow-x:visible}
-  .portal-quote-table{display:block;width:100%;min-width:0}
-  .portal-quote-table thead{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
-  .portal-quote-table tbody{display:grid;gap:9px}
-  .portal-quote-table tr{display:grid;gap:0;min-width:0;padding:9px 12px;background:#fff;border:1px solid #dce9e5;border-radius:11px}
-  .portal-quote-table td,.portal-quote-table td:first-child{
-    display:flex;justify-content:space-between;align-items:baseline;
-    gap:12px;padding:7px 0;min-width:0;width:100%;border:0;
-    font-size:13px;white-space:normal;text-align:right;overflow-wrap:anywhere
-  }
-  .portal-quote-table td:first-child{display:block;text-align:left;padding-bottom:10px;border-bottom:1px solid #e7f0ed}
-  .portal-quote-table td:first-child::before{display:none}
-  .portal-quote-table td::before{
-    content:attr(data-label);font-size:12px;font-weight:700;
-    color:#57777c;flex:0 0 auto;text-align:left
-  }
-  .portal-quote-table td strong{font-size:14px;overflow-wrap:anywhere}
-  .portal-quote-table td small{font-size:12px;overflow-wrap:anywhere}
-  .portal-quote-table td:last-child{border-top:1px solid #e7f0ed;padding-top:11px;font-weight:750}
 }
 
 @media(max-width:390px){
@@ -437,8 +359,6 @@ button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible,te
   .public-hero h1{font-size:clamp(27px,8.3vw,33px)}
   .public-hero .hero-graphic.hero-photo{min-height:220px;height:220px}
   .public-step{padding:19px 17px}
-  .portal-quote-breakdown{padding:10px}
-  .portal-quote-table tr{padding-inline:10px}
   .stat{padding:12px 10px}
   .stat span{font-size:12px}
   .stat .stat-money{font-size:16px}

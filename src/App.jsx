@@ -133,10 +133,50 @@ function Timeline({job,t}){
   const current=Math.max(0,stages.indexOf(job.stage));
   return <ol className="timeline" aria-label={t.step}>{stages.map((s,i)=><li className={i<=current?'done':''} aria-current={i===current?'step':undefined} key={s}><span>{i<=current?<CheckCircle2 size={17}/>:<span className="empty-dot"/>}</span>{t[s]||s}</li>)}</ol>;
 }
-function Dashboard({data,brand,t,lang,onRefresh,refreshing,refreshError,lastRefreshed,onEstimateDecision,decisionBusy,decisionError,decisionNotice,demoMode,vehicleId,onHome,onVehicleOpen}){
+const vehicleTabs = [
+  { key: 'overview', label: 'overviewTab', Icon: CarFront },
+  { key: 'maintenance', label: 'maintenanceTab', Icon: Wrench },
+  { key: 'photos', label: 'photosTab', Icon: Images },
+  { key: 'documents', label: 'documentsTab', Icon: FileText },
+  { key: 'history', label: 'historyTab', Icon: Clock3 },
+];
+
+function VehicleTabPanel({ tab, activeTab, children }) {
+  const selected = tab === activeTab;
+  return <div className="ref-vehicle-tab-panel" role="tabpanel" id={`vehicle-panel-${tab}`}
+    aria-labelledby={`vehicle-tab-${tab}`} hidden={!selected} tabIndex={0}>
+    {selected && children}
+  </div>;
+}
+
+function Dashboard({data,brand,t,lang,onRefresh,refreshing,refreshError,lastRefreshed,vehicleId,onHome,onVehicleOpen,activeTab,onTabChange}){
   const selected = vehicleId;
-  const [reviewedQuotes,setReviewedQuotes]=useState(()=>new Set());
-  const [declineDraft,setDeclineDraft]=useState(null);
+  const tabButtons = useRef({});
+  const tabContent = useRef(null);
+
+  function selectTab(tab, focus = false) {
+    if (focus) tabButtons.current[tab]?.focus({ preventScroll: true });
+    if (tab === activeTab) return;
+    if (tabContent.current.getBoundingClientRect().top < 0) {
+      tabContent.current.scrollIntoView({ block: 'start' });
+    }
+    onTabChange(tab);
+  }
+
+  function onTabKeyDown(event, index) {
+    const last = vehicleTabs.length - 1;
+    let next;
+    switch (event.key) {
+      case 'ArrowLeft': next = index === 0 ? last : index - 1; break;
+      case 'ArrowRight': next = index === last ? 0 : index + 1; break;
+      case 'Home': next = 0; break;
+      case 'End': next = last; break;
+      default: return;
+    }
+    event.preventDefault();
+    selectTab(vehicleTabs[next].key, true);
+  }
+
   const vehicles=data.vehicles||[];
   const allJobs=data.jobs||[];
   const scopedJobs=allJobs.filter(j=>String(j.vehicleId)===String(vehicleId));
@@ -147,19 +187,8 @@ function Dashboard({data,brand,t,lang,onRefresh,refreshing,refreshError,lastRefr
   const visibleVehicles=vehicles.filter(v=>String(v.id)===String(selected));
   const active=jobs.filter(j=>inProgress.has(j.status));
   const history=jobs.filter(j=>!inProgress.has(j.status));
-  const matchingJobIds=new Set(jobs.map(j=>String(j.id)));
   const photos=(data.photos||[]).filter(p=>String(p.vehicleId)===String(selected));
-  const docs=[
-    ...(data.estimates||[]).filter(e=>matchingJobIds.has(String(e.jobId))).map(e=>({...e,key:'e-'+e.jobId+'-'+e.version,label:t.estimate+' v'+e.version,docKind:'estimate'})),
-    ...scopedInvoices.map(i=>({...i,key:'i-'+(i.id||i.number),label:i.number,docKind:'invoice'}))
-  ];
   const totals=invoiceTotals(scopedInvoices);
-  const latestQuoteVersions=new Map();
-  for(const estimate of data.estimates||[]){
-    const jobId=String(estimate.jobId||'');
-    const version=Number(estimate.version)||0;
-    latestQuoteVersions.set(jobId,Math.max(latestQuoteVersions.get(jobId)||0,version));
-  }
   return <main className="wrap dashboard ref-dashboard ref-vehicle-details">
     {vehicles.length>1 && <div className="portal-vehicle-navigation">
       <nav className="portal-vehicle-breadcrumb" aria-label={t.breadcrumbLabel}>
@@ -178,175 +207,74 @@ function Dashboard({data,brand,t,lang,onRefresh,refreshing,refreshError,lastRefr
       </button>
     </div>
     {refreshError&&<p className="portal-refresh-error" role="alert">{refreshError}</p>}
-    <nav className="ref-dashboard-tabs" aria-label={t.dashboardSections}>
-      <a href="#overview"><CarFront size={19} aria-hidden="true"/>{t.overviewTab}</a>
-      <a href="#maintenance"><Wrench size={19} aria-hidden="true"/>{t.maintenanceTab}</a>
-      <a href="#inspection-photos"><Images size={19} aria-hidden="true"/>{t.photosTab}</a>
-      <a href="#documents"><FileText size={19} aria-hidden="true"/>{t.documentsTab}</a>
-      <a href="#history"><Clock3 size={19} aria-hidden="true"/>{t.historyTab}</a>
-    </nav>
-    <div className="ref-dashboard-overview" id="overview">
-      <VehicleOverviewCard vehicles={vehicles} jobs={scopedJobs} photos={photos}
-        selected={selected} onSelect={onVehicleOpen} lang={lang} t={t}/>
-      <div className="ref-dashboard-rail">
-        <div className="stats" aria-label={t.serviceAtGlance}>
-          <div className="stat"><CarFront size={24}/><div><strong>{visibleVehicles.length}</strong><span>{t.vehicles}</span></div></div>
-          <div className="stat"><Wrench size={24}/><div><strong>{scopedJobs.filter(j=>inProgress.has(j.status)).length}</strong><span>{t.active}</span></div></div>
-          <div className="stat"><Clock3 size={24}/><div><strong>{scopedJobs.filter(j=>!inProgress.has(j.status)).length}</strong><span>{t.history}</span></div></div>
-          <div className="stat"><Wallet size={24}/><div><strong className="stat-money">{rupees(totals.outstanding)}</strong><span>{t.outstanding}</span></div></div>
-        </div>
-        <RecentServiceActivity jobs={scopedJobs} lang={lang} t={t}/>
+    <div className="ref-vehicle-tabs-content" ref={tabContent}>
+      <div className="ref-dashboard-tabs" role="tablist" aria-label={t.dashboardSections}>
+        {vehicleTabs.map(({ key, label, Icon }, index) => <button
+          key={key} ref={element => { tabButtons.current[key] = element; }}
+          type="button" role="tab" id={`vehicle-tab-${key}`} aria-controls={`vehicle-panel-${key}`}
+          aria-selected={activeTab === key} tabIndex={activeTab === key ? 0 : -1}
+          onClick={() => selectTab(key)} onKeyDown={event => onTabKeyDown(event, index)}>
+          <Icon size={19} aria-hidden="true"/>{t[label]}
+        </button>)}
       </div>
-    </div>
-    {/* Vehicle identity is already shown in the overview above.
-        Avoid duplicating a search form and non-interactive vehicle card here. */}
-    <div className="panel-grid">
-      <section className="surface" id="maintenance"><div className="section-head"><Wrench size={20}/><h2>{t.active}</h2><span>{active.length}</span></div>
-        {active.map(job=><article className="job" key={job.id}><div className="job-top"><div><small>{job.number}</small><h3>{job.vehicleRegistration}</h3><p>{job.vehicleModel}</p></div><span className="tag">{t[job.stage]||job.status}</span></div><Timeline job={job} t={t}/><small className="date">{t.date}: {niceDate(job.createdAt,lang)}</small></article>)}
-        {!active.length&&<p className="muted">{t.noData}</p>}
-      </section>
-      <section className="surface" id="history"><div className="section-head"><Clock3 size={20}/><h2>{t.history}</h2></div>
-        {history.map(job=><div className="history" key={job.id}><strong>{job.vehicleRegistration}</strong><span>{job.number}</span><small>{t[job.stage]||job.status} · {niceDate(job.createdAt,lang)}</small></div>)}
-        {!history.length&&<p className="muted">{t.noData}</p>}
-      </section>
-      <PublishedInspectionGallery photos={photos} t={t} lang={lang}/>
-      <section className="surface" id="documents"><div className="section-head"><FileText size={20}/><h2>{t.documents}</h2></div>
-        {decisionError&&<p className="portal-refresh-error" role="alert">{decisionError}</p>}
-        {decisionNotice&&<p className="portal-estimate-success" role="status">{decisionNotice}</p>}
-        {docs.map(d=><div className="document portal-document" key={d.key}><div>
-          <strong>{d.label}</strong>
-          <small>{d.docKind==='invoice'?invoicePaymentLabel(d,t):(
-            d.status==='Awaiting Customer'?t.awaitingReview:
-            d.status==='Customer Approved'?t.customerAccepted:
-            d.status==='Customer Rejected'?t.customerDeclined:t.approvedStatus
-          )}</small>
-          {d.docKind==='invoice'&&<small>{t.paidAmount}: {rupees(d.paid)} · {t.balanceDue}: {rupees(d.balance)}</small>}
-          {d.docKind==='estimate'&&d.status==='Customer Approved'&&<small>{t.awaitingWorkshopConfirmation}</small>}
-          {d.docKind==='estimate'&&d.decisionReceipt?.id&&
-            <div className="portal-quote-receipt" role="status">
-              <strong>{t.decisionReceipt}</strong>
-              <span>{t.receiptReference}: {d.decisionReceipt.id}</span>
-              <span>{t.decisionDate}: {d.decisionReceipt.respondedAt
-                ?new Date(d.decisionReceipt.respondedAt).toLocaleString(lang==='ml'?'ml-IN':'en-IN')
-                :'—'}</span>
-              {d.decisionReceipt.declineFeedback&&
-                <div className="portal-decline-receipt">
-                  <strong>{t.declineFeedbackTitle}</strong>
-                  <span>{t['reason'+d.decisionReceipt.declineFeedback.reason]||t.reasonUnspecified}</span>
-                  {d.decisionReceipt.declineFeedback.note&&
-                    <p>{d.decisionReceipt.declineFeedback.note}</p>}
-                </div>}
-            </div>}
-          {d.docKind==='estimate'&&d.reviewable&&Array.isArray(d.lines)&&d.lines.length>0&&
-            <div className="portal-quote-breakdown">
-              <h4>{t.quoteBreakdown}</h4>
-              <div className="portal-quote-table-wrap">
-                <table className="portal-quote-table">
-                  <thead><tr>
-                    <th scope="col">{t.quoteItem}</th><th scope="col">{t.quantity}</th>
-                    <th scope="col">{t.unitPrice}</th><th scope="col">{t.lineTotal}</th>
-                  </tr></thead>
-                  <tbody>{d.lines.map((line,index)=><tr key={index}>
-                    <td data-label={t.quoteItem}><strong>{line.description}</strong><small>{t['type'+line.type]||line.type}
-                      {line.hsnSac?' · HSN/SAC '+line.hsnSac:''}
-                      {line.taxRate!==undefined?' · GST '+line.taxRate+'%':''}</small></td>
-                    <td data-label={t.quantity}>{line.quantity}</td><td data-label={t.unitPrice}>{rupees(line.unitPrice)}</td>
-                    <td data-label={t.lineTotal}>{rupees(line.total)}</td>
-                  </tr>)}</tbody>
-                </table>
+      <VehicleTabPanel tab="overview" activeTab={activeTab}>
+        <div className="ref-dashboard-overview">
+          <VehicleOverviewCard vehicles={vehicles} jobs={scopedJobs} photos={photos}
+            selected={selected} onSelect={onVehicleOpen} onShowPhotos={() => selectTab('photos', true)} lang={lang} t={t}/>
+          <div className="ref-dashboard-rail">
+            <div className="stats" aria-label={t.serviceAtGlance}>
+              <div className="stat"><CarFront size={24}/><div><strong>{visibleVehicles.length}</strong><span>{t.vehicles}</span></div></div>
+              <div className="stat"><Wrench size={24}/><div><strong>{scopedJobs.filter(j=>inProgress.has(j.status)).length}</strong><span>{t.active}</span></div></div>
+              <div className="stat"><Clock3 size={24}/><div><strong>{scopedJobs.filter(j=>!inProgress.has(j.status)).length}</strong><span>{t.history}</span></div></div>
+              <div className="stat"><Wallet size={24}/><div><strong className="stat-money">{rupees(totals.outstanding)}</strong><span>{t.outstanding}</span></div></div>
+            </div>
+            <RecentServiceActivity jobs={scopedJobs} lang={lang} t={t}/>
+          </div>
+        </div>
+      </VehicleTabPanel>
+      <VehicleTabPanel tab="maintenance" activeTab={activeTab}>
+        <section className="surface"><div className="section-head"><Wrench size={20}/><h2>{t.active}</h2><span>{active.length}</span></div>
+          {active.map(job=><article className="job" key={job.id}><div className="job-top"><div><small>{job.number}</small><h3>{job.vehicleRegistration}</h3><p>{job.vehicleModel}</p></div><span className="tag">{t[job.stage]||job.status}</span></div><Timeline job={job} t={t}/><small className="date">{t.date}: {niceDate(job.createdAt,lang)}</small></article>)}
+          {!active.length&&<p className="muted">{t.noData}</p>}
+        </section>
+      </VehicleTabPanel>
+      <VehicleTabPanel tab="history" activeTab={activeTab}>
+        <section className="surface"><div className="section-head"><Clock3 size={20}/><h2>{t.history}</h2></div>
+          {history.map(job=><div className="history" key={job.id}><strong>{job.vehicleRegistration}</strong><span>{job.number}</span><small>{t[job.stage]||job.status} · {niceDate(job.createdAt,lang)}</small></div>)}
+          {!history.length&&<p className="muted">{t.noData}</p>}
+        </section>
+      </VehicleTabPanel>
+      <VehicleTabPanel tab="photos" activeTab={activeTab}>
+        <PublishedInspectionGallery photos={photos} t={t} lang={lang}/>
+      </VehicleTabPanel>
+      <VehicleTabPanel tab="documents" activeTab={activeTab}>
+        <section className="surface"><div className="section-head"><FileText size={20}/><h2>{t.documents}</h2></div>
+          {scopedInvoices.map(invoice => (
+            <div className="document portal-document" key={invoice.id || invoice.number}>
+              <div>
+                <strong>{invoice.number}</strong>
+                <small>{invoicePaymentLabel(invoice, t)}</small>
+                <small>{t.paidAmount}: {rupees(invoice.paid)} · {t.balanceDue}: {rupees(invoice.balance)}</small>
               </div>
-              <dl className="portal-quote-totals">
-                <div><dt>{t.subtotal}</dt><dd>{rupees(d.subtotal)}</dd></div>
-                <div><dt>{t.discount}</dt><dd>− {rupees(d.discount)}</dd></div>
-                {d.gst&&<>
-                  <div><dt>CGST</dt><dd>{rupees(d.gst.cgst)}</dd></div>
-                  <div><dt>SGST</dt><dd>{rupees(d.gst.sgst)}</dd></div>
-                  <div><dt>IGST</dt><dd>{rupees(d.gst.igst)}</dd></div>
-                </>}
-                <div><dt>{t.tax}</dt><dd>{rupees(d.tax)}</dd></div>
-                <div className="portal-quote-total"><dt>{t.grandTotal}</dt><dd>{rupees(d.total)}</dd></div>
-              </dl>
-              {d.status==='Awaiting Customer'&&
-                <label className="portal-quote-confirm">
-                  <input type="checkbox"
-                    checked={reviewedQuotes.has(d.id+':'+d.reviewHash)}
-                    onChange={event=>setReviewedQuotes(current=>{
-                      const next=new Set(current);
-                      const key=d.id+':'+d.reviewHash;
-                      if(event.target.checked)next.add(key);else next.delete(key);
-                      return next;
-                    })}
-                  />
-                  <span>{t.reviewConfirm}</span>
-                </label>}
-            </div>}
-          {d.docKind==='estimate'&&!d.reviewable&&<p className="portal-quote-unavailable">{t.quoteUnavailable}</p>}
-          {d.docKind==='estimate'&&d.status==='Awaiting Customer'&&d.reviewable&&d.reviewHash&&d.id&&
-             Number(d.version)===latestQuoteVersions.get(String(d.jobId||''))&&
-             <div className="portal-estimate-actions">
-               <p>{t.reviewNote}</p>
-               <button type="button" className="btn btn-solid"
-                 disabled={!!decisionBusy||demoMode||!reviewedQuotes.has(d.id+':'+d.reviewHash)}
-                 onClick={()=>onEstimateDecision?.(d,'accept')}>
-                 <CheckCircle2 size={16}/>{decisionBusy===d.id?t.submitting:t.acceptEstimate}
-               </button>
-               <button type="button" className="btn btn-outline"
-                 disabled={!!decisionBusy||demoMode||!reviewedQuotes.has(d.id+':'+d.reviewHash)}
-                 onClick={()=>setDeclineDraft(current=>
-                   current?.id===d.id?null:{id:d.id,reason:'',note:''}
-                 )}>{t.declineEstimate}</button>
-               {declineDraft?.id===d.id&&
-                 <div className="portal-decline-form" role="group" aria-label={t.declineFeedbackTitle}>
-                   <h4>{t.declineFeedbackTitle}</h4>
-                   <p>{t.declineFeedbackHelp}</p>
-                   <label>{t.declineReason}
-                     <select value={declineDraft.reason}
-                       onChange={event=>setDeclineDraft(old=>({...old,reason:event.target.value}))}>
-                       <option value="">{t.selectDeclineReason}</option>
-                       <option value="price">{t.reasonprice}</option>
-                       <option value="items">{t.reasonitems}</option>
-                       <option value="timing">{t.reasontiming}</option>
-                       <option value="explanation">{t.reasonexplanation}</option>
-                       <option value="other">{t.reasonother}</option>
-                     </select>
-                   </label>
-                   <label>{t.declineNote}
-                     <textarea rows={3} maxLength={500}
-                       value={declineDraft.note}
-                       placeholder={t.declineNotePlaceholder}
-                       onChange={event=>setDeclineDraft(old=>({...old,note:event.target.value}))}/>
-                   </label>
-                   <small>{declineDraft.note.length}/500</small>
-                   <div className="portal-decline-form-buttons">
-                     <button type="button" className="btn btn-outline" disabled={!!decisionBusy}
-                       onClick={()=>setDeclineDraft(null)}>{t.cancel}</button>
-                     <button type="button" className="btn btn-solid"
-                       disabled={!!decisionBusy||demoMode||!declineDraft.reason}
-                       onClick={()=>onEstimateDecision?.(d,'decline',{
-                         declineReason:declineDraft.reason,
-                         declineNote:declineDraft.note
-                       })}>
-                       {decisionBusy===d.id?t.submitting:t.submitDecline}
-                     </button>
-                   </div>
-                 </div>}
-             </div>}
-        </div><aside className="portal-document-actions">
-          <b>{rupees(d.total)}</b>
-          {d.docKind==='invoice'&&d.id&&
-            <a className="btn btn-outline" href={portalApi.invoicePdfUrl(d.id)} download>
-              <Download size={17} aria-hidden="true"/>{t.downloadPdf}
-            </a>}
-        </aside></div>)}{!docs.length&&<p className="muted">{t.noData}</p>}
-        {totals.count>0&&<div className="portal-balance-summary">
-          <h3>{t.invoiceOverview}</h3>
-          <div><span>{t.invoiced}</span><strong>{rupees(totals.total)}</strong></div>
-          <div><span>{t.paidAmount}</span><strong>{rupees(totals.paid)}</strong></div>
-          <div className="portal-due"><span>{t.balanceDue}</span><strong>{rupees(totals.outstanding)}</strong></div>
-          <p>{t.balanceNote}</p>
-        </div>}
-        <hr/><h3>{t.contact}</h3><strong>{brand?.publicName||brand?.name}</strong><p className="muted">{brand?.address}</p><Contacts brand={brand} t={t}/>
-      </section>
+              <aside className="portal-document-actions">
+                <b>{rupees(invoice.total)}</b>
+                {invoice.id && <a className="btn btn-outline" href={portalApi.invoicePdfUrl(invoice.id)} download>
+                  <Download size={17} aria-hidden="true"/>{t.downloadPdf}
+                </a>}
+              </aside>
+            </div>
+          ))}
+          {!scopedInvoices.length && <p className="muted">{t.noData}</p>}
+          {totals.count>0&&<div className="portal-balance-summary">
+            <h3>{t.invoiceOverview}</h3>
+            <div><span>{t.invoiced}</span><strong>{rupees(totals.total)}</strong></div>
+            <div><span>{t.paidAmount}</span><strong>{rupees(totals.paid)}</strong></div>
+            <div className="portal-due"><span>{t.balanceDue}</span><strong>{rupees(totals.outstanding)}</strong></div>
+            <p>{t.balanceNote}</p>
+          </div>}
+          <hr/><h3>{t.contact}</h3><strong>{brand?.publicName||brand?.name}</strong><p className="muted">{brand?.address}</p><Contacts brand={brand} t={t}/>
+        </section>
+      </VehicleTabPanel>
     </div>
   </main>;
 }
@@ -354,7 +282,7 @@ export default function App({demoMode=false,demoView='public'}){
   const [lang,setLanguage]=useState(() => typeof window !== 'undefined' && window.localStorage.getItem('cubegears:portal-language') === 'ml' ? 'ml' : 'en');
   const [branding,setBranding]=useState(demoMode ? demoBranding : null);
   const [data,setData]=useState(demoMode ? demoSession : null);
-  const [viewVehicleId,setViewVehicleId]=useState(null);
+  const [vehicleView, setVehicleView] = useState({ vehicleId: null, tab: 'overview' });
   const [state,setState]=useState(demoMode ? (demoView === 'portal' ? 'dashboard' : 'public') : 'loading');
   const [errorKind,setErrorKind]=useState('unavailable');
   const pendingAccessToken=useRef(null);
@@ -362,41 +290,43 @@ export default function App({demoMode=false,demoView='public'}){
   const [refreshing,setRefreshing]=useState(false);
   const [refreshError,setRefreshError]=useState('');
   const [lastRefreshed,setLastRefreshed]=useState(null);
-  const [decisionBusy,setDecisionBusy]=useState(null);
-  const [decisionError,setDecisionError]=useState('');
-  const [decisionNotice,setDecisionNotice]=useState('');
   const t=useMemo(()=>copy[lang],[lang]);
   // Vehicle IDs are authorized against the signed-in session, never from URL alone.
-  function syncVehicleRoute(session, path=window.location.pathname) {
-    const route=dashboardRoute(session?.vehicles||[],path);
-    setViewVehicleId(route.vehicleId);
-    if(!demoMode && window.location.pathname!==route.path){
-      window.history.replaceState({},'',route.path);
+  function syncVehicleRoute(session, resetTab = false) {
+    const { pathname, search, hash } = window.location;
+    const route = dashboardRoute(session?.vehicles || [], pathname);
+    const fragment = hash === '#inspection-photos' ? 'photos' : hash.slice(1);
+    const legacyTab = route.vehicleId && vehicleTabs.some(({ key }) => key === fragment) ? fragment : null;
+
+    setVehicleView(current => {
+      const tab = legacyTab || (resetTab || route.vehicleId !== current.vehicleId ? 'overview' : current.tab);
+      return current.vehicleId === route.vehicleId && current.tab === tab
+        ? current : { vehicleId: route.vehicleId, tab };
+    });
+    if (!demoMode && (pathname !== route.path || legacyTab)) {
+      window.history.replaceState({}, '', route.path + search);
     }
   }
   function openVehicle(vehicleId, section) {
     const allowed=data?.vehicles?.find(v=>String(v.id)===String(vehicleId));
     if(!allowed)return;
-    const target=['overview','maintenance','documents','history'].includes(section)?section:null;
-    setViewVehicleId(String(allowed.id));
-    if(!demoMode)window.history.pushState({},'',vehicleUrl(allowed.id)+(target?'#'+target:''));
-    if(target){
-      window.requestAnimationFrame(()=>window.requestAnimationFrame(()=>
-        document.getElementById(target)?.scrollIntoView({block:'start',behavior:'smooth'})
-      ));
-    }else{
-      window.scrollTo({top:0,behavior:'instant'});
+    const tab = vehicleTabs.some(({ key }) => key === section) ? section : 'overview';
+    const path = vehicleUrl(allowed.id);
+    setVehicleView({ vehicleId: String(allowed.id), tab });
+    if (!demoMode && window.location.pathname !== path) {
+      window.history.pushState({}, '', path);
     }
+    window.scrollTo({top:0,behavior:'instant'});
   }
   function openHome() {
     if((data?.vehicles||[]).length<=1)return;
-    setViewVehicleId(null);
+    setVehicleView({ vehicleId: null, tab: 'overview' });
     if(!demoMode)window.history.pushState({},'','/');
     window.scrollTo({top:0,behavior:'instant'});
   }
   useEffect(()=>{
     if(demoMode||state!=='dashboard'||!data)return undefined;
-    const onPopState=()=>syncVehicleRoute(data);
+    const onPopState=()=>syncVehicleRoute(data, true);
     window.addEventListener('popstate',onPopState);
     return()=>window.removeEventListener('popstate',onPopState);
   },[demoMode,state,data]);
@@ -480,30 +410,7 @@ export default function App({demoMode=false,demoView='public'}){
       else setRefreshError(t.refreshFailed);
     }finally{setRefreshing(false);}
   }
-  async function decideEstimate(estimate,decision,feedback={}){
-    if(demoMode||decisionBusy||!estimate?.id)return;
-    const message=(decision==='accept'?t.confirmAccept:t.confirmDecline)
-      .replace('{version}',String(estimate.version))
-      .replace('{total}',rupees(estimate.total));
-    if(!window.confirm(message))return;
-    setDecisionBusy(estimate.id);
-    setDecisionError('');
-    setDecisionNotice('');
-    try{
-      await portalApi.decideEstimate(estimate.id,estimate.version,decision,estimate.reviewHash,feedback);
-      const latest=await portalApi.session();
-      if(!latest.customer)throw new Error('Customer session required.');
-      setData(latest);
-      syncVehicleRoute(latest);
-      setLastRefreshed(new Date().toISOString());
-      setDecisionNotice(decision==='accept'?t.acceptedNotice:t.declinedNotice);
-    }catch(error){
-      if(error.status===401){setData(null);setState('public');}
-      else setDecisionError(error.status===409?t.quoteChanged
-        :error.status===400?t.feedbackInvalid:t.decisionFailed);
-    }finally{setDecisionBusy(null);}
-  }
-  async function logout(){try{await portalApi.logout();setData(null);setViewVehicleId(null);window.history.replaceState({},'','/');setState('public');}catch{setErrorKind('unavailable');setState('error');}}
+  async function logout(){try{await portalApi.logout();setData(null);setVehicleView({ vehicleId: null, tab: 'overview' });window.history.replaceState({},'','/');setState('public');}catch{setErrorKind('unavailable');setState('error');}}
   const theme=branding?{'--accent':branding.primaryColor||'#116f69','--accent-soft':branding.secondaryColor||'#e4f2ec'}:{};
   return <div className="app" lang={lang} style={theme}>
     <Header brand={branding} lang={lang} setLang={setLang} logout={logout}
@@ -513,14 +420,13 @@ export default function App({demoMode=false,demoView='public'}){
     {['loading','signing'].includes(state)&&<main className="wrap center" role="status"><div className="spinner"/><h1>{state==='signing'?t.signing:t.loading}</h1></main>}
     {state==='error'&&<main className="wrap center" role="alert"><ShieldCheck size={43}/><h1>{t[errorKind]}</h1><p>{t.accessNote}</p><button className="btn btn-outline" onClick={()=>{setState('loading');setAccessRetry(count=>count+1);}}>{t.retry}</button></main>}
     {state==='public'&&<PublicPage brand={branding} t={t} demoMode={demoMode}/>}
-    {state==='dashboard'&&data&&(!viewVehicleId
+    {state==='dashboard'&&data&&(!vehicleView.vehicleId
       ? <CustomerHomeDashboard data={data} t={t} lang={lang} onVehicleOpen={openVehicle}
           onRefresh={refresh} refreshing={refreshing} refreshError={refreshError} lastRefreshed={lastRefreshed}/>
-      : <Dashboard data={data} brand={branding} t={t} lang={lang} vehicleId={viewVehicleId}
+      : <Dashboard key={vehicleView.vehicleId} data={data} brand={branding} t={t} lang={lang} vehicleId={vehicleView.vehicleId}
+          activeTab={vehicleView.tab} onTabChange={tab => setVehicleView(current => ({ ...current, tab }))}
           onHome={openHome} onVehicleOpen={openVehicle}
-          onRefresh={refresh} refreshing={refreshing} refreshError={refreshError} lastRefreshed={lastRefreshed}
-          onEstimateDecision={decideEstimate} decisionBusy={decisionBusy} decisionError={decisionError}
-          decisionNotice={decisionNotice} demoMode={demoMode}/>)}
+          onRefresh={refresh} refreshing={refreshing} refreshError={refreshError} lastRefreshed={lastRefreshed}/>)}
     <footer className="footer"><div className="wrap"><span>{branding?.publicName||branding?.name||'cubixgear'}</span><span><ShieldCheck size={16}/>{t.footer}</span></div></footer>
   </div>;
 }
