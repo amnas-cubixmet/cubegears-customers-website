@@ -34,7 +34,7 @@ function VehicleListPhoto({ vehicle, photos, t }) {
 }
 
 export default function CustomerHomeDashboard({ data, t, lang, onVehicleOpen, onRefresh, refreshing,
-  refreshError, lastRefreshed }) {
+  refreshError, lastRefreshed, vehiclesOnly }) {
   const vehicles = data.vehicles || [];
   const jobs = data.jobs || [];
   const allPhotos = data.photos || []; // Only server-published, tenant- and customer-scoped photos
@@ -42,19 +42,20 @@ export default function CustomerHomeDashboard({ data, t, lang, onVehicleOpen, on
   const latestActive = latest.find(j => inProgress.has(j.status));
   const latestWork = latestActive || latest[0];
   const totals = invoiceTotals(data.invoices);
+  const VehicleListHeading = vehiclesOnly ? 'h1' : 'h2';
   const vehicleLabel = id => {
     const vehicle = vehicles.find(v => String(v.id) === String(id));
     return vehicle?.registration || latestWork?.vehicleRegistration || t.vehicles;
   };
 
   return (
-    <main className="wrap dashboard ref-dashboard ref-home-dashboard">
-      <div className="welcome portal-home-welcome">
+    <main className={'wrap dashboard ref-dashboard ref-home-dashboard' + (vehiclesOnly ? ' ref-vehicle-list' : '')}>
+      {!vehiclesOnly && <div className="welcome portal-home-welcome">
         <div><span className="eyebrow">{niceDate(new Date().toISOString(),lang)}</span>
           <h1>{t.welcome}, {data.customer?.name || t.portal}</h1>
           <p>{t.homeSummaryDescription}</p>
         </div>
-      </div>
+      </div>}
       <div className="portal-refresh">
         <span>{t.lastChecked}: {lastRefreshed ? niceDate(lastRefreshed,lang) : '—'}</span>
         <button type="button" className="btn btn-outline" disabled={refreshing}
@@ -63,7 +64,7 @@ export default function CustomerHomeDashboard({ data, t, lang, onVehicleOpen, on
         </button>
       </div>
       {refreshError && <p className="portal-refresh-error" role="alert">{refreshError}</p>}
-      <section className="portal-home-overview" aria-label={t.serviceAtGlance}>
+      {!vehiclesOnly && <section className="portal-home-overview" aria-label={t.serviceAtGlance}>
         <div className="portal-home-metrics">
           <div className="portal-home-metric"><CarFront size={20} aria-hidden="true"/><strong>{vehicles.length}</strong><span>{t.vehicles}</span></div>
           <div className="portal-home-metric"><Wrench size={20} aria-hidden="true"/><strong>{jobs.filter(j => inProgress.has(j.status)).length}</strong><span>{t.active}</span></div>
@@ -93,12 +94,12 @@ export default function CustomerHomeDashboard({ data, t, lang, onVehicleOpen, on
             )}
           </> : <p className="portal-home-muted">{t.noServiceYet}</p>}
         </div>
-      </section>
+      </section>}
 
       <section className="portal-home-all-vehicles" id="vehicles" aria-labelledby="portal-home-vehicles-heading">
         <div className="portal-home-section-heading">
           <div><span className="ref-kicker">{t.myGarage}</span>
-            <h2 id="portal-home-vehicles-heading">{t.vehicles}</h2>
+            <VehicleListHeading id="portal-home-vehicles-heading">{t.vehicles}</VehicleListHeading>
             <p>{t.chooseVehicle}</p></div>
           <span className="portal-home-total">{vehicles.length}</span>
         </div>

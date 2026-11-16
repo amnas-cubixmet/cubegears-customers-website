@@ -8,7 +8,7 @@ import {copy,stages,inProgress,niceDate,rupees,cleanPhone,whatsappDigits} from '
 import {invoiceTotals,invoicePaymentLabel} from './portalBilling';
 import PublishedInspectionGallery from './components/PublishedInspectionGallery';
 import VehicleOverviewCard, { RecentServiceActivity } from './components/VehicleOverviewCard';
-import { dashboardRoute, vehicleUrl } from './portalRouting';
+import { dashboardRoute, vehicleListPath, vehicleUrl } from './portalRouting';
 import CustomerHomeDashboard from './components/CustomerHomeDashboard';
 import PortalGlobalSearch from './components/PortalGlobalSearch';
 
@@ -149,7 +149,7 @@ function VehicleTabPanel({ tab, activeTab, children }) {
   </div>;
 }
 
-function Dashboard({data,brand,t,lang,onRefresh,refreshing,refreshError,lastRefreshed,vehicleId,onHome,onVehicleOpen,activeTab,onTabChange}){
+function Dashboard({data,brand,t,lang,onRefresh,refreshing,refreshError,lastRefreshed,vehicleId,onVehicleList,onVehicleOpen,activeTab,onTabChange}){
   const selected = vehicleId;
   const tabButtons = useRef({});
   const tabContent = useRef(null);
@@ -184,21 +184,20 @@ function Dashboard({data,brand,t,lang,onRefresh,refreshing,refreshError,lastRefr
   const scopedInvoices=(data.invoices||[]).filter(i=>scopedJobIds.has(String(i.jobId)) ||
     (!i.jobId && i.vehicleId && String(i.vehicleId)===String(selected)));
   const jobs=scopedJobs;
-  const visibleVehicles=vehicles.filter(v=>String(v.id)===String(selected));
   const active=jobs.filter(j=>inProgress.has(j.status));
   const history=jobs.filter(j=>!inProgress.has(j.status));
   const photos=(data.photos||[]).filter(p=>String(p.vehicleId)===String(selected));
   const totals=invoiceTotals(scopedInvoices);
   return <main className="wrap dashboard ref-dashboard ref-vehicle-details">
-    {vehicles.length>1 && <div className="portal-vehicle-navigation">
+    <div className="portal-vehicle-navigation">
       <nav className="portal-vehicle-breadcrumb" aria-label={t.breadcrumbLabel}>
-        <button type="button" onClick={onHome}>{t.vehicles}</button>
+        <button type="button" onClick={onVehicleList}>{t.vehicles}</button>
         <span aria-hidden="true">/</span>
         <span aria-current="page">{vehicles.find(v=>String(v.id)===String(vehicleId))?.registration||t.featuredVehicle}</span>
       </nav>
       <button type="button" className="portal-back-home"
-        onClick={onHome}>{t.backToHome}</button>
-    </div>}
+        onClick={onVehicleList}>{t.backToHome}</button>
+    </div>
     <div className="welcome"><div><span className="eyebrow">{niceDate(new Date().toISOString(),lang)}</span><h1>{t.welcome}, {data.customer?.name||t.portal}</h1><p>{t.greeting}</p></div></div>
     <div className="portal-refresh">
       <span>{t.lastChecked}: {lastRefreshed?niceDate(lastRefreshed,lang):'—'}</span>
@@ -223,7 +222,9 @@ function Dashboard({data,brand,t,lang,onRefresh,refreshing,refreshError,lastRefr
             selected={selected} onSelect={onVehicleOpen} onShowPhotos={() => selectTab('photos', true)} lang={lang} t={t}/>
           <div className="ref-dashboard-rail">
             <div className="stats" aria-label={t.serviceAtGlance}>
-              <div className="stat"><CarFront size={24}/><div><strong>{visibleVehicles.length}</strong><span>{t.vehicles}</span></div></div>
+              <button type="button" className="stat portal-vehicle-list-button" onClick={onVehicleList}>
+                <CarFront size={24} aria-hidden="true"/><div><strong>{vehicles.length}</strong><span>{t.vehicles}</span></div>
+              </button>
               <div className="stat"><Wrench size={24}/><div><strong>{scopedJobs.filter(j=>inProgress.has(j.status)).length}</strong><span>{t.active}</span></div></div>
               <div className="stat"><Clock3 size={24}/><div><strong>{scopedJobs.filter(j=>!inProgress.has(j.status)).length}</strong><span>{t.history}</span></div></div>
               <div className="stat"><Wallet size={24}/><div><strong className="stat-money">{rupees(totals.outstanding)}</strong><span>{t.outstanding}</span></div></div>
@@ -278,11 +279,13 @@ function Dashboard({data,brand,t,lang,onRefresh,refreshing,refreshError,lastRefr
     </div>
   </main>;
 }
+const homeView = { kind: 'home', vehicleId: null, tab: 'overview' };
+
 export default function App({demoMode=false,demoView='public'}){
   const [lang,setLanguage]=useState(() => typeof window !== 'undefined' && window.localStorage.getItem('cubegears:portal-language') === 'ml' ? 'ml' : 'en');
   const [branding,setBranding]=useState(demoMode ? demoBranding : null);
   const [data,setData]=useState(demoMode ? demoSession : null);
-  const [vehicleView, setVehicleView] = useState({ vehicleId: null, tab: 'overview' });
+  const [vehicleView, setVehicleView] = useState(homeView);
   const [state,setState]=useState(demoMode ? (demoView === 'portal' ? 'dashboard' : 'public') : 'loading');
   const [errorKind,setErrorKind]=useState('unavailable');
   const pendingAccessToken=useRef(null);
@@ -300,8 +303,8 @@ export default function App({demoMode=false,demoView='public'}){
 
     setVehicleView(current => {
       const tab = legacyTab || (resetTab || route.vehicleId !== current.vehicleId ? 'overview' : current.tab);
-      return current.vehicleId === route.vehicleId && current.tab === tab
-        ? current : { vehicleId: route.vehicleId, tab };
+      return current.kind === route.kind && current.vehicleId === route.vehicleId && current.tab === tab
+        ? current : { kind: route.kind, vehicleId: route.vehicleId, tab };
     });
     if (!demoMode && (pathname !== route.path || legacyTab)) {
       window.history.replaceState({}, '', route.path + search);
@@ -312,16 +315,17 @@ export default function App({demoMode=false,demoView='public'}){
     if(!allowed)return;
     const tab = vehicleTabs.some(({ key }) => key === section) ? section : 'overview';
     const path = vehicleUrl(allowed.id);
-    setVehicleView({ vehicleId: String(allowed.id), tab });
+    setVehicleView({ kind: 'vehicle', vehicleId: String(allowed.id), tab });
     if (!demoMode && window.location.pathname !== path) {
       window.history.pushState({}, '', path);
     }
     window.scrollTo({top:0,behavior:'instant'});
   }
-  function openHome() {
-    if((data?.vehicles||[]).length<=1)return;
-    setVehicleView({ vehicleId: null, tab: 'overview' });
-    if(!demoMode)window.history.pushState({},'','/');
+  function openVehicleList() {
+    setVehicleView({ ...homeView, kind: 'vehicles' });
+    if (!demoMode && window.location.pathname !== vehicleListPath) {
+      window.history.pushState({}, '', vehicleListPath);
+    }
     window.scrollTo({top:0,behavior:'instant'});
   }
   useEffect(()=>{
@@ -410,7 +414,7 @@ export default function App({demoMode=false,demoView='public'}){
       else setRefreshError(t.refreshFailed);
     }finally{setRefreshing(false);}
   }
-  async function logout(){try{await portalApi.logout();setData(null);setVehicleView({ vehicleId: null, tab: 'overview' });window.history.replaceState({},'','/');setState('public');}catch{setErrorKind('unavailable');setState('error');}}
+  async function logout(){try{await portalApi.logout();setData(null);setVehicleView(homeView);window.history.replaceState({},'','/');setState('public');}catch{setErrorKind('unavailable');setState('error');}}
   const theme=branding?{'--accent':branding.primaryColor||'#116f69','--accent-soft':branding.secondaryColor||'#e4f2ec'}:{};
   return <div className="app" lang={lang} style={theme}>
     <Header brand={branding} lang={lang} setLang={setLang} logout={logout}
@@ -421,11 +425,11 @@ export default function App({demoMode=false,demoView='public'}){
     {state==='error'&&<main className="wrap center" role="alert"><ShieldCheck size={43}/><h1>{t[errorKind]}</h1><p>{t.accessNote}</p><button className="btn btn-outline" onClick={()=>{setState('loading');setAccessRetry(count=>count+1);}}>{t.retry}</button></main>}
     {state==='public'&&<PublicPage brand={branding} t={t} demoMode={demoMode}/>}
     {state==='dashboard'&&data&&(!vehicleView.vehicleId
-      ? <CustomerHomeDashboard data={data} t={t} lang={lang} onVehicleOpen={openVehicle}
+      ? <CustomerHomeDashboard data={data} t={t} lang={lang} onVehicleOpen={openVehicle} vehiclesOnly={vehicleView.kind === 'vehicles'}
           onRefresh={refresh} refreshing={refreshing} refreshError={refreshError} lastRefreshed={lastRefreshed}/>
       : <Dashboard key={vehicleView.vehicleId} data={data} brand={branding} t={t} lang={lang} vehicleId={vehicleView.vehicleId}
           activeTab={vehicleView.tab} onTabChange={tab => setVehicleView(current => ({ ...current, tab }))}
-          onHome={openHome} onVehicleOpen={openVehicle}
+          onVehicleList={openVehicleList} onVehicleOpen={openVehicle}
           onRefresh={refresh} refreshing={refreshing} refreshError={refreshError} lastRefreshed={lastRefreshed}/>)}
     <footer className="footer"><div className="wrap"><span>{branding?.publicName||branding?.name||'cubixgear'}</span><span><ShieldCheck size={16}/>{t.footer}</span></div></footer>
   </div>;

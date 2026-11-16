@@ -2,12 +2,17 @@
  * session's authorized vehicle list (not trusted from the URL).
  * No bearer tokens or customer IDs are stored in route state.
  */
+export const vehicleListPath = '/vehicles';
+
 export function vehicleUrl(vehicleId) {
-  return '/vehicles/' + encodeURIComponent(String(vehicleId));
+  return vehicleListPath + '/' + encodeURIComponent(String(vehicleId));
 }
 
 export function dashboardRoute(vehicles, pathname = '/') {
   const allowed = Array.isArray(vehicles) ? vehicles : [];
+  if (pathname === vehicleListPath || pathname === vehicleListPath + '/') {
+    return { kind: 'vehicles', vehicleId: null, path: vehicleListPath };
+  }
   if (allowed.length === 1) {
     return { kind: 'vehicle', vehicleId: String(allowed[0].id), path: vehicleUrl(allowed[0].id) };
   }
