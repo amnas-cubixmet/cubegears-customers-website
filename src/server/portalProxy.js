@@ -12,7 +12,7 @@ export async function handlePortalRequest(request, segments) {
       /^[a-z0-9](?:[a-z0-9-]{1,61}[a-z0-9])?\.localhost$/.test(hostname));
   // Only the platform-owned, one-label workshop subdomain can reach the
   // customer BFF. A signed arbitrary external hostname must never resolve.
-  const root = String(process.env.CUSTOMER_PORTAL_ROOT_DOMAIN || 'cubegears.com')
+  const root = String(process.env.CUSTOMER_PORTAL_ROOT_DOMAIN || 'customer.cubixgear.tech')
     .trim().toLowerCase().replace(/^\.+|\.+$/g, '');
   const label = root && hostname.endsWith('.' + root)
     ? hostname.slice(0, -root.length - 1) : '';
