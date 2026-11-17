@@ -7,7 +7,7 @@
   --ui-button-radius: 10px;
   --ui-card-shadow: 0 4px 16px rgb(20 52 59 / 5%);
   font-family:Inter,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;color:#14343b;background:#f5f8f7;font-synthesis:none;text-rendering:optimizeLegibility}
-*{box-sizing:border-box}body{margin:0;min-width:320px}button,select{font:inherit}button{cursor:pointer}a{text-decoration:none;color:inherit}h1,h2,h3,p{margin:0}h1,h2,h3{letter-spacing:-.035em}h1{line-height:1.14}p{line-height:1.65}
+*{box-sizing:border-box}body{margin:0}button,select{font:inherit}button{cursor:pointer}a{text-decoration:none;color:inherit}h1,h2,h3,p{margin:0}h1,h2,h3{letter-spacing:-.035em}h1{line-height:1.14}p{line-height:1.65}
 .wrap{max-width:1210px;margin:0 auto;padding-left:27px;padding-right:27px}.app{min-height:100vh;display:flex;flex-direction:column}
 .header{background:#ffffffec;border-bottom:1px solid #e3ecea;position:sticky;top:0;z-index:10;backdrop-filter:blur(14px)}
 .nav{height:82px;display:flex;align-items:center;justify-content:space-between;gap:18px}.brand{display:flex;align-items:center;gap:13px;min-width:0}
@@ -472,7 +472,7 @@ button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible,te
 
 @media (max-width: 680px) {
   .public-home { padding-inline: 14px; }
-  .public-hero .hero-text { padding: 22px 16px; }
+  .public-hero .hero-text { padding: 22px 16px; min-width: 0; overflow-wrap: anywhere; }
   .public-hero h1 { font-size: clamp(24px, 6.5vw, 34px); line-height: 1.2; }
   .public-hero .hero-text > p,
   .public-section-heading p,
@@ -504,4 +504,19 @@ button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible,te
   .center { gap: 12px; }
   .center h1 { font-size: clamp(20px, 5.5vw, 26px); }
   .footer .wrap { padding-block: 12px; }
+}
+
+@media (max-width: 680px), (max-height: 480px) and (pointer: coarse) {
+  .header.portal-has-search { position: relative; }
+  .inspection-photo-lightbox-panel { overflow-y: auto; overscroll-behavior: contain; }
+  .inspection-photo-lightbox-head { flex: none; }
+  .inspection-photo-lightbox-head strong,
+  .inspection-photo-lightbox-caption { overflow-wrap: anywhere; }
+}
+
+@media (max-width: 680px) {
+  .job-top { flex-wrap: wrap; }
+  .job-top > div { min-width: 0; overflow-wrap: anywhere; }
+  .job-top .tag { max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
+  .history { overflow-wrap: anywhere; }
 }
