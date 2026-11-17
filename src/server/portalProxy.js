@@ -1,4 +1,5 @@
 import { createHmac } from 'node:crypto';
+import { isIP } from 'node:net';
 
 // Narrow, signed, same-origin BFF. Do not add a generic backend-proxy endpoint.
 export async function handlePortalRequest(request, segments) {
@@ -10,6 +11,9 @@ export async function handlePortalRequest(request, segments) {
   const isLocal = process.env.NODE_ENV !== 'production' &&
     (['localhost', '127.0.0.1'].includes(hostname) ||
       /^[a-z0-9](?:[a-z0-9-]{1,61}[a-z0-9])?\.localhost$/.test(hostname));
+  if (!isLocal && host !== hostname) {
+    return new Response(null, { status: 404 });
+  }
   // Only the platform-owned, one-label workshop subdomain can reach the
   // customer BFF. A signed arbitrary external hostname must never resolve.
   const root = String(process.env.CUSTOMER_PORTAL_ROOT_DOMAIN || 'customer.cubixgear.tech')
@@ -24,7 +28,7 @@ export async function handlePortalRequest(request, segments) {
   if (request.method !== 'GET' && request.method !== 'POST') {
     return new Response(null, { status: 405, headers: { Allow: 'GET, POST' } });
   }
-  if (request.method === 'POST' && origin && origin !== (isLocal ? 'http://' : 'https://') + host) {
+  if (request.method === 'POST' && origin !== (isLocal ? 'http://' : 'https://') + host) {
     return new Response(null, { status: 403 });
   }
   const path = Array.isArray(segments) ? segments : [];
@@ -59,11 +63,12 @@ export async function handlePortalRequest(request, segments) {
     'X-CG-Portal-Host': host,
     'X-CG-Portal-TS': timestamp,
     'X-CG-Portal-Sig': signature,
-    'X-CG-Portal-Client': String(
-      request.headers.get('x-vercel-forwarded-for') ||
-      request.headers.get('x-forwarded-for') || 'unknown'
-    ).split(',')[0].trim().slice(0, 64),
   });
+  const clientHeader = process.env.VERCEL === '1'
+    ? 'x-vercel-forwarded-for'
+    : process.env.PORTAL_TRUST_PROXY_CLIENT_IP === 'true' ? 'x-real-ip' : null;
+  const clientIp = clientHeader ? request.headers.get(clientHeader)?.trim() : '';
+  if (clientIp && isIP(clientIp)) upstreamHeaders.set('X-CG-Portal-Client', clientIp);
   if (request.headers.has('cookie')) upstreamHeaders.set('Cookie', request.headers.get('cookie'));
   if (request.headers.has('x-cg-csrf')) upstreamHeaders.set('X-CG-CSRF', request.headers.get('x-cg-csrf'));
   let body;
