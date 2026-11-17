@@ -124,9 +124,40 @@ only after end-to-end wildcard DNS, TLS and portal proxy verification.
 
 The Next.js server-only runtime needs:
 
-- `CUBEGEARS_BACKEND_URL=https://<real Django backend>`
+- `CUBEGEARS_BACKEND_URL=https://api.cubixgear.tech` (origin only)
 - `PORTAL_PROXY_SHARED_SECRET=<same 32+ char secret as Django>`
 - `CUSTOMER_PORTAL_ROOT_DOMAIN=customer.cubixgear.tech`
+
+### DNS and release checks
+
+For the existing reverse proxy deployment, add one `A` record named `*.customer`
+in the `cubixgear.tech` zone with the verified customer edge IPv4 address. Add
+an `AAAA` record only if the same edge serves IPv6. Obtain a certificate for
+`*.customer.cubixgear.tech` using DNS-01 with automatic renewal. An apex
+certificate for `*.cubixgear.tech` does not cover these hosts. Configure the edge
+to route the nested wildcard to the existing private Next.js listener.
+
+Forward the actual `Host` header to Next.js and overwrite any incoming
+`X-Real-IP` with the client IP determined by the trusted edge. Set
+`PORTAL_TRUST_PROXY_CLIENT_IP=true` only when the Next.js listener is private
+and its reverse proxy performs that overwrite. Leave `USE_X_FORWARDED_HOST`
+disabled on Django. The API edge must overwrite `X-Forwarded-Proto` with the
+TLS scheme before proxying to the private Django listener.
+
+For Vercel hosting, attach `*.customer.cubixgear.tech` to the single Customer
+Website project. With external DNS, use Vercel's wildcard CNAME and delegate
+only `_acme-challenge.customer.cubixgear.tech` for automatic certificate
+issuance and renewal. Check whether the current customer certificate uses that
+challenge name before delegating it. Confirm the project serves the intended
+Git commit and its plan permits commercial use before cutover.
+
+Before enabling link issuance, verify an existing workshop hostname resolves
+with a valid matching TLS certificate. `/api/portal/branding` must return
+200 for that workshop and 404 for an unknown workshop. `/api/portal/session`
+must return 401 before an access link is redeemed. In a test workshop, redeem
+a generated link and verify that the dashboard, invoice and vehicle views
+display that customer's records. Confirm a link used on a different workshop
+hostname fails. Keep access tokens out of request logs, screenshots and shell history.
 
 Do not expose the proxy secret or customer access tokens to the browser.
 Only registered `<workshop-label>.<platform-root>` hostnames resolve to an
