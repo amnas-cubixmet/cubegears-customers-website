@@ -4,8 +4,8 @@ A dedicated **Next.js 16 App Router** customer-facing website for every cubixgea
 
 ## Default workshop subdomain routing
 
-- `https://<workshop>.cubegears.com/` — public branded workshop homepage (subject to verified wildcard DNS/TLS).
-- `https://<workshop-domain>/access/<secure-token>` — a customer's private, login-less service tracking link.
+- `https://<workshop>.customer.cubixgear.tech/` — public branded workshop homepage (subject to verified wildcard DNS and HTTPS).
+- `https://<workshop>.customer.cubixgear.tech/access/<secure-token>` — a customer's private, login-less service tracking link.
 - The token is exchanged for a session using the same-origin backend gateway and promptly removed from the visible browser URL.
 - `/api/portal/*` — **Next.js server route handlers** proxy only supported customer website endpoints to Django. The hostname is signed with an HMAC secret that is **never exposed to the browser**.
 
@@ -116,8 +116,7 @@ customers require a deployed HTTPS hostname.
 
 Deploy one Next.js Customer Website app, separate from the Company Panel,
 Django backend and marketing site. Configure a wildcard for your registered,
-platform-owned root (for example `*.cubegears.com`) with valid production
-DNS and HTTPS. **Do not assume an example root is already registered.**
+platform-owned root (`*.customer.cubixgear.tech` for CubixGear) with valid production DNS and HTTPS.
 
 Configure `CUSTOMER_PORTAL_ROOT_DOMAIN` on both Django and Next.js with the
 **same platform root**. Set `CUSTOMER_WEBSITE_LINKS_ENABLED=true` on Django
@@ -127,7 +126,7 @@ The Next.js server-only runtime needs:
 
 - `CUBEGEARS_BACKEND_URL=https://<real Django backend>`
 - `PORTAL_PROXY_SHARED_SECRET=<same 32+ char secret as Django>`
-- `CUSTOMER_PORTAL_ROOT_DOMAIN=<registered platform root>`
+- `CUSTOMER_PORTAL_ROOT_DOMAIN=customer.cubixgear.tech`
 
 Do not expose the proxy secret or customer access tokens to the browser.
 Only registered `<workshop-label>.<platform-root>` hostnames resolve to an
