@@ -33,10 +33,6 @@ export default function PortalGlobalSearch({ session, t, onVehicleOpen }) {
         input.current?.focus();
         setExpanded(true);
       }
-      if (event.key === 'Escape' && wrapper.current?.contains(document.activeElement)) {
-        setExpanded(false);
-        input.current?.blur();
-      }
     };
     document.addEventListener('pointerdown', outside);
     document.addEventListener('keydown', shortcut);
@@ -47,18 +43,27 @@ export default function PortalGlobalSearch({ session, t, onVehicleOpen }) {
   }, []);
 
   return (
-    <div className="portal-global-search" role="search" ref={wrapper}>
+    <div className="portal-global-search" role="search" ref={wrapper}
+      onBlur={event => {
+        if (!event.currentTarget.contains(event.relatedTarget)) setExpanded(false);
+      }}
+      onKeyDown={event => {
+        if (event.key !== 'Escape' || !showResults) return;
+        event.preventDefault();
+        input.current?.focus();
+        setExpanded(false);
+      }}>
 
       <div className="portal-global-search-input-row">
         <Search size={18} aria-hidden="true"/>
         <input id="portal-global-search-input" ref={input} type="search" autoComplete="off"
           aria-label={t.globalSearchPlaceholder}
           value={query} maxLength={100} placeholder={t.globalSearchPlaceholder}
-          aria-controls="portal-global-search-results" aria-expanded={showResults}
+          aria-controls={showResults ? "portal-global-search-results" : undefined} aria-expanded={showResults}
           onChange={event => { setQuery(event.target.value); setExpanded(true); }}
           onFocus={() => setExpanded(true)}
           onKeyDown={event => {
-            if (event.key === 'Enter' && results.length) {
+            if (event.key === 'Enter' && showResults && results.length) {
               event.preventDefault();
               selectResult(results[0]);
             }
@@ -69,6 +74,9 @@ export default function PortalGlobalSearch({ session, t, onVehicleOpen }) {
           aria-label={t.clearSearch}><X size={17} aria-hidden="true"/></button>}
       </div>
 
+      <p role="status" className="portal-global-search-status">
+        {showResults && (results.length ? `${results.length} ${t.searchMatches}` : t.noSearchResults)}
+      </p>
       {showResults && (
         <div className="portal-global-search-dropdown" id="portal-global-search-results"
           role="region" aria-label={t.searchResults}>

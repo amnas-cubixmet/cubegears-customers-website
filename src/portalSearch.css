@@ -43,6 +43,10 @@
   box-shadow:0 18px 52px rgba(23,53,57,.14);
   max-height:min(70vh,480px);overflow-y:auto;overscroll-behavior:contain
 }
+.portal-global-search-status{
+  position:absolute;width:1px;height:1px;overflow:hidden;
+  clip-path:inset(50%);white-space:nowrap
+}
 .portal-global-search-caption{
   display:flex;align-items:center;justify-content:space-between;gap:10px;
   padding:9px 10px 11px;color:var(--portal-search-ink);font-size:12px;font-weight:750
