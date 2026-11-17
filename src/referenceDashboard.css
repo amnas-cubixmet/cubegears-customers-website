@@ -114,7 +114,7 @@ body:has(.ref-dashboard) .nav-actions .logout{background:#fff;border-color:#dce8
 .ref-dashboard .vehicle .feature-icon{width:44px;height:44px;border-radius:12px;background:var(--portal-brand-soft);color:var(--portal-brand)}
 .ref-dashboard .vehicle strong{color:var(--portal-text-primary);font-size:15px}
 .ref-dashboard .vehicle span{color:var(--portal-text-secondary);font-size:12px}
-.ref-vehicle-tab-panel > .surface{min-width:0;padding:var(--ui-card-padding);border-radius:var(--ui-card-radius);border:1px solid var(--portal-border);background:#fff;box-shadow:var(--portal-shadow)}
+.ref-vehicle-tab-panel > .surface{min-width:0;overflow-wrap:anywhere;padding:var(--ui-card-padding);border-radius:var(--ui-card-radius);border:1px solid var(--portal-border);background:#fff;box-shadow:var(--portal-shadow)}
 .ref-vehicle-tab-panel .surface .contacts{margin-top:20px}
 @media(min-width:901px){
   .ref-vehicle-tab-panel .published-inspection-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
@@ -201,7 +201,7 @@ body:has(.ref-dashboard) .nav-actions .logout{background:#fff;border-color:#dce8
  .ref-dashboard .welcome p{font-size:13px;line-height:1.45}
  .ref-dashboard .portal-refresh{justify-content:space-between;gap:8px;margin:0 0 13px}
  .ref-dashboard .portal-refresh>span{flex:1 1 110px;font-size:10px;line-height:1.4}
- .ref-dashboard .portal-refresh .btn{min-height:36px;padding:6px 9px;font-size:11px}
+ .ref-dashboard .portal-refresh .btn{min-height:44px;padding:6px 9px;font-size:13px}
  .ref-dashboard .portal-refresh .btn svg{width:14px;height:14px}
  .ref-dashboard-overview{gap:12px}
  .ref-dashboard-rail{grid-template-columns:minmax(0,1fr)}
@@ -272,7 +272,7 @@ body:has(.ref-dashboard) .nav-actions .logout{background:#fff;border-color:#dce8
     z-index: 12;
     inset: auto 0 0;
     display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: repeat(5, minmax(44px, auto));
     gap: 2px;
     margin: 0;
     padding: 6px 5px calc(6px + env(safe-area-inset-bottom));
@@ -315,6 +315,6 @@ body:has(.ref-dashboard) .nav-actions .logout{background:#fff;border-color:#dce8
   .portal-document-actions .btn { min-height: 48px; }
 
   .ref-vehicle-tabs-content, .ref-dashboard #vehicles {
-    scroll-margin-top: 150px;
+    scroll-margin-top: 12px;
   }
 }

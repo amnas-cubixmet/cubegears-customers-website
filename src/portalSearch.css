@@ -121,15 +121,16 @@
     overflow-wrap:anywhere;font-size:13px;line-height:1.25
   }
   .portal-has-search .nav-actions .lang{
-    flex:none;min-height:30px;padding:2px 5px;border-radius:8px
+    flex:none;min-height:44px;padding:0 5px;border-radius:8px
   }
-  .portal-has-search .nav-actions .lang select{max-width:68px;font-size:13px}
+  .portal-has-search .nav-actions .lang select{min-height:42px;max-width:94px;font-size:16px}
   .portal-has-search .nav-actions .logout{
-    width:30px;min-width:30px;min-height:30px;padding:0;border-radius:8px
+    width:44px;min-width:44px;min-height:44px;padding:0;border-radius:8px
   }
   .portal-has-search .nav-actions .lang svg{display:none}
-  .portal-global-search-input-row{height:40px;gap:8px;padding-inline:11px}
-  .portal-global-search-input-row input{height:36px}
+  .portal-global-search-input-row{min-height:46px;gap:8px;padding-inline:11px 0}
+  .portal-global-search-input-row input{min-height:44px;font-size:16px}
+  .portal-global-search-clear{width:44px;height:44px;flex-basis:44px}
   .portal-global-search-input-row input::placeholder{font-size:14px}
   .portal-global-search-dropdown{top:calc(100% + 7px)}
   .portal-global-search-result{gap:8px;padding:9px 8px}
@@ -149,4 +150,7 @@
     display:flex;gap:6px;justify-content:flex-end
   }
   .portal-has-search .portal-global-search{grid-column:1/-1;grid-row:2}
+}
+@media(max-height:480px) and (pointer:coarse){
+  .portal-global-search-dropdown{max-height:45dvh}
 }
