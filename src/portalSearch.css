@@ -124,12 +124,21 @@
     max-width:none;white-space:normal;overflow:visible;
     overflow-wrap:anywhere;font-size:13px;line-height:1.25
   }
-  .portal-has-search .nav-actions .lang{
-    flex:none;min-height:44px;padding:0 5px;border-radius:8px
+  /* Keep the tap targets 44px tall while drawing smaller button outlines. */
+  .portal-has-search .nav-actions :is(.lang,.logout){
+    position:relative;isolation:isolate;
+    min-height:44px;border:0;background:transparent
   }
-  .portal-has-search .nav-actions .lang select{min-height:42px;max-width:94px;font-size:16px}
-  .portal-has-search .nav-actions .logout{
-    width:44px;min-width:44px;min-height:44px;padding:0;border-radius:8px
+  .portal-has-search .nav-actions :is(.lang,.logout)::before{
+    content:"";position:absolute;inset:4px 0;z-index:-1;
+    border:1px solid #e2eeec;border-radius:8px;background:#f3f7f7;
+    pointer-events:none
+  }
+  .portal-has-search .nav-actions .lang{flex:none;padding:0 6px}
+  .portal-has-search .nav-actions .lang select{min-height:44px;max-width:94px;font-size:16px}
+  .portal-has-search .nav-actions .logout{width:44px;min-width:44px;padding:0}
+  .portal-has-search .nav-actions .logout::before{
+    inset:4px;border-color:#dce6e5;background:#fff
   }
   .portal-has-search .nav-actions .lang svg{display:none}
   .portal-global-search-input-row{min-height:46px;gap:8px;padding-inline:11px 0}
