@@ -459,17 +459,6 @@ button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible,te
 
 .btn > svg { flex-shrink: 0; }
 
-.brand-name .portal-customer-name { display: none; }
-@media (max-width: 630px) {
-  .brand-name .portal-customer-name { display: block; }
-  .brand-name.has-portal-customer .portal-workshop-name {
-    margin-top: 2px;
-    font-size: 12px;
-    font-weight: 600;
-    color: #446469;
-  }
-}
-
 @media (max-width: 680px) {
   .public-home { padding-inline: 14px; }
   .public-hero .hero-text { padding: 22px 16px; min-width: 0; overflow-wrap: anywhere; }
