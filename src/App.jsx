@@ -36,7 +36,7 @@ function Header({brand,lang,setLang,logout,authenticated,t,demoMode=false,sessio
   return <header className={'header'+(session?' portal-has-search':'')}><div className="wrap nav">
     <a href={demoMode ? "/demo" : "/"} className="brand">
       {brand?.hasLogo?<img alt="" src={portalApi.logoUrl}/>:<img alt="" src="/icon.svg" className="brand-fallback-logo"/>}
-      <span className="brand-name"><strong title={headerName}>{headerName}</strong></span>
+      <span className="brand-name"><strong className="portal-workshop-name" title={headerName}>{headerName}</strong></span>
     </a>
     {session&&<PortalGlobalSearch session={session} t={t} onVehicleOpen={onVehicleOpen}/>}
     <div className="nav-actions">
@@ -282,9 +282,10 @@ function Dashboard({data,brand,t,lang,onRefresh,refreshing,refreshError,lastRefr
   </main>;
 }
 const homeView = { kind: 'home', vehicleId: null, tab: 'overview' };
+const languageStorageKey = 'cubegears:portal-language';
 
 export default function App({demoMode=false,demoView='public'}){
-  const [lang,setLanguage]=useState(() => typeof window !== 'undefined' && window.localStorage.getItem('cubegears:portal-language') === 'ml' ? 'ml' : 'en');
+  const [lang,setLanguage]=useState('en');
   const [branding,setBranding]=useState(demoMode ? demoBranding : null);
   const [data,setData]=useState(demoMode ? demoSession : null);
   const [vehicleView, setVehicleView] = useState(homeView);
@@ -336,7 +337,11 @@ export default function App({demoMode=false,demoView='public'}){
     window.addEventListener('popstate',onPopState);
     return()=>window.removeEventListener('popstate',onPopState);
   },[demoMode,state,data]);
-  function setLang(next){setLanguage(next);localStorage.setItem('cubegears:portal-language',next);}
+  useEffect(()=>{
+    // Read the browser preference after the first render matches the server HTML.
+    if(localStorage.getItem(languageStorageKey)==='ml')setLanguage('ml');
+  },[]);
+  function setLang(next){setLanguage(next);localStorage.setItem(languageStorageKey,next);}
   useEffect(()=>{
     if(demoMode){document.title='cubixgear Demo Garage';return undefined;}
     let active=true;
