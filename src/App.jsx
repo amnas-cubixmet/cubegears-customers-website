@@ -31,15 +31,12 @@ function updateSiteFavicon(brand){
 }
 
 function Header({brand,lang,setLang,logout,authenticated,t,demoMode=false,session,onVehicleOpen}){
-  const customerName = typeof session?.customer?.name === 'string' ? session.customer.name.trim() : '';
-  const workshopName = brand?.publicName || brand?.name || 'cubixgear';
+  const workshopName = brand?.publicName?.trim() || brand?.name?.trim() || 'cubixgear';
+  const [headerName] = workshopName.split(/\s+/, 1);
   return <header className={'header'+(session?' portal-has-search':'')}><div className="wrap nav">
     <a href={demoMode ? "/demo" : "/"} className="brand">
       {brand?.hasLogo?<img alt="" src={portalApi.logoUrl}/>:<img alt="" src="/icon.svg" className="brand-fallback-logo"/>}
-      <span className={`brand-name${customerName ? ' has-portal-customer' : ''}`}>
-        {customerName && <strong className="portal-customer-name" title={customerName}>{customerName}</strong>}
-        <strong className="portal-workshop-name" title={workshopName}>{workshopName}</strong>
-      </span>
+      <span className="brand-name"><strong title={headerName}>{headerName}</strong></span>
     </a>
     {session&&<PortalGlobalSearch session={session} t={t} onVehicleOpen={onVehicleOpen}/>}
     <div className="nav-actions">
