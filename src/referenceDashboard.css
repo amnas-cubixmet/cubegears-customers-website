@@ -97,8 +97,11 @@ body:has(.ref-dashboard) .nav-actions .logout{background:#fff;border-color:#dce8
 .ref-activity-head h2{font-size:17px;line-height:1.25;margin:5px 0 0;color:var(--portal-text-primary)}
 .ref-activity-count{padding:6px 10px;border-radius:999px;background:var(--portal-brand-soft);color:var(--portal-text-primary);font-size:11px;white-space:nowrap}
 .ref-activity-items{display:grid}
-.ref-activity-item{display:flex;align-items:center;gap:11px;min-width:0;padding:11px 0;border-bottom:1px solid var(--portal-border)}
+.ref-activity-item{display:flex;align-items:center;gap:11px;min-width:0;min-height:44px;padding:11px 0;border:0;border-bottom:1px solid var(--portal-border);background:transparent;text-align:start}
 .ref-activity-item:last-child{border:0}
+.ref-activity-item:is(:hover,:focus-visible){background:var(--portal-brand-soft)}
+.ref-activity-item:focus-visible{outline-offset:-2px}
+.ref-activity-chevron{flex:none;color:var(--portal-brand)}
 .ref-activity-icon{display:grid;place-items:center;flex:0 0 36px;height:36px;border-radius:11px;background:var(--portal-brand-soft);color:var(--portal-brand)}
 .ref-activity-copy{display:grid;gap:4px;flex:1;min-width:0}
 .ref-activity-copy strong{font-size:13px;color:var(--portal-text-primary);overflow-wrap:anywhere}
@@ -136,6 +139,8 @@ body:has(.ref-dashboard) .nav-actions .logout{background:#fff;border-color:#dce8
 .ref-dashboard .history{border-color:var(--portal-border)}
 .ref-dashboard .history strong{color:var(--portal-text-primary)}
 .ref-dashboard .history span,.ref-dashboard .history small{color:var(--portal-text-secondary)}
+.ref-vehicle-tab-panel :is(.job,.history)[tabindex="-1"]{scroll-margin-top:115px}
+.ref-vehicle-tab-panel :is(.job,.history)[tabindex="-1"]:focus{outline:2px solid var(--portal-brand);outline-offset:2px}
 .ref-dashboard .document{border-color:var(--portal-border);align-items:flex-start}
 .ref-dashboard .document strong,.ref-dashboard .document>b{color:var(--portal-text-primary)}
 .ref-dashboard .document small{color:var(--portal-text-secondary)}
@@ -226,10 +231,11 @@ body:has(.ref-dashboard) .nav-actions .logout{background:#fff;border-color:#dce8
  .ref-dashboard .section-head h2,.ref-feature-heading h2,.ref-activity-head h2{font-size:var(--ui-card-title)}
  .ref-dashboard .job-top h3{font-size:var(--ui-card-title)}
  .ref-activity-item {
-   display:grid;grid-template-columns:32px minmax(0,1fr);
+   display:grid;grid-template-columns:32px minmax(0,1fr) 16px;
    align-items:start;gap:6px 9px;
  }
  .ref-activity-icon{grid-row:1 / span 2;height:32px}
+ .ref-activity-chevron{grid-column:3;grid-row:1 / span 2;align-self:center}
  .ref-activity-status{grid-column:2;justify-self:start;max-width:100%;padding:4px 8px;text-align:start}
  .ref-activity-count{padding:4px 8px}
  .ref-dashboard .document strong,.ref-dashboard .history strong{font-size:var(--ui-text)}

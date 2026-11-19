@@ -17,12 +17,14 @@ function Timeline({ job, t }) {
   );
 }
 
-export function ActiveJobRecords({ jobs, t, lang }) {
+export function ActiveJobRecords({ jobs, t, lang, selectedJobId, selectedJobRef }) {
   return (
     <section className="surface">
       <div className="section-head"><Wrench size={20} aria-hidden="true"/><h2>{t.active}</h2><span>{jobs.length}</span></div>
       {jobs.map(job => (
-        <article className="job" key={job.id}>
+        <article className="job" key={job.id}
+          ref={job.id === selectedJobId ? selectedJobRef : undefined}
+          tabIndex={job.id === selectedJobId ? -1 : undefined}>
           <div className="job-top">
             <div><small>{job.number}</small><h3>{job.vehicleRegistration}</h3><p>{job.vehicleModel}</p></div>
             <span className="tag">{t[job.stage] || job.status}</span>
@@ -36,12 +38,14 @@ export function ActiveJobRecords({ jobs, t, lang }) {
   );
 }
 
-export function ServiceHistoryRecords({ jobs, t, lang }) {
+export function ServiceHistoryRecords({ jobs, t, lang, selectedJobId, selectedJobRef }) {
   return (
     <section className="surface">
       <div className="section-head"><Clock3 size={20} aria-hidden="true"/><h2>{t.history}</h2></div>
       {jobs.map(job => (
-        <div className="history" key={job.id}>
+        <div className="history" key={job.id}
+          ref={job.id === selectedJobId ? selectedJobRef : undefined}
+          tabIndex={job.id === selectedJobId ? -1 : undefined}>
           <strong>{job.vehicleRegistration}</strong><span>{job.number}</span>
           <small>{t[job.stage] || job.status} · {niceDate(job.createdAt, lang)}</small>
         </div>
