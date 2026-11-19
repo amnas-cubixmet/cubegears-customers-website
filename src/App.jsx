@@ -1,16 +1,17 @@
 'use client';
 import {useEffect,useMemo,useRef,useState} from 'react';
-import {CarFront,CheckCircle2,Clock3,Download,FileText,Images,Globe2,Link2,LogOut,MapPin,Phone,RefreshCw,ShieldCheck,Wallet,Wrench} from 'lucide-react';
+import {CarFront,CheckCircle2,ChevronRight,Clock3,FileText,Images,Globe2,Link2,LogOut,MapPin,Phone,RefreshCw,ShieldCheck,Wallet,Wrench} from 'lucide-react';
 import {portalApi} from './api';
 import {capturePendingAccessToken} from './accessLink';
 import {demoBranding,demoSession} from './demoData';
-import {copy,stages,inProgress,niceDate,rupees,cleanPhone,whatsappDigits} from './i18n';
-import {invoiceTotals,invoicePaymentLabel} from './portalBilling';
+import {copy,inProgress,niceDate,rupees,cleanPhone,whatsappDigits} from './i18n';
+import {invoiceTotals} from './portalBilling';
 import PublishedInspectionGallery from './components/PublishedInspectionGallery';
 import VehicleOverviewCard, { RecentServiceActivity } from './components/VehicleOverviewCard';
 import { dashboardRoute, vehicleListPath, vehicleUrl } from './portalRouting';
 import CustomerHomeDashboard from './components/CustomerHomeDashboard';
 import PortalGlobalSearch from './components/PortalGlobalSearch';
+import { ActiveJobRecords, InvoiceRecords, ServiceHistoryRecords } from './components/PortalRecords';
 
 function Contacts({brand,t}){
   const phone=cleanPhone(brand?.phone);
@@ -131,10 +132,6 @@ function PublicPage({brand,t,demoMode=false}){
   </main>;
 }
 
-function Timeline({job,t}){
-  const current=Math.max(0,stages.indexOf(job.stage));
-  return <ol className="timeline" aria-label={t.step}>{stages.map((s,i)=><li className={i<=current?'done':''} aria-current={i===current?'step':undefined} key={s}><span>{i<=current?<CheckCircle2 size={17}/>:<span className="empty-dot"/>}</span>{t[s]||s}</li>)}</ol>;
-}
 const vehicleTabs = [
   { key: 'overview', label: 'overviewTab', Icon: CarFront },
   { key: 'maintenance', label: 'maintenanceTab', Icon: Wrench },
@@ -159,7 +156,7 @@ function Dashboard({data,brand,t,lang,onRefresh,refreshing,refreshError,lastRefr
   function selectTab(tab, focus = false) {
     if (focus) tabButtons.current[tab]?.focus({ preventScroll: true });
     if (tab === activeTab) return;
-    if (tabContent.current.getBoundingClientRect().top < 0) {
+    if (tabContent.current.getBoundingClientRect().top < 115) {
       tabContent.current.scrollIntoView({ block: 'start' });
     }
     onTabChange(tab);
@@ -185,11 +182,16 @@ function Dashboard({data,brand,t,lang,onRefresh,refreshing,refreshError,lastRefr
   const scopedJobIds=new Set(scopedJobs.map(j=>String(j.id)));
   const scopedInvoices=(data.invoices||[]).filter(i=>scopedJobIds.has(String(i.jobId)) ||
     (!i.jobId && i.vehicleId && String(i.vehicleId)===String(selected)));
-  const jobs=scopedJobs;
-  const active=jobs.filter(j=>inProgress.has(j.status));
-  const history=jobs.filter(j=>!inProgress.has(j.status));
+  const active=scopedJobs.filter(j=>inProgress.has(j.status));
+  const history=scopedJobs.filter(j=>!inProgress.has(j.status));
   const photos=(data.photos||[]).filter(p=>String(p.vehicleId)===String(selected));
   const totals=invoiceTotals(scopedInvoices);
+  const metrics = [
+    { Icon: CarFront, label: t.vehicles, value: vehicles.length },
+    { Icon: Wrench, label: t.active, value: active.length, tab: 'maintenance' },
+    { Icon: Clock3, label: t.history, value: history.length, tab: 'history' },
+    { Icon: Wallet, label: t.outstanding, value: rupees(totals.outstanding), tab: 'documents' },
+  ];
   return <main className="wrap dashboard ref-dashboard ref-vehicle-details">
     <div className="portal-vehicle-navigation">
       <nav className="portal-vehicle-breadcrumb" aria-label={t.breadcrumbLabel}>
@@ -224,59 +226,33 @@ function Dashboard({data,brand,t,lang,onRefresh,refreshing,refreshError,lastRefr
             selected={selected} onSelect={onVehicleOpen} onShowPhotos={() => selectTab('photos', true)} lang={lang} t={t}/>
           <div className="ref-dashboard-rail">
             <div className="stats" aria-label={t.serviceAtGlance}>
-              <button type="button" className="stat portal-vehicle-list-button" onClick={onVehicleList}>
-                <CarFront size={24} aria-hidden="true"/><div><strong>{vehicles.length}</strong><span>{t.vehicles}</span></div>
-              </button>
-              <div className="stat"><Wrench size={24}/><div><strong>{scopedJobs.filter(j=>inProgress.has(j.status)).length}</strong><span>{t.active}</span></div></div>
-              <div className="stat"><Clock3 size={24}/><div><strong>{scopedJobs.filter(j=>!inProgress.has(j.status)).length}</strong><span>{t.history}</span></div></div>
-              <div className="stat"><Wallet size={24}/><div><strong className="stat-money">{rupees(totals.outstanding)}</strong><span>{t.outstanding}</span></div></div>
+              {metrics.map(({ Icon, label, value, tab }) => (
+                <button key={label} type="button" className="stat portal-metric-action"
+                  aria-controls={tab ? `vehicle-panel-${tab}` : undefined}
+                  onClick={tab ? () => selectTab(tab, true) : onVehicleList}>
+                  <Icon size={24} aria-hidden="true"/>
+                  <div><strong className={tab === 'documents' ? 'stat-money' : undefined}>{value}</strong><span>{label}</span></div>
+                  <ChevronRight className="portal-metric-arrow" size={16} aria-hidden="true"/>
+                </button>
+              ))}
             </div>
             <RecentServiceActivity jobs={scopedJobs} lang={lang} t={t}/>
           </div>
         </div>
       </VehicleTabPanel>
       <VehicleTabPanel tab="maintenance" activeTab={activeTab}>
-        <section className="surface"><div className="section-head"><Wrench size={20}/><h2>{t.active}</h2><span>{active.length}</span></div>
-          {active.map(job=><article className="job" key={job.id}><div className="job-top"><div><small>{job.number}</small><h3>{job.vehicleRegistration}</h3><p>{job.vehicleModel}</p></div><span className="tag">{t[job.stage]||job.status}</span></div><Timeline job={job} t={t}/><small className="date">{t.date}: {niceDate(job.createdAt,lang)}</small></article>)}
-          {!active.length&&<p className="muted">{t.noData}</p>}
-        </section>
+        <ActiveJobRecords jobs={active} t={t} lang={lang}/>
       </VehicleTabPanel>
       <VehicleTabPanel tab="history" activeTab={activeTab}>
-        <section className="surface"><div className="section-head"><Clock3 size={20}/><h2>{t.history}</h2></div>
-          {history.map(job=><div className="history" key={job.id}><strong>{job.vehicleRegistration}</strong><span>{job.number}</span><small>{t[job.stage]||job.status} · {niceDate(job.createdAt,lang)}</small></div>)}
-          {!history.length&&<p className="muted">{t.noData}</p>}
-        </section>
+        <ServiceHistoryRecords jobs={history} t={t} lang={lang}/>
       </VehicleTabPanel>
       <VehicleTabPanel tab="photos" activeTab={activeTab}>
         <PublishedInspectionGallery photos={photos} t={t} lang={lang}/>
       </VehicleTabPanel>
       <VehicleTabPanel tab="documents" activeTab={activeTab}>
-        <section className="surface"><div className="section-head"><FileText size={20}/><h2>{t.documents}</h2></div>
-          {scopedInvoices.map(invoice => (
-            <div className="document portal-document" key={invoice.id || invoice.number}>
-              <div>
-                <strong>{invoice.number}</strong>
-                <small>{invoicePaymentLabel(invoice, t)}</small>
-                <small>{t.paidAmount}: {rupees(invoice.paid)} · {t.balanceDue}: {rupees(invoice.balance)}</small>
-              </div>
-              <aside className="portal-document-actions">
-                <b>{rupees(invoice.total)}</b>
-                {invoice.id && <a className="btn btn-outline" href={portalApi.invoicePdfUrl(invoice.id)} download>
-                  <Download size={17} aria-hidden="true"/>{t.downloadPdf}
-                </a>}
-              </aside>
-            </div>
-          ))}
-          {!scopedInvoices.length && <p className="muted">{t.noData}</p>}
-          {totals.count>0&&<div className="portal-balance-summary">
-            <h3>{t.invoiceOverview}</h3>
-            <div><span>{t.invoiced}</span><strong>{rupees(totals.total)}</strong></div>
-            <div><span>{t.paidAmount}</span><strong>{rupees(totals.paid)}</strong></div>
-            <div className="portal-due"><span>{t.balanceDue}</span><strong>{rupees(totals.outstanding)}</strong></div>
-            <p>{t.balanceNote}</p>
-          </div>}
+        <InvoiceRecords invoices={scopedInvoices} totals={totals} t={t}>
           <hr/><h3>{t.contact}</h3><strong>{brand?.publicName||brand?.name}</strong><p className="muted">{brand?.address}</p><Contacts brand={brand} t={t}/>
-        </section>
+        </InvoiceRecords>
       </VehicleTabPanel>
     </div>
   </main>;
@@ -432,7 +408,7 @@ export default function App({demoMode=false,demoView='public'}){
     {state==='error'&&<main className="wrap center" role="alert"><ShieldCheck size={43}/><h1>{t[errorKind]}</h1><p>{t.accessNote}</p><button className="btn btn-outline" onClick={()=>{setState('loading');setAccessRetry(count=>count+1);}}>{t.retry}</button></main>}
     {state==='public'&&<PublicPage brand={branding} t={t} demoMode={demoMode}/>}
     {state==='dashboard'&&data&&(!vehicleView.vehicleId
-      ? <CustomerHomeDashboard data={data} t={t} lang={lang} onVehicleOpen={openVehicle} vehiclesOnly={vehicleView.kind === 'vehicles'}
+      ? <CustomerHomeDashboard data={data} t={t} lang={lang} onVehicleOpen={openVehicle} onVehicleList={openVehicleList} vehiclesOnly={vehicleView.kind === 'vehicles'}
           onRefresh={refresh} refreshing={refreshing} refreshError={refreshError} lastRefreshed={lastRefreshed}/>
       : <Dashboard key={vehicleView.vehicleId} data={data} brand={branding} t={t} lang={lang} vehicleId={vehicleView.vehicleId}
           activeTab={vehicleView.tab} onTabChange={tab => setVehicleView(current => ({ ...current, tab }))}
