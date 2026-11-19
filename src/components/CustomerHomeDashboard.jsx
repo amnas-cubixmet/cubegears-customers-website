@@ -1,10 +1,11 @@
 'use client';
-import { useState } from 'react';
-import { CarFront, Clock3, FileText, Wrench, Wallet } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { CarFront, ChevronRight, Clock3, FileText, Wrench, Wallet } from 'lucide-react';
 import { portalApi } from '../api';
 import { niceDate, inProgress, rupees } from '../i18n';
 import { invoiceTotals } from '../portalBilling';
 import { vehicleUrl } from '../portalRouting';
+import { ActiveJobRecords, InvoiceRecords, ServiceHistoryRecords } from './PortalRecords';
 
 function latestFirst(items) {
   return [...items].sort((a,b) => (Date.parse(b.createdAt || '') || 0) - (Date.parse(a.createdAt || '') || 0));
@@ -33,15 +34,32 @@ function VehicleListPhoto({ vehicle, photos, t }) {
   );
 }
 
-export default function CustomerHomeDashboard({ data, t, lang, onVehicleOpen, onRefresh, refreshing,
+export default function CustomerHomeDashboard({ data, t, lang, onVehicleOpen, onVehicleList, onRefresh, refreshing,
   refreshError, lastRefreshed, vehiclesOnly }) {
+  const [recordSection, setRecordSection] = useState(null);
+  const records = useRef(null);
+  useEffect(() => {
+    if (recordSection && !vehiclesOnly) {
+      records.current.focus({ preventScroll: true });
+      records.current.scrollIntoView({ block: 'start' });
+    }
+  }, [recordSection, vehiclesOnly]);
+
   const vehicles = data.vehicles || [];
   const jobs = data.jobs || [];
   const allPhotos = data.photos || []; // Only server-published, tenant- and customer-scoped photos
   const latest = latestFirst(jobs);
-  const latestActive = latest.find(j => inProgress.has(j.status));
-  const latestWork = latestActive || latest[0];
-  const totals = invoiceTotals(data.invoices);
+  const active = latest.filter(job => inProgress.has(job.status));
+  const history = latest.filter(job => !inProgress.has(job.status));
+  const latestWork = active[0] || latest[0];
+  const invoices = data.invoices || [];
+  const totals = invoiceTotals(invoices);
+  const metrics = [
+    { key: 'vehicles', Icon: CarFront, label: t.vehicles, value: vehicles.length },
+    { key: 'active', Icon: Wrench, label: t.active, value: active.length },
+    { key: 'history', Icon: Clock3, label: t.history, value: history.length },
+    { key: 'invoices', Icon: Wallet, label: t.outstanding, value: rupees(totals.outstanding) },
+  ];
   const VehicleListHeading = vehiclesOnly ? 'h1' : 'h2';
   const vehicleLabel = id => {
     const vehicle = vehicles.find(v => String(v.id) === String(id));
@@ -66,10 +84,15 @@ export default function CustomerHomeDashboard({ data, t, lang, onVehicleOpen, on
       {refreshError && <p className="portal-refresh-error" role="alert">{refreshError}</p>}
       {!vehiclesOnly && <section className="portal-home-overview" aria-label={t.serviceAtGlance}>
         <div className="portal-home-metrics">
-          <div className="portal-home-metric"><CarFront size={20} aria-hidden="true"/><strong>{vehicles.length}</strong><span>{t.vehicles}</span></div>
-          <div className="portal-home-metric"><Wrench size={20} aria-hidden="true"/><strong>{jobs.filter(j => inProgress.has(j.status)).length}</strong><span>{t.active}</span></div>
-          <div className="portal-home-metric"><Clock3 size={20} aria-hidden="true"/><strong>{jobs.filter(j => !inProgress.has(j.status)).length}</strong><span>{t.history}</span></div>
-          <div className="portal-home-metric"><Wallet size={20} aria-hidden="true"/><strong>{rupees(totals.outstanding)}</strong><span>{t.outstanding}</span></div>
+          {metrics.map(({ key, Icon, label, value }) => (
+            <button key={key} type="button" className="portal-home-metric portal-metric-action"
+              aria-expanded={key === 'vehicles' ? undefined : recordSection === key}
+              aria-controls={key === 'vehicles' ? undefined : 'portal-home-records'}
+              onClick={key === 'vehicles' ? onVehicleList : () => setRecordSection(current => current === key ? null : key)}>
+              <Icon size={20} aria-hidden="true"/><strong>{value}</strong><span>{label}</span>
+              <ChevronRight className="portal-metric-arrow" size={16} aria-hidden="true"/>
+            </button>
+          ))}
         </div>
         <div className="portal-home-latest">
           <div className="portal-home-latest-header">
@@ -95,6 +118,14 @@ export default function CustomerHomeDashboard({ data, t, lang, onVehicleOpen, on
           </> : <p className="portal-home-muted">{t.noServiceYet}</p>}
         </div>
       </section>}
+
+      {!vehiclesOnly && <div className="portal-home-records" id="portal-home-records" ref={records}
+        role="region" aria-label={metrics.find(metric => metric.key === recordSection)?.label}
+        hidden={!recordSection} tabIndex={-1}>
+        {recordSection === 'active' && <ActiveJobRecords jobs={active} t={t} lang={lang}/>}
+        {recordSection === 'history' && <ServiceHistoryRecords jobs={history} t={t} lang={lang}/>}
+        {recordSection === 'invoices' && <InvoiceRecords invoices={invoices} totals={totals} t={t}/>}
+      </div>}
 
       <section className="portal-home-all-vehicles" id="vehicles" aria-labelledby="portal-home-vehicles-heading">
         <div className="portal-home-section-heading">
