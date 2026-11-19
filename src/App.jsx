@@ -152,14 +152,29 @@ function Dashboard({data,brand,t,lang,onRefresh,refreshing,refreshError,lastRefr
   const selected = vehicleId;
   const tabButtons = useRef({});
   const tabContent = useRef(null);
+  const [selectedJobId, setSelectedJobId] = useState(null);
+  const selectedJobRef = useRef(null);
+
+  useEffect(() => {
+    const record = selectedJobRef.current;
+    if (!record) return;
+    record.focus({ preventScroll: true });
+    record.scrollIntoView({ block: 'start' });
+  }, [activeTab, selectedJobId]);
 
   function selectTab(tab, focus = false) {
+    setSelectedJobId(null);
     if (focus) tabButtons.current[tab]?.focus({ preventScroll: true });
     if (tab === activeTab) return;
     if (tabContent.current.getBoundingClientRect().top < 115) {
       tabContent.current.scrollIntoView({ block: 'start' });
     }
     onTabChange(tab);
+  }
+
+  function openRecentJob(job) {
+    selectTab(inProgress.has(job.status) ? 'maintenance' : 'history');
+    setSelectedJobId(job.id);
   }
 
   function onTabKeyDown(event, index) {
@@ -236,15 +251,15 @@ function Dashboard({data,brand,t,lang,onRefresh,refreshing,refreshError,lastRefr
                 </button>
               ))}
             </div>
-            <RecentServiceActivity jobs={scopedJobs} lang={lang} t={t}/>
+            <RecentServiceActivity jobs={scopedJobs} onJobOpen={openRecentJob} lang={lang} t={t}/>
           </div>
         </div>
       </VehicleTabPanel>
       <VehicleTabPanel tab="maintenance" activeTab={activeTab}>
-        <ActiveJobRecords jobs={active} t={t} lang={lang}/>
+        <ActiveJobRecords jobs={active} t={t} lang={lang} selectedJobId={selectedJobId} selectedJobRef={selectedJobRef}/>
       </VehicleTabPanel>
       <VehicleTabPanel tab="history" activeTab={activeTab}>
-        <ServiceHistoryRecords jobs={history} t={t} lang={lang}/>
+        <ServiceHistoryRecords jobs={history} t={t} lang={lang} selectedJobId={selectedJobId} selectedJobRef={selectedJobRef}/>
       </VehicleTabPanel>
       <VehicleTabPanel tab="photos" activeTab={activeTab}>
         <PublishedInspectionGallery photos={photos} t={t} lang={lang}/>

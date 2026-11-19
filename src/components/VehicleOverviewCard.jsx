@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { CarFront, CheckCircle2, Clock3, Image as ImageIcon, Wrench } from 'lucide-react';
+import { CarFront, CheckCircle2, ChevronRight, Clock3, Image as ImageIcon, Wrench } from 'lucide-react';
 import { portalApi } from '../api';
 import { niceDate, inProgress } from '../i18n';
 
@@ -84,7 +84,7 @@ export default function VehicleOverviewCard({ vehicles = [], jobs = [], photos =
   );
 }
 
-export function RecentServiceActivity({ jobs = [], lang, t }) {
+export function RecentServiceActivity({ jobs = [], onJobOpen, lang, t }) {
   const activity = newest(jobs).slice(0, 3);
   return (
     <section className="ref-recent-activity" aria-label={t.recentActivity}>
@@ -98,19 +98,20 @@ export function RecentServiceActivity({ jobs = [], lang, t }) {
       {activity.length ? (
         <div className="ref-activity-items">
           {activity.map(job => (
-            <div className="ref-activity-item" key={job.id}>
+            <button type="button" className="ref-activity-item" key={job.id} onClick={() => onJobOpen(job)}>
               <span className="ref-activity-icon">
                 {inProgress.has(job.status) ? <Wrench size={16} aria-hidden="true"/> :
                   <CheckCircle2 size={17} aria-hidden="true"/>}
               </span>
-              <div className="ref-activity-copy">
+              <span className="ref-activity-copy">
                 <strong>{job.vehicleRegistration || job.vehicleModel || job.number}</strong>
                 <small>{job.number} · {niceDate(job.createdAt, lang)}</small>
-              </div>
+              </span>
               <span className={'ref-activity-status' + (inProgress.has(job.status) ? ' ref-activity-active' : '')}>
                 {t[job.stage] || job.status}
               </span>
-            </div>
+              <ChevronRight className="ref-activity-chevron" size={16} aria-hidden="true"/>
+            </button>
           ))}
         </div>
       ) : (
