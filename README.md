@@ -144,12 +144,18 @@ and its reverse proxy performs that overwrite. Leave `USE_X_FORWARDED_HOST`
 disabled on Django. The API edge must overwrite `X-Forwarded-Proto` with the
 TLS scheme before proxying to the private Django listener.
 
-For Vercel hosting, attach `*.customer.cubixgear.tech` to the single Customer
-Website project. With external DNS, use Vercel's wildcard CNAME and delegate
-only `_acme-challenge.customer.cubixgear.tech` for automatic certificate
-issuance and renewal. Check whether the current customer certificate uses that
-challenge name before delegating it. Confirm the project serves the intended
-Git commit and its plan permits commercial use before cutover.
+For **Vercel hosting**, attach `*.customer.cubixgear.tech` to the **one**
+Customer Website project. Vercel wildcard domains require the **nameserver
+method** so Vercel can complete DNS-01 challenges and renew TLS certificates.
+A wildcard CNAME alone, or delegating only `_acme-challenge`, is **not**
+a supported substitute. Follow the exact nameservers Vercel displays.
+If the `cubixgear.tech` apex DNS must remain elsewhere, assess delegating
+the `customer.cubixgear.tech` DNS zone to Vercel rather than switching the
+entire apex; preserve existing mail/API/app DNS and verify the delegation with
+your DNS provider and Vercel first. Alternatively retain the existing reverse
+proxy plus separately managed wildcard DNS-01 certificate described above.
+Confirm the Vercel project serves the intended Git commit and that its plan
+allows the intended commercial deployment.
 
 Before enabling link issuance, verify an existing workshop hostname resolves
 with a valid matching TLS certificate. `/api/portal/branding` must return
@@ -172,7 +178,14 @@ No per-workshop domain purchase, Vercel custom-domain registration,
 DNS TXT verification or custom-domain approval workflow is supported.
 
 Run `npm test` to validate default workshop hostname signatures and
-cross-origin protection before deployment.
+cross-origin protection before deployment. After DNS, SSL, Django and Vercel
+environments are configured, run
+`npm run verify:portal -- <existing-workshop>.customer.cubixgear.tech`.
+This checks the public branding response, unauthenticated private-session
+response, and denial of an unknown workshop hostname without using customer
+access tokens. It cannot prove a specific customer's authenticated workflow;
+complete that check manually with a test customer. A successful command does
+not itself verify Vercel project settings or database migration state.
 
 ## Safe fictional demo data
 
