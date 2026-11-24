@@ -12,7 +12,7 @@ try {
     parsed.protocol !== 'https:' ||
     parsed.username || parsed.password || parsed.port ||
     parsed.pathname !== '/' || parsed.search || parsed.hash ||
-    !/^[a-z0-9-]+(?:\\.[a-z0-9-]+){2,}$/.test(parsed.hostname)
+    !/^[a-z0-9-]+(?:\.[a-z0-9-]+){2,}$/.test(parsed.hostname)
   ) throw new Error('Invalid hostname');
 } catch {
   console.error('Usage: npm run verify:portal -- <active-workshop>.customer.cubixgear.tech');
