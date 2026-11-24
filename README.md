@@ -144,18 +144,15 @@ and its reverse proxy performs that overwrite. Leave `USE_X_FORWARDED_HOST`
 disabled on Django. The API edge must overwrite `X-Forwarded-Proto` with the
 TLS scheme before proxying to the private Django listener.
 
-For **Vercel hosting**, attach `*.customer.cubixgear.tech` to the **one**
-Customer Website project. Vercel wildcard domains require the **nameserver
-method** so Vercel can complete DNS-01 challenges and renew TLS certificates.
-A wildcard CNAME alone, or delegating only `_acme-challenge`, is **not**
-a supported substitute. Follow the exact nameservers Vercel displays.
-If the `cubixgear.tech` apex DNS must remain elsewhere, assess delegating
-the `customer.cubixgear.tech` DNS zone to Vercel rather than switching the
-entire apex; preserve existing mail/API/app DNS and verify the delegation with
-your DNS provider and Vercel first. Alternatively retain the existing reverse
-proxy plus separately managed wildcard DNS-01 certificate described above.
-Confirm the Vercel project serves the intended Git commit and that its plan
-allows the intended commercial deployment.
+For **Vercel hosting**, attach `*.customer.cubixgear.tech` to the Customer
+Website project. With external DNS, enable Vercel DNS for the team domain and
+add a CNAME for `*.customer` to `cname.vercel-dns-0.com.` in the
+`cubixgear.tech` zone. For certificate issuance and renewal, add two NS
+records for `_acme-challenge.customer` pointing to `ns1.vercel-dns.com.`
+and `ns2.vercel-dns.com.`. Confirm ownership and certificate status in
+the project settings and verify that the project deploys the intended commit.
+
+[Vercel wildcard domains with external DNS](https://vercel.com/docs/domains/working-with-domains/add-a-domain#use-wildcard-domains-with-an-external-dns-provider)
 
 Before enabling link issuance, verify an existing workshop hostname resolves
 with a valid matching TLS certificate. `/api/portal/branding` must return
@@ -171,9 +168,9 @@ active workshop. Unknown or custom external hostnames are denied. Secure
 tracking links still require a valid, revocable customer-specific access token;
 a public workshop homepage does not expose private customer records.
 
-Workshop owners can change their **Default Website Subdomain** under
-Company Panel → Settings → Customer Website. The change only modifies
-their public label; existing private tracking links should be sent again.
+Workshop owners can change or disable their **Website Subdomain** under
+Company Panel → Settings → Customer Website. A rename retires the old address. Reissue links after renaming. Disabling a
+website also pauses customer tracking.
 No per-workshop domain purchase, Vercel custom-domain registration,
 DNS TXT verification or custom-domain approval workflow is supported.
 

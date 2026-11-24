@@ -15,16 +15,25 @@ async function call(path, method = 'GET', data, signal) {
     method,headers,signal,credentials:'same-origin',cache:'no-store',
     referrerPolicy:'no-referrer',body:data === undefined ? undefined : data instanceof FormData ? data : JSON.stringify(data)
   });
-  const payload = await result.json().catch(() => ({}));
+  const payload = await result.json().catch(() => null);
   if (!result.ok) {
-    const error = new Error(payload.message || 'Request failed');
+    const error = new Error(payload?.message || 'Request failed');
     error.status = result.status;
     throw error;
   }
   return payload;
 }
 export const portalApi = {
-  branding: signal => call('/branding','GET',undefined,signal),
+  async branding(signal) {
+    const branding = await call('/branding', 'GET', undefined, signal);
+    if (typeof branding?.name !== 'string' || !branding.name.trim()
+      || (branding.publicName !== undefined && typeof branding.publicName !== 'string')) {
+      const error = new Error('Invalid website configuration.');
+      error.code = 'INVALID_BRANDING';
+      throw error;
+    }
+    return branding;
+  },
   session: signal => call('/session','GET',undefined,signal),
   exchange: (token,signal) => call('/session','POST',{token},signal),
   logout: () => call('/logout','POST',{}),

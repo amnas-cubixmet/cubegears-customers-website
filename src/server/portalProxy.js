@@ -10,7 +10,7 @@ export async function handlePortalRequest(request, segments) {
   const hostname = host.split(':', 1)[0];
   const isLocal = process.env.NODE_ENV !== 'production' &&
     (['localhost', '127.0.0.1'].includes(hostname) ||
-      /^[a-z0-9](?:[a-z0-9-]{1,61}[a-z0-9])?\.localhost$/.test(hostname));
+      /^[a-z0-9][a-z0-9-]{1,61}[a-z0-9]\.localhost$/.test(hostname));
   if (!isLocal && host !== hostname) {
     return new Response(null, { status: 404 });
   }
@@ -20,7 +20,7 @@ export async function handlePortalRequest(request, segments) {
     .trim().toLowerCase().replace(/^\.+|\.+$/g, '');
   const label = root && hostname.endsWith('.' + root)
     ? hostname.slice(0, -root.length - 1) : '';
-  const isWorkshopHost = /^[a-z0-9](?:[a-z0-9-]{1,61}[a-z0-9])?$/.test(label);
+  const isWorkshopHost = /^[a-z0-9][a-z0-9-]{1,61}[a-z0-9]$/.test(label);
   if (!isLocal && !isWorkshopHost) {
     return new Response(null, { status: 404 });
   }
@@ -117,8 +117,10 @@ export async function handlePortalRequest(request, segments) {
     }
     // Do not forward untrusted Location or upstream caching headers.
     return new Response(await upstream.arrayBuffer(), { status: upstream.status, headers });
-  } catch {
-    return Response.json({ message: 'Workshop service is temporarily unavailable.' },
-      { status: 502, headers: { 'Cache-Control': 'private, no-store' } });
+  } catch (error) {
+    const timedOut = error?.name === 'TimeoutError';
+    return Response.json({
+      message: timedOut ? 'The workshop request timed out.' : 'Workshop service is temporarily unavailable.',
+    }, { status: timedOut ? 504 : 502, headers: { 'Cache-Control': 'private, no-store' } });
   }
 }

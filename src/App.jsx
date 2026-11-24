@@ -355,7 +355,7 @@ export default function App({demoMode=false,demoView='public'}){
       window.history.replaceState({},'','/');
     }
     (async()=>{
-      let exchangeStarted=false;
+      let stage='branding';
       try{
         const brand=await portalApi.branding(controller.signal);
         if(!active)return;
@@ -364,10 +364,11 @@ export default function App({demoMode=false,demoView='public'}){
         document.title=(brand.publicName||brand.name||'Workshop')+' | cubixgear';
         if(token){
           setState('signing');
-          exchangeStarted=true;
+          stage='exchange';
           await portalApi.exchange(token,controller.signal);
           if(!active)return;
         }
+        stage='session';
         try{
           const response=await portalApi.session(controller.signal);
           if(!active)return;
@@ -387,11 +388,21 @@ export default function App({demoMode=false,demoView='public'}){
         }
       }catch(e){
         if(!active)return;
-        // Only a 404 from the token exchange itself says that the link is
-        // invalid. Branding failures and CSRF 403s are service/config errors.
-        const invalid=exchangeStarted && e.status===404;
-        if(invalid)pendingAccessToken.current=null;
-        setErrorKind(invalid?'invalid':'unavailable');
+        let kind='unavailable';
+        if(e.status===404){
+          if(stage==='exchange'){
+            pendingAccessToken.current=null;
+            kind='invalid';
+          }else kind='websiteNotFound';
+        }else if(e.status===504)kind='websiteTimeout';
+        else if(e.code==='INVALID_BRANDING')kind='websiteConfigError';
+        if(kind!=='invalid'){
+          setBranding(null);
+          setData(null);
+          updateSiteFavicon(null);
+          document.title='cubixgear';
+        }
+        setErrorKind(kind);
         setState('error');
       }
     })();
@@ -409,7 +420,14 @@ export default function App({demoMode=false,demoView='public'}){
       setLastRefreshed(new Date().toISOString());
     }catch(error){
       if(error.status===401){setData(null);setState('public');}
-      else setRefreshError(t.refreshFailed);
+      else if(error.status===404){
+        setBranding(null);
+        setData(null);
+        updateSiteFavicon(null);
+        document.title='cubixgear';
+        setErrorKind('websiteNotFound');
+        setState('error');
+      }else setRefreshError(t.refreshFailed);
     }finally{setRefreshing(false);}
   }
   async function logout(){try{await portalApi.logout();setData(null);setVehicleView(homeView);window.history.replaceState({},'','/');setState('public');}catch{setErrorKind('unavailable');setState('error');}}
@@ -420,7 +438,7 @@ export default function App({demoMode=false,demoView='public'}){
       session={state==='dashboard'?data:null} onVehicleOpen={openVehicle}/>
     {demoMode&&<div className="demo-banner" role="note"><div className="wrap demo-banner-content"><span><strong>{t.demoLabel}</strong> — {t.demoNotice}</span><a href={demoView==='portal'?'/demo':'/demo/portal'}>{demoView==='portal'?t.demoWorkshop:t.demoTrack} </a></div></div>}
     {['loading','signing'].includes(state)&&<main className="wrap center" role="status"><div className="spinner"/><h1>{state==='signing'?t.signing:t.loading}</h1></main>}
-    {state==='error'&&<main className="wrap center" role="alert"><ShieldCheck size={43}/><h1>{t[errorKind]}</h1><p>{t.accessNote}</p><button className="btn btn-outline" onClick={()=>{setState('loading');setAccessRetry(count=>count+1);}}>{t.retry}</button></main>}
+    {state==='error'&&<main className="wrap center" role="alert"><ShieldCheck size={43}/><h1>{t[errorKind]}</h1>{errorKind==='invalid'&&<p>{t.accessNote}</p>}<button className="btn btn-outline" onClick={()=>{setState('loading');setAccessRetry(count=>count+1);}}>{t.retry}</button></main>}
     {state==='public'&&<PublicPage brand={branding} t={t} demoMode={demoMode}/>}
     {state==='dashboard'&&data&&(!vehicleView.vehicleId
       ? <CustomerHomeDashboard data={data} t={t} lang={lang} onVehicleOpen={openVehicle} onVehicleList={openVehicleList} vehiclesOnly={vehicleView.kind === 'vehicles'}
